@@ -216,22 +216,25 @@ class CommentsService {
   async findOne(id) {
     try {
       const comment = await db.Comment.findOne({
-        where: { id },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+            where: {
+              id: productId,
+            },
+          },
+          {
+            model: db.User,
+            as: "userData",
+          },
+        ],
       });
 
-      const user = await userService.getOneUserById(comment.userId);
-      const product = await productService.getProductById(comment.productId);
-
-      const result = {
-        ...comment.toJSON(),
-        userData: user,
-        productData: product,
-      };
-
-      if (!result) {
+      if (!comment) {
         return { message: "Comment not found", id };
       }
-      return result;
+      return comment;
     } catch (error) {
       throw new Error(error.message);
     }
