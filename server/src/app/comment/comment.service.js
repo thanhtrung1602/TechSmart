@@ -121,7 +121,6 @@ class CommentsService {
 
       // Kết hợp dữ liệu
       const rows = comments.map((comment) => ({
-        ...comment.toJSON(),
         userData: users.find((user) => user.id === comment.userId) || null,
         productData:
           products.find((product) => product.id === comment.productId) || null,
@@ -185,7 +184,6 @@ class CommentsService {
 
       const result = comments.rows.map((comment) => {
         return {
-          ...comment.toJSON(),
           userData: users.find((user) => user.id === comment.userId) || null,
           productData:
             products.find((product) => product.id === comment.productId) ||
@@ -196,7 +194,6 @@ class CommentsService {
                 reply.commentId === comment.id && reply.isAdmin === true
             )
             .map((reply) => ({
-              ...reply.toJSON(),
               userData: users.find((user) => user.id === reply.userId) || null, // Gắn userData vào reply
             })),
         };
@@ -223,7 +220,6 @@ class CommentsService {
       const product = await productService.getProductById(comment.productId);
 
       const result = {
-        ...comment.toJSON(),
         userData: user,
         productData: product,
       };
