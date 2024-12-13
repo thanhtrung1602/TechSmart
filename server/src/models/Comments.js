@@ -5,7 +5,15 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Comment.belongsTo(models.User, {
         foreignKey: "userId",
+        targetKey: "id",
+        as: "userData",
       })
+      Comment.belongsTo(models.Product, {
+        foreignKey: "productId",
+        targetKey: "id",
+        as: "productData",
+      })
+
     }
   }
   Comment.init(

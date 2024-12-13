@@ -60,7 +60,9 @@ class OrderService {
       const orderIds = [...new Set(rows.map((order) => order.storeId))];
       const orderStatusId = [...new Set(rows.map((order) => order.statusId))];
       const addressId = [...new Set(rows.map((order) => order.addressId))];
-      const paymentMethodId = [...new Set(rows.map((order) => order.paymentMethodId))];
+      const paymentMethodId = [
+        ...new Set(rows.map((order) => order.paymentMethodId)),
+      ];
       const userId = [...new Set(rows.map((order) => order.userId))];
 
       const statusData = await db.StatusOrder.findAll({
@@ -114,7 +116,9 @@ class OrderService {
       const orderIds = [...new Set(rows.map((order) => order.storeId))];
       const orderStatusId = [...new Set(rows.map((order) => order.statusId))];
       const addressId = [...new Set(rows.map((order) => order.addressId))];
-      const paymentMethodId = [...new Set(rows.map((order) => order.paymentMethodId))];
+      const paymentMethodId = [
+        ...new Set(rows.map((order) => order.paymentMethodId)),
+      ];
       const userId = [...new Set(rows.map((order) => order.userId))];
 
       const statusData = await db.StatusOrder.findAll({
@@ -389,7 +393,6 @@ class OrderService {
         ],
       });
 
-
       const statusOrderId = [...new Set(rows.map((o) => o.statusId))];
       const paymentMethodId = [...new Set(rows.map((o) => o.paymentMethodId))];
       const addressId = [...new Set(rows.map((o) => o.addressId))];
@@ -601,7 +604,7 @@ class OrderService {
             as: "paymentMethods",
           },
         ],
-
+      });
       const statusOrderId = [
         ...new Set(getOrderByIdUser.map((o) => o.statusId)),
       ];
