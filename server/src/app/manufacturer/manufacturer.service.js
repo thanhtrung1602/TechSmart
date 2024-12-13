@@ -1,25 +1,22 @@
 const db = require("../../models/index");
 const { Op } = require("sequelize");
 const categoryService = require("../category/category.service");
-class ManufacturerService {
-  //filteredManufacturer
 
+class ManufacturerService {
   async filteredManufacturer(
     limit,
-    offSet,
+    offset,
     category,
     manufacturer,
     search,
     visible
   ) {
     try {
-      // Nếu category hợp lệ, lấy categorySlug, ngược lại không thực hiện gì
       const categorySlug =
         category && category !== "null"
           ? await categoryService.getCategorySlug(category)
           : null;
 
-      // Tạo điều kiện tìm kiếm
       const searchCondition =
         search && search.trim() !== "" && search !== "null"
           ? {
@@ -29,192 +26,135 @@ class ManufacturerService {
               ],
             }
           : null;
+
       const visibleCondition =
         visible === true || visible === false
-          ? { visible: visible } // Filter by visible status (true or false)
+          ? { visible: visible }
           : null;
-      // Điều kiện lọc theo category nếu categorySlug hợp lệ
+
       const categoryCondition =
         categorySlug && categorySlug.id
           ? { categoryId: categorySlug.id }
           : null;
 
-      // Điều kiện lọc theo manufacturer
       const manufacturerCondition =
         manufacturer && manufacturer !== "null" ? { id: manufacturer } : null;
 
-      // Kết hợp các điều kiện lại với nhau
       const whereCondition = {
         [Op.and]: [
           searchCondition,
           categoryCondition,
           manufacturerCondition,
           visibleCondition,
-        ].filter(Boolean), // Loại bỏ các điều kiện null
+        ].filter(Boolean),
       };
 
-      // Lấy tất cả các category nếu categorySlug hợp lệ
-      const categories = categorySlug
-        ? await categoryService.findAllCategoryById(categorySlug.id)
-        : [];
-
-      // Lấy dữ liệu manufacturer với phân trang
       const { count, rows } = await db.ManuFacturer.findAndCountAll({
-        where: whereCondition ? whereCondition : {},
-        limit: limit,
-        offset: offSet,
+        where: whereCondition,
+        limit,
+        offset,
+        include: [
+          {
+            model: db.Category,
+            as: "Category",
+          },
+        ],
       });
 
-      // Map kết quả để thêm dữ liệu category vào manufacturer
-      const result = rows?.map((item) => ({
-        ...item.toJSON(),
-        categoryData:
-          categories.find((cat) => cat.id === item.categoryId) || null,
-      }));
-
-      console.log("Rows: ", rows);
-
-      // Trả về tổng số lượng và các manufacturer đã lọc
-      return { count, rows: result };
+      return { count, rows };
     } catch (error) {
       console.error(error);
       throw new Error(error.message);
     }
   }
 
-  //Find all manufacturers
-
   async findAll() {
     try {
-      const getAllManufacturer = await db.ManuFacturer.findAll();
-
-      const categoryIds = [
-        ...new Set(getAllManufacturer.map((item) => item.categoryId)),
-      ];
-
-      const categories = await categoryService.findAllCategoryById(categoryIds);
-
-      const result = getAllManufacturer.map((item) => ({
-        ...item.toJSON(),
-        categoryData:
-          categories.find((cat) => cat.id === item.categoryId)?.toJSON() ||
-          null,
-      }));
-
-      return result;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
-  //Get all manufacturers
-
-  async getAllManufacturer(limit, offSet) {
-    try {
-      const { count, rows } = await db.ManuFacturer.findAndCountAll({
-        limit: limit,
-        offset: offSet,
+      const manufacturers = await db.ManuFacturer.findAll({
+        include: [
+          {
+            model: db.Category,
+            as: "Category",
+          },
+        ],
       });
 
-      const categoryIds = [...new Set(rows?.map((item) => item.categoryId))];
-
-      const categories = await categoryService.findAllCategoryById(categoryIds);
-
-      const result = rows?.map((item) => ({
-        ...item.toJSON(),
-        categoryData:
-          categories.find((cat) => cat.id === item.categoryId)?.toJSON() ||
-          null,
-      }));
-
-      return { count, rows: result };
+      return manufacturers;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  //Get one manufacturer by id
+  async getAllManufacturer(limit, offset) {
+    try {
+      const { count, rows } = await db.ManuFacturer.findAndCountAll({
+        limit,
+        offset,
+        include: [
+          {
+            model: db.Category,
+            as: "Category",
+          },
+        ],
+      });
+
+      return { count, rows };
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 
   async getOneManufacturerById(numberId) {
     try {
-      const getOneManufacturerById = await db.ManuFacturer.findOne({
+      const manufacturer = await db.ManuFacturer.findOne({
         where: {
           id: numberId,
         },
+        include: [
+          {
+            model: db.Category,
+            as: "Category",
+          },
+        ],
       });
 
-      if (!getOneManufacturerById) {
+      if (!manufacturer) {
         return { error: `Không tìm thấy Manufacturer by id ${numberId}` };
       }
 
-      return getOneManufacturerById;
+      return manufacturer;
     } catch (error) {
       throw new Error(error.message);
     }
   }
-
-  //Get all manufacturer by id
-
-  async getAllManufacturerById(numberId) {
-    try {
-      const getAllManufacturerById = await db.ManuFacturer.findAll({
-        where: {
-          id: numberId,
-        },
-      });
-
-      if (!getAllManufacturerById) {
-        return { error: `Không tìm thấy Manufacturer by id ${numberId}` };
-      }
-
-      return getAllManufacturerById;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
-  //Get one manufacturer by id category
 
   async getManufacturerByCategory(slug) {
     try {
       const category = await categoryService.getCategorySlug(slug);
 
-      const getManufacturerByCategory = await db.ManuFacturer.findAll({
-        include: [
-          {
-            model: db.Categories,
-            as: "categoryData",
-            where: {
-              slug: slug,
-            },
-          },
-        ],
-      });
-
-      const getManufacturerByCategory = category
+      const manufacturers = category
         ? await db.ManuFacturer.findAll({
             where: {
               categoryId: category.id,
             },
+            include: [
+              {
+                model: db.Category,
+                as: "Category",
+              },
+            ],
           })
         : [];
 
-      const result = getManufacturerByCategory.map((manufacturer) => ({
-        ...manufacturer.toJSON(),
-        categoryData: category.toJSON(), // Gắn thêm dữ liệu của category
-      }));
-
-      return result;
+      return manufacturers;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  //Create manufacturer
-
   async createManufacturer(categoryId, name, slug, file, visible) {
     try {
-      const createManufacturer = await db.ManuFacturer.create({
+      const manufacturer = await db.ManuFacturer.create({
         name,
         slug,
         categoryId,
@@ -222,32 +162,27 @@ class ManufacturerService {
         visible,
       });
 
-      return createManufacturer;
+      return manufacturer;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  //Update manufacturer
-
   async updateManufacturer(categoryId, name, slug, id, file, visible) {
-    console.log(categoryId, name, slug, id, file, visible);
     try {
-      const getOneManufacturerById = await db.ManuFacturer.findOne({
+      const manufacturer = await db.ManuFacturer.findOne({
         where: {
-          id: id,
+          id,
         },
       });
 
-      if (!getOneManufacturerById) {
+      if (!manufacturer) {
         return { error: `Không tìm thấy Manufacturer by id ${id}` };
       }
 
-      const fileImg = file ? file : getOneManufacturerById.img;
+      const fileImg = file || manufacturer.img;
 
-      console.log(fileImg);
-
-      const updateManufacturer = await db.ManuFacturer.update(
+      const updated = await db.ManuFacturer.update(
         {
           categoryId,
           name,
@@ -262,87 +197,64 @@ class ManufacturerService {
         }
       );
 
-      if (updateManufacturer) {
-        return { message: "update successfully!" };
-      }
+      return updated[0] > 0
+        ? { message: "Update successfully!" }
+        : { error: "Update failed!" };
     } catch (error) {
       throw new Error(error.message);
     }
   }
-
-  //Delete manufacturer
 
   async delManufacturer(id) {
     try {
-      const getOneManufacturerById = await db.ManuFacturer.findOne({
-        where: {
-          id: id,
-        },
-      });
-
-      if (!getOneManufacturerById) {
-        return { error: `Không tìm thấy Manufacturer by id ${numberId}` };
-      }
-
-      const delManufacturer = await db.ManuFacturer.destroy({
-        where: {
-          id: id,
-        },
-      });
-
-      if (delManufacturer) {
-        return { message: "update successfully!" };
-      }
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-  async updateManufacturerByVisible(id) {
-    try {
-      // Tìm đối tượng theo ID
-      const checkManuFacturer = await db.ManuFacturer.findOne({
+      const manufacturer = await db.ManuFacturer.findOne({
         where: {
           id,
         },
       });
 
-      // Kiểm tra nếu đối tượng không tồn tại
-      if (!checkManuFacturer) {
+      if (!manufacturer) {
+        return { error: `Không tìm thấy Manufacturer by id ${id}` };
+      }
+
+      const deleted = await db.ManuFacturer.destroy({
+        where: {
+          id,
+        },
+      });
+
+      return deleted > 0
+        ? { message: "Deleted successfully!" }
+        : { error: "Delete failed!" };
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async updateManufacturerByVisible(id) {
+    try {
+      const manufacturer = await db.ManuFacturer.findOne({
+        where: {
+          id,
+        },
+      });
+
+      if (!manufacturer) {
         return { error: "Đối tượng không tồn tại" };
       }
 
-      const manuFacturer = checkManuFacturer.dataValues;
-
-      if (manuFacturer.visible === false) {
-        const updateManufacturer = await db.ManuFacturer.update(
-          { visible: true },
-          {
-            where: {
-              id,
-            },
-          }
-        );
-
-        if (updateManufacturer[0] > 0) {
-          return { message: "Update visible thành công" };
-        } else {
-          return { error: "Update visible thất bại" };
+      const updated = await db.ManuFacturer.update(
+        { visible: !manufacturer.visible },
+        {
+          where: {
+            id,
+          },
         }
-      } else if (manuFacturer.visible === true) {
-        const updateManufacturer = await db.ManuFacturer.update(
-          { visible: false },
-          {
-            where: {
-              id,
-            },
-          }
-        );
-        if (updateManufacturer[0] > 0) {
-          return { message: "Update visible thành công" };
-        } else {
-          return { error: "Update visible thất bại" };
-        }
-      }
+      );
+
+      return updated[0] > 0
+        ? { message: "Update visible thành công" }
+        : { error: "Update visible thất bại" };
     } catch (error) {
       throw new Error(error.message);
     }
