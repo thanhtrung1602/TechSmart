@@ -10,7 +10,7 @@ class CategoryAttributeService {
       const categoryAttributes = await db.CategoryAttribute.findAll({
         include: [
           {
-            model: db.Category,
+            model: db.Categories,
             as: "categoryData",
           },
           {
@@ -32,7 +32,7 @@ class CategoryAttributeService {
         where: { id },
         include: [
           {
-            model: db.Category,
+            model: db.Categories,
             as: "categoryData",
           },
           {
@@ -54,7 +54,7 @@ class CategoryAttributeService {
         where: { categoryId },
         include: [
           {
-            model: db.Category,
+            model: db.Categories,
             as: "categoryData",
           },
           {
@@ -76,7 +76,7 @@ class CategoryAttributeService {
         where: { attributeId },
         include: [
           {
-            model: db.Category,
+            model: db.Categories,
             as: "categoryData",
           },
           {

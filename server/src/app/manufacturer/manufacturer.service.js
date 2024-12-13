@@ -20,11 +20,11 @@ class ManufacturerService {
       const searchCondition =
         search && search.trim() !== "" && search !== "null"
           ? {
-              [Op.or]: [
-                { name: { [Op.iLike]: `%${search}%` } },
-                { slug: { [Op.iLike]: `%${search}%` } },
-              ],
-            }
+            [Op.or]: [
+              { name: { [Op.iLike]: `%${search}%` } },
+              { slug: { [Op.iLike]: `%${search}%` } },
+            ],
+          }
           : null;
 
       const visibleCondition =
@@ -55,8 +55,8 @@ class ManufacturerService {
         offset,
         include: [
           {
-            model: db.Category,
-            as: "Category",
+            model: db.Categories,
+            as: "categoryData",
           },
         ],
       });
@@ -73,8 +73,8 @@ class ManufacturerService {
       const manufacturers = await db.ManuFacturer.findAll({
         include: [
           {
-            model: db.Category,
-            as: "Category",
+            model: db.Categories,
+            as: "categoryData",
           },
         ],
       });
@@ -92,8 +92,8 @@ class ManufacturerService {
         offset,
         include: [
           {
-            model: db.Category,
-            as: "Category",
+            model: db.Categories,
+            as: "categoryData",
           },
         ],
       });
@@ -112,8 +112,8 @@ class ManufacturerService {
         },
         include: [
           {
-            model: db.Category,
-            as: "Category",
+            model: db.Categories,
+            as: "categoryData",
           },
         ],
       });
@@ -134,16 +134,16 @@ class ManufacturerService {
 
       const manufacturers = category
         ? await db.ManuFacturer.findAll({
-            where: {
-              categoryId: category.id,
+          where: {
+            categoryId: category.id,
+          },
+          include: [
+            {
+              model: db.Categories,
+              as: "categoryData",
             },
-            include: [
-              {
-                model: db.Category,
-                as: "Category",
-              },
-            ],
-          })
+          ],
+        })
         : [];
 
       return manufacturers;
