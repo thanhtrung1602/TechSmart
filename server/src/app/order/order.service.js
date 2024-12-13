@@ -215,6 +215,21 @@ class OrderService {
         order: [["createdAt", "DESC"]],
       });
 
+      const allOrders = await db.Order.findAndCountAll({
+        include: [
+          {
+            model: db.StatusOrder,
+            as: "statusData",
+          },
+          {
+            model: db.PaymentMethod,
+            as: "paymentMethods",
+          },
+        ],
+        limit: limit,
+        offset: offSet,
+      });
+
       const statusOrderId = [...new Set(allOrders.map((o) => o.statusId))];
       const paymentMethodId = [
         ...new Set(allOrders.map((o) => o.paymentMethodId)),
@@ -301,6 +316,22 @@ class OrderService {
         },
       });
 
+      const order = await db.Order.findOne({
+        where: {
+          id,
+        },
+        include: [
+          {
+            model: db.StatusOrder,
+            as: "statusData",
+          },
+          {
+            model: db.PaymentMethod,
+            as: "paymentMethods",
+          },
+        ],
+      });
+
       const paymentMethod = await paymentMethodService.findOnePaymentMethodById(
         order.paymentMethodId
       );
@@ -341,6 +372,23 @@ class OrderService {
         offset: offSet,
         limit,
       });
+
+      const orders = await db.Order.findAll({
+        where: {
+          userId,
+        },
+        include: [
+          {
+            model: db.StatusOrder,
+            as: "statusData",
+          },
+          {
+            model: db.PaymentMethod,
+            as: "paymentMethods",
+          },
+        ],
+      });
+
 
       const statusOrderId = [...new Set(rows.map((o) => o.statusId))];
       const paymentMethodId = [...new Set(rows.map((o) => o.paymentMethodId))];
@@ -537,6 +585,22 @@ class OrderService {
           statusId: id,
         },
       });
+
+      const getOrderByIdUser = await db.Order.findAll({
+        where: {
+          userId: id,
+          statusId: id,
+        },
+        include: [
+          {
+            model: db.StatusOrder,
+            as: "statusData",
+          },
+          {
+            model: db.PaymentMethod,
+            as: "paymentMethods",
+          },
+        ],
 
       const statusOrderId = [
         ...new Set(getOrderByIdUser.map((o) => o.statusId)),

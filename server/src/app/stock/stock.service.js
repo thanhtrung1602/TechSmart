@@ -42,13 +42,29 @@ class StockService {
         },
       });
 
+      const findAll = await db.Stock.findAll({
+        where: {
+          productId: id,
+        },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Store,
+            as: "storeData",
+          },
+        ],
+      });
+
       const productId = [...new Set(findAll.map((c) => c.productId))];
-      const storeId = [...new Set(findAll.map((c) => c.storeId))]
+      const storeId = [...new Set(findAll.map((c) => c.storeId))];
 
       const [product, store] = await Promise.all([
         db.Product.findAll({ where: { id: productId } }),
         db.Store.findAll({ where: { id: storeId } }),
-      ])
+      ]);
 
       const result = findAll.map((stock) => ({
         ...stock.toJSON(),
