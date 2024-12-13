@@ -3,6 +3,36 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
     static associate(models) {
+      Order.belongsTo(models.User, {
+        foreignKey: "userId",
+        targetKey: "id",
+        as: "userData",
+      });
+      Order.belongsTo(models.Addresses, {
+        foreignKey: "addressId",
+        targetKey: "id",
+        as: "addressData",
+      })
+      Order.belongsTo(models.StatusOrder, {
+        foreignKey: "statusId",
+        targetKey: "id",
+        as: "statusData",
+      })
+      Order.belongsTo(models.StatusPayment, {
+        foreignKey: "statusPayId",
+        targetKey: "id",
+        as: "statusPayData",
+      })
+      Order.belongsTo(models.PaymentMethod, {
+        foreignKey: "paymentMethodId",
+        targetKey: "id",
+        as: "paymentMethodData",
+      })
+      Order.belongsTo(models.Store, {
+        foreignKey: "storeId",
+        targetKey: "id",
+        as: "storeData",
+      })
     }
   }
   Order.init(

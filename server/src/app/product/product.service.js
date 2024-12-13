@@ -9,16 +9,26 @@ class ProductService {
       const searchCondition =
         query && query.trim() !== ""
           ? {
-              [Op.or]: [
-                { name: { [Op.iLike]: `%${query}%` } },
-                { slug: { [Op.iLike]: `%${query}%` } },
-              ],
-            }
+            [Op.or]: [
+              { name: { [Op.iLike]: `%${query}%` } },
+              { slug: { [Op.iLike]: `%${query}%` } },
+            ],
+          }
           : null;
 
       // Tìm kiếm sản phẩm
       const { count, rows } = await db.Product.findAndCountAll({
         where: searchCondition,
+        include: [
+          {
+            model: db.Category,
+            as: "category",
+          },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturer",
+          },
+        ]
       });
 
       // Lấy danh sách categoryId và manufacturerId từ sản phẩm
@@ -33,30 +43,21 @@ class ProductService {
       const categories =
         categoryIds.length > 0
           ? await db.Categories.findAll({
-              where: { id: { [Op.in]: categoryIds } },
-            })
+            where: { id: { [Op.in]: categoryIds } },
+          })
           : [];
 
       // Tìm kiếm hãng sản xuất
       const manufacturers =
         manufacturerIds.length > 0
           ? await db.ManuFacturer.findAll({
-              where: { id: { [Op.in]: manufacturerIds } },
-            })
+            where: { id: { [Op.in]: manufacturerIds } },
+          })
           : [];
-
-      // Gắn dữ liệu danh mục và hãng sản xuất vào sản phẩm
-      const products = rows.map((product) => ({
-        ...product.toJSON(),
-        categoryData:
-          categories.find((c) => c.id === product.categoryId) || null,
-        manufacturerData:
-          manufacturers.find((m) => m.id === product.manufacturerId) || null,
-      }));
 
       // Trả về kết quả
       return {
-        products,
+        products: rows,
         categories,
         manufacturers,
       };
@@ -88,11 +89,11 @@ class ProductService {
       const searchCondition =
         search && search.trim() !== "" && search !== "null"
           ? {
-              [Op.or]: [
-                { name: { [Op.iLike]: `%${search}%` } },
-                { slug: { [Op.iLike]: `%${search}%` } },
-              ],
-            }
+            [Op.or]: [
+              { name: { [Op.iLike]: `%${search}%` } },
+              { slug: { [Op.iLike]: `%${search}%` } },
+            ],
+          }
           : null;
       const visibleCondition =
         visible === true || visible === false
@@ -117,35 +118,25 @@ class ProductService {
         ].filter(Boolean),
       };
 
-      const categories = categorySlug
-        ? await db.Categories.findAll({ where: { slug: category } })
-        : [];
-      const manufacturers = manufacturerData
-        ? await db.ManuFacturer.findAll({ where: { id: manufacturer } })
-        : [];
-
       const { count, rows } = await db.Product.findAndCountAll({
         where: whereCondition,
+        include: [
+          {
+            model: db.Categories,
+            as: "categoryData",
+          },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
+        ],
         limit,
         offset: offSet,
       });
-
-      const result = {
+      return {
         count,
-        rows: rows.map((product) => ({
-          ...product.toJSON(),
-          categoryData: categories.find((c) => c.id === product.categoryId),
-          manufacturerData: manufacturers.find(
-            (m) => m.id === product.manufacturerId
-          ),
-        })),
+        rows,
       };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -153,47 +144,22 @@ class ProductService {
 
   async getAllProducts(limit, offSet) {
     try {
-      const products = await db.Product.findAll();
-
       const products = await db.Product.findAndCountAll({
         include: [
           {
             model: db.Categories,
             as: "categoryData",
           },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
         ],
         limit: limit,
         offset: offSet,
       });
 
-      const categoryIds = [...new Set(products.map((p) => p.categoryId))];
-      const manufacturerIds = [
-        ...new Set(products.map((p) => p.manufacturerId)),
-      ];
-
-      const [categories, manufacturers] = await Promise.all([
-        db.Categories.findAll({ where: { id: categoryIds } }),
-        db.ManuFacturer.findAll({ where: { id: manufacturerIds } }),
-      ]);
-
-      const paginatedProducts = products.slice(offSet, offSet + limit);
-
-      const result = {
-        count: products.length,
-        rows: paginatedProducts.map((product) => ({
-          ...product.toJSON(),
-          categoryData: categories.find((c) => c.id === product.categoryId),
-          manufacturerData: manufacturers.find(
-            (m) => m.id === product.manufacturerId
-          ),
-        })),
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return products;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -218,35 +184,19 @@ class ProductService {
     try {
       const product = await db.Product.findOne({
         where: { id: id },
-      });
-
-      const product = await db.Product.findOne({
-        where: { id: id },
         include: [
           {
             model: db.Categories,
             as: "categoryData",
           },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
         ],
       });
 
-      const category = await categoryService.getCategoryById(
-        product.categoryId
-      );
-      const manufacturer = await manufacturerService.getOneManufacturerById(
-        product.manufacturerId
-      );
-
-      const result = {
-        ...product.toJSON(),
-        categoryData: category,
-        manufacturerData: manufacturer,
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-      return result;
+      return product;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -257,36 +207,20 @@ class ProductService {
   async getSlugProduct(slug) {
     try {
       const product = await db.Product.findOne({
-        where: { slug: slug },
-      });
-
-      const product = await db.Product.findOne({
         where: { id: id },
         include: [
           {
             model: db.Categories,
             as: "categoryData",
           },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
         ],
       });
 
-      const category = await categoryService.getCategoryById(
-        product.categoryId
-      );
-      const manufacturer = await manufacturerService.getOneManufacturerById(
-        product.manufacturerId
-      );
-
-      const result = {
-        ...product.toJSON(),
-        categoryData: category,
-        manufacturerData: manufacturer,
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-      return result;
+      return product;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -303,31 +237,19 @@ class ProductService {
             [Op.between]: [minPrice, maxPrice],
           },
         },
+        include: [
+          {
+            model: db.Categories,
+            as: "categoryData",
+          },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
+        ],
       });
 
-      const categoryIds = [...new Set(products.map((p) => p.categoryId))];
-      const manufacturerIds = [
-        ...new Set(products.map((p) => p.manufacturerId)),
-      ];
-
-      const [categories, manufacturers] = await Promise.all([
-        db.Categories.findAll({ where: { id: categoryIds } }),
-        db.ManuFacturer.findAll({ where: { id: manufacturerIds } }),
-      ]);
-
-      const result = products.map((product) => ({
-        ...product.toJSON(),
-        categoryData: categories.find((c) => c.id === product.categoryId),
-        manufacturerData: manufacturers.find(
-          (m) => m.id === product.manufacturerId
-        ),
-      }));
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return products;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -341,31 +263,19 @@ class ProductService {
         where: {
           visible,
         },
+        include: [
+          {
+            model: db.Categories,
+            as: "categoryData",
+          },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
+        ],
       });
 
-      const categoryIds = [...new Set(products.map((p) => p.categoryId))];
-      const manufacturerIds = [
-        ...new Set(products.map((p) => p.manufacturerId)),
-      ];
-
-      const [categories, manufacturers] = await Promise.all([
-        db.Categories.findAll({ where: { id: categoryIds } }),
-        db.ManuFacturer.findAll({ where: { id: manufacturerIds } }),
-      ]);
-
-      const result = products.map((product) => ({
-        ...product.toJSON(),
-        categoryData: categories.find((c) => c.id === product.categoryId),
-        manufacturerData: manufacturers.find(
-          (m) => m.id === product.manufacturerId
-        ),
-      }));
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return products;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -382,15 +292,6 @@ class ProductService {
     maxPrice
   ) {
     try {
-      const products = await db.Product.findAll({
-        where: {
-          manufacturerId,
-          price: {
-            [Op.between]: [minPrice, maxPrice],
-          },
-        },
-      });
-
       const products = await db.Product.findAndCountAll({
         where: {
           price: {
@@ -398,6 +299,10 @@ class ProductService {
           },
         },
         include: [
+          {
+            model: db.Categories,
+            as: "categoryData",
+          },
           {
             model: db.ManuFacturer,
             as: "manufacturerData",
@@ -410,34 +315,7 @@ class ProductService {
         offset: offSet,
       });
 
-      const categoryIds = [...new Set(products.map((p) => p.categoryId))];
-      const manufacturerIds = [
-        ...new Set(products.map((p) => p.manufacturerId)),
-      ];
-
-      const [categories, manufacturers] = await Promise.all([
-        db.Categories.findAll({ where: { id: categoryIds } }),
-        db.ManuFacturer.findAll({ where: { id: manufacturerIds } }),
-      ]);
-
-      const paginatedProducts = products.slice(offSet, offSet + limit);
-
-      const result = {
-        count: products.length,
-        rows: paginatedProducts.map((product) => ({
-          ...product.toJSON(),
-          categoryData: categories.find((c) => c.id === product.categoryId),
-          manufacturerData: manufacturers.find(
-            (m) => m.id === product.manufacturerId
-          ),
-        })),
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return products;
     } catch (error) {
       throw new Error(error);
     }
@@ -453,15 +331,6 @@ class ProductService {
     maxPrice
   ) {
     try {
-      // Lấy tất cả sản phẩm theo mức giá
-      const products = await db.Product.findAll({
-        where: {
-          price: {
-            [Op.between]: [minPrice, maxPrice],
-          },
-        },
-      });
-
       const productOfManufacturerCategoryAndPrice =
         await db.Product.findAndCountAll({
           where: {
@@ -495,59 +364,7 @@ class ProductService {
           offset: offSet,
         });
 
-      const category = await db.Categories.findOne({
-        where: {
-          slug: categorySlug,
-        },
-      });
-
-      // Truy vấn manufacturer và category từ slug
-      const manufacturer = await db.ManuFacturer.findOne({
-        where: {
-          slug: manufacturerSlug,
-          categoryId: category.id,
-        },
-      });
-
-      // Lọc các sản phẩm theo manufacturerId và categoryId
-      const filteredProducts = products.filter(
-        (product) =>
-          product.manufacturerId === manufacturer.id &&
-          product.categoryId === category.id
-      );
-
-      //Lấy thông tin của manu và cate
-      const categoryIds = [
-        ...new Set(filteredProducts.map((p) => p.categoryId)),
-      ];
-      const manufacturerIds = [
-        ...new Set(filteredProducts.map((p) => p.manufacturerId)),
-      ];
-
-      const [categories, manufacturers] = await Promise.all([
-        db.Categories.findAll({ where: { id: categoryIds } }),
-        db.ManuFacturer.findAll({ where: { id: manufacturerIds } }),
-      ]);
-
-      //Phân trang
-      const paginatedProducts = filteredProducts.slice(offSet, offSet + limit);
-
-      const result = {
-        count: filteredProducts.length,
-        rows: paginatedProducts.map((product) => ({
-          ...product.toJSON(),
-          categoryData: categories.find((c) => c.id === product.categoryId),
-          manufacturerData: manufacturers.find(
-            (m) => m.id === product.manufacturerId
-          ),
-        })),
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return productOfManufacturerCategoryAndPrice;
     } catch (error) {
       console.error("Detailed error:", error);
       throw new Error("Error fetching products");
@@ -564,6 +381,16 @@ class ProductService {
             [Op.gte]: 50,
           },
         },
+        include: [
+          {
+            model: db.Categories,
+            as: "categoryData",
+          },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
+        ],
         order: [["hot", "DESC"]],
       });
       return products;
@@ -580,6 +407,16 @@ class ProductService {
             [Op.lte]: 10,
           },
         },
+        include: [
+          {
+            model: db.Categories,
+            as: "categoryData",
+          },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
+        ],
         order: [["hot", "ASC"]],
       });
       return products;
@@ -591,13 +428,6 @@ class ProductService {
   // Get products by discount
   async getProductByDiscount(discount) {
     try {
-      // Truy vấn các sản phẩm có discount
-      const products = await db.Product.findAll({
-        where: {
-          discount: discount,
-        },
-      });
-
       const byDiscount = await db.Product.findAndCountAll({
         where: {
           discount: discount,
@@ -607,38 +437,14 @@ class ProductService {
             model: db.Categories,
             as: "categoryData",
           },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
         ],
       });
 
-      // Truy vấn tất cả các category
-      const categories = await db.Categories.findAll();
-      const manufacturers = await db.ManuFacturer.findAll();
-
-      // Lọc các sản phẩm theo categoryId nếu cần (có thể tùy chỉnh thêm nếu cần)
-      const result = {
-        count: products.length,
-        rows: products.map((product) => {
-          // Lấy category tương ứng từ danh sách categories
-          const category = categories.find(
-            (cat) => cat.id === product.categoryId
-          );
-          // Lấy manufacturer tương ứng từ danh sách manufacturers
-          const manufacturer = manufacturers.find(
-            (manu) => manu.id === product.manufacturerId
-          );
-          return {
-            ...product.toJSON(),
-            categoryData: category || null, // Lấy thông tin category nếu có
-            manufacturerData: manufacturer || null, // Lấy thông tin manufacturer nếu có
-          };
-        }),
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return byDiscount;
     } catch (error) {
       console.error("Detailed error:", error);
       throw new Error("Error fetching products by discount");
@@ -648,13 +454,6 @@ class ProductService {
   // Get products by discount and category
   async getProductCategoryDiscount(discount, slug) {
     try {
-      // Truy vấn các sản phẩm có discount
-      const products = await db.Product.findAll({
-        where: {
-          discount: discount,
-        },
-      });
-
       const byDiscount = await db.Product.findAndCountAll({
         where: {
           discount: discount,
@@ -667,40 +466,14 @@ class ProductService {
               slug: slug,
             },
           },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
         ],
       });
-      // Truy vấn tất cả các category với slug
-      const categories = await db.Categories.findAll({
-        where: {
-          slug: slug,
-        },
-      });
 
-      // Lọc các sản phẩm thuộc về category
-      const result = {
-        count: products.length,
-        rows: products
-          .filter((product) => {
-            return categories.some(
-              (category) => category.id === product.categoryId
-            );
-          })
-          .map((product) => {
-            const category = categories.find(
-              (cat) => cat.id === product.categoryId
-            );
-            return {
-              ...product.toJSON(),
-              categoryData: category, // Lấy thông tin category nếu có
-            };
-          }),
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return byDiscount;
     } catch (error) {
       console.error("Detailed error:", error);
       throw new Error("Error fetching products by discount and category");
@@ -711,15 +484,6 @@ class ProductService {
 
   async getProductAllCategory(slug, minPrice, maxPrice) {
     try {
-      // Lấy tất cả sản phẩm trong khoảng giá
-      const products = await db.Product.findAll({
-        where: {
-          price: {
-            [Op.between]: [minPrice, maxPrice],
-          },
-        },
-      });
-
       const productAllCategory = await db.Product.findAndCountAll({
         where: {
           price: {
@@ -734,44 +498,14 @@ class ProductService {
               slug: slug,
             },
           },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
         ],
       });
 
-      // Lấy thông tin category từ slug
-      const category = await db.Categories.findOne({
-        where: { slug: slug },
-      });
-
-      // Lọc các sản phẩm thuộc category đã tìm được
-      const filteredProducts = products.filter(
-        (product) => product.categoryId === category.id
-      );
-
-      // Lấy tất cả manufacturer mà các sản phẩm thuộc về
-      const manufacturerIds = [
-        ...new Set(filteredProducts.map((p) => p.manufacturerId)),
-      ];
-      const manufacturers = await db.ManuFacturer.findAll({
-        where: { id: manufacturerIds },
-      });
-
-      // Thêm thông tin category và manufacturer vào từng sản phẩm
-      const result = {
-        count: filteredProducts.length,
-        rows: filteredProducts.map((product) => ({
-          ...product.toJSON(), // Convert product to plain object
-          categoryData: category, // Thêm thông tin category vào mỗi product
-          manufacturerData: manufacturers.find(
-            (mfg) => mfg.id === product.manufacturerId
-          ), // Thêm thông tin manufacturer vào mỗi product
-        })),
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return productAllCategory;
     } catch (error) {
       console.error("Detailed error:", error);
       throw new Error("Error fetching products by category");
@@ -790,33 +524,19 @@ class ProductService {
           },
           manufacturerId: id,
         },
+        include: [
+          {
+            model: db.Categories,
+            as: "categoryData",
+          },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
+        ],
       });
 
-      // Lấy thông tin manufacturer từ id
-      const manufacturer = await db.ManuFacturer.findOne({
-        where: { id: id },
-      });
-
-      //Thêm thống tin category vào từng san pham
-      const categoryIds = [...new Set(products.map((p) => p.categoryId))];
-      const categories = await db.Categories.findAll({
-        where: { id: categoryIds },
-      });
-
-      const result = {
-        count: products.length,
-        rows: products.map((product) => ({
-          ...product.toJSON(), // Convert product to plain object
-          categoryData: categories.find((cat) => cat.id === product.categoryId), // Thêm thông tin category vào mỗi product
-          manufacturerData: manufacturer, // Thêm thông tin manufacturer vào một product
-        })),
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return products;
     } catch (error) {
       console.error("Detailed error:", error);
       throw new Error("Error fetching products by manufacturer");
@@ -826,16 +546,7 @@ class ProductService {
   //Get products by category
   async getProductByCategory(slug, minPrice, maxPrice, limit, offSet) {
     try {
-      // Lấy tất cả sản phẩm trong khoảng giá (không phân trang)
-      const products = await db.Product.findAll({
-        where: {
-          price: {
-            [Op.between]: [minPrice, maxPrice],
-          },
-        },
-      });
-
-      const productAllCategory = await db.Product.findAndCountAll({
+      const { count, rows } = await db.Product.findAndCountAll({
         where: {
           price: {
             [Op.between]: [minPrice, maxPrice],
@@ -849,44 +560,14 @@ class ProductService {
               slug: slug,
             },
           },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
         ],
       });
 
-      // Lấy thông tin category từ slug
-      const category = await db.Categories.findOne({
-        where: { slug: slug },
-      });
-
-      // Lọc các sản phẩm thuộc category đã tìm được
-      const filteredProducts = products.filter(
-        (product) => product.categoryId === category.id
-      );
-
-      // Thực hiện phân trang sau khi đã lọc các sản phẩm
-      const paginatedProducts = filteredProducts.slice(offSet, offSet + limit);
-
-      // Lấy tất cả manufacturers liên quan đến các sản phẩm đã lọc
-      const manufacturerIds = [
-        ...new Set(filteredProducts.map((p) => p.manufacturerId)),
-      ];
-      const manufacturers = await db.ManuFacturer.findAll({
-        where: { id: manufacturerIds },
-      });
-
-      // Thêm thông tin category và manufacturer vào từng sản phẩm
-      const result = paginatedProducts.map((product) => ({
-        ...product.toJSON(), // Chuyển product thành plain object
-        categoryData: category, // Thêm thông tin category vào mỗi product
-        manufacturerData: manufacturers.find(
-          (mfg) => mfg.id === product.manufacturerId
-        ), // Thêm thông tin manufacturer vào mỗi product
-      }));
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return { count: filteredProducts.length, rows: result };
+      return { count, rows };
     } catch (error) {
       console.error("Detailed error:", error);
       throw new Error("Error fetching products by category");
@@ -1034,38 +715,20 @@ class ProductService {
 
   async findAll() {
     try {
-      const getAll = await db.Product.findAll({});
-
       const getAll = await db.Product.findAll({
         include: [
           {
             model: db.Categories,
             as: "categoryData",
           },
+          {
+            model: db.ManuFacturer,
+            as: "manufacturerData",
+          },
         ],
       });
 
-      const categoryIds = [...new Set(getAll.map((p) => p.categoryId))];
-      const manufacturerIds = [...new Set(getAll.map((p) => p.manufacturerId))];
-
-      const [categories, manufacturers] = await Promise.all([
-        db.Categories.findAll({ where: { id: categoryIds } }),
-        db.ManuFacturer.findAll({ where: { id: manufacturerIds } }),
-      ]);
-
-      const result = getAll.map((product) => ({
-        ...product.toJSON(),
-        categoryData: categories.find((c) => c.id === product.categoryId),
-        manufacturerData: manufacturers.find(
-          (m) => m.id === product.manufacturerId
-        ),
-      }));
-
-      if (!result) {
-        return "Không tìm thấy sản phẩm";
-      }
-
-      return result;
+      return getAll;
     } catch (error) {
       throw new Error(error.message);
     }
