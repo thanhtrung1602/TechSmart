@@ -7,13 +7,6 @@ class CartService {
   //Gat cart by user
   async getAllCartByUserId(userId) {
     try {
-      const carts = await db.Cart.findAll({
-        where: {
-          userId,
-        },
-        order: [["createdAt", "DESC"]],
-      });
-
       const { count, rows } = await db.Cart.findAndCountAll({
         where: {
           userId,
@@ -31,20 +24,6 @@ class CartService {
         order: [["createdAt", "DESC"]],
       });
       return { count, rows };
-
-      const user = await userService.getOneUserById(userId);
-      const productIds = [...new Set(carts?.map((cart) => cart.productId))];
-      const products = await productService.findAllProductsById(productIds);
-
-      const result = carts?.map((cart) => ({
-        ...cart.toJSON(),
-        userData: user.toJSON(),
-        productData:
-          products.find((product) => product.id === cart.productId)?.toJSON() ||
-          null,
-      }));
-
-      return { count: result?.length, rows: result };
     } catch (error) {
       console.error("Error in CartService:", error.message);
       throw new Error(error.message);

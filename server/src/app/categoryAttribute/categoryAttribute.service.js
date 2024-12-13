@@ -4,144 +4,125 @@ const attributeService = require("../attribute/attribute.service");
 const categoryService = require("../category/category.service");
 
 class CategoryAttributeService {
-  //Get all
+  // Get all
   async getAll() {
     try {
-      const categoryAttributes = await db.CategoryAttribute.findAll();
-
-      const attributeIds = [
-        ...new Set(categoryAttributes?.map((item) => item.attributeId)),
-      ];
-      const categoryIds = [
-        ...new Set(categoryAttributes?.map((item) => item.categoryId)),
-      ];
-
-      const attributes = await attributeService.findAllAttribute(attributeIds);
-      const categories = await categoryService.findAllCategoryById(categoryIds);
-
-      const result = categoryAttributes?.map((item) => ({
-        ...item.toJSON(),
-        attributeData:
-          attributes.find((attr) => attr.id === item.attributeId)?.toJSON() ||
-          null,
-        categoryData:
-          categories.find((cat) => cat.id === item.categoryId)?.toJSON() ||
-          null,
-      }));
-
-      return result;
+      const categoryAttributes = await db.CategoryAttribute.findAll({
+        include: [
+          {
+            model: db.Category,
+            as: "categoryData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
+      });
+      return categoryAttributes;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  //Get by id
+  // Get by id
   async getById(id) {
     try {
       const categoryAttribute = await db.CategoryAttribute.findOne({
         where: { id },
+        include: [
+          {
+            model: db.Category,
+            as: "categoryData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
-
-      const attribute = await attributeService.getOneAttribute(
-        categoryAttribute.attributeId
-      );
-      const category = await categoryService.getCategoryById(
-        categoryAttribute.categoryId
-      );
-
-      const result = categoryAttributes?.map((item) => ({
-        ...item.toJSON(),
-        attributeData: attribute,
-        categoryData: category,
-      }));
-
-      return result;
+      return categoryAttribute;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  //Get by category
+  // Get by category
   async getByCategory(categoryId) {
     try {
       const categoryAttributes = await db.CategoryAttribute.findAll({
         where: { categoryId },
+        include: [
+          {
+            model: db.Category,
+            as: "categoryData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
-
-      const attributeIds = [
-        ...new Set(categoryAttributes?.map((item) => item.attributeId)),
-      ];
-      const categoryIds = [
-        ...new Set(categoryAttributes?.map((item) => item.categoryId)),
-      ];
-
-      const attributes = await attributeService.findAllAttribute(attributeIds);
-      const categories = await categoryService.findAllCategoryById(categoryIds);
-
-      const result = categoryAttributes?.map((item) => ({
-        ...item.toJSON(),
-        attributeData:
-          attributes.find((attr) => attr.id === item.attributeId)?.toJSON() ||
-          null,
-        categoryData:
-          categories.find((cat) => cat.id === item.categoryId)?.toJSON() ||
-          null,
-      }));
-
-      return result;
+      return categoryAttributes;
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-  //Get by attribute
+  // Get by attribute
   async getByAttribute(attributeId) {
-    const categoryAttributes = await db.CategoryAttribute.findAll({
-      where: { attributeId },
-    });
-
-    const attributeIds = [
-      ...new Set(categoryAttributes?.map((item) => item.attributeId)),
-    ];
-    const categoryIds = [
-      ...new Set(categoryAttributes?.map((item) => item.categoryId)),
-    ];
-
-    const attributes = await attributeService.findAllAttribute(attributeIds);
-    const categories = await categoryService.findAllCategoryById(categoryIds);
-
-    const result = categoryAttributes?.map((item) => ({
-      ...item.toJSON(),
-      attributeData:
-        attributes.find((attr) => attr.id === item.attributeId)?.toJSON() ||
-        null,
-      categoryData:
-        categories.find((cat) => cat.id === item.categoryId)?.toJSON() || null,
-    }));
-
-    return result;
+    try {
+      const categoryAttributes = await db.CategoryAttribute.findAll({
+        where: { attributeId },
+        include: [
+          {
+            model: db.Category,
+            as: "categoryData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
+      });
+      return categoryAttributes;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
-  //Created
+  // Create
   async create(data) {
-    const categoryAttribute = await db.CategoryAttribute.create(data);
-    return categoryAttribute;
+    try {
+      const categoryAttribute = await db.CategoryAttribute.create(data);
+      return categoryAttribute;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
-  //Update
+  // Update
   async update(id, data) {
-    const categoryAttribute = await db.CategoryAttribute.update(data, {
-      where: { id },
-    });
-    return categoryAttribute;
+    try {
+      const categoryAttribute = await db.CategoryAttribute.update(data, {
+        where: { id },
+      });
+      return categoryAttribute;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
-  //Delete
+  // Delete
   async delete(id) {
-    const categoryAttribute = await db.CategoryAttribute.destroy({
-      where: { id },
-    });
-    return categoryAttribute;
+    try {
+      const categoryAttribute = await db.CategoryAttribute.destroy({
+        where: { id },
+      });
+      return categoryAttribute;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
 
