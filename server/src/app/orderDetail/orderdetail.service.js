@@ -2,7 +2,7 @@ const db = require("../../models/index");
 
 class OrderDetailService {
   async createOrderDetail(
-    { orderId, productId, quantity, color, size },
+    { orderId, variantId, quantity, color, size },
     total,
     t
   ) {
@@ -10,7 +10,7 @@ class OrderDetailService {
       const orderDetail = await db.OrderDetail.create(
         {
           orderId,
-          productId,
+          variantId,
           quantity,
           total,
           color,
@@ -33,12 +33,12 @@ class OrderDetailService {
       const orderDetails = await db.OrderDetail.findAll({
         include: [
           {
-            model: db.Product,
-            as: "productData",
-          },
-          {
             model: db.Order,
             as: "orderData",
+          },
+          {
+            model: db.Variant,
+            as: "variantData",
           },
         ],
       });
@@ -56,8 +56,8 @@ class OrderDetailService {
         where: { orderId },
         include: [
           {
-            model: db.Product,
-            as: "productData",
+            model: db.Variant,
+            as: "variantData",
           },
           {
             model: db.Order,

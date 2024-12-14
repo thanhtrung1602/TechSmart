@@ -23,7 +23,6 @@ interface FormData {
   discount: number;
   stock: number;
   visible: boolean;
-  // image: File | string | null;
   attributes: Attribute[];
 }
 

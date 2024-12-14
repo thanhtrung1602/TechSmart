@@ -252,7 +252,7 @@ function Order() {
                       {order.total.toLocaleString()}
                     </td>
                     <td className="py-3 px-4 border-b text-sm">
-                      {order.paymentMethods.type}
+                      {order.paymentMethodData.type}
                     </td>
                     <td
                       className={`py-3 px-4 border-b text-sm ${getStatusColor(
@@ -267,7 +267,7 @@ function Order() {
                     <td className="py-3 px-4 border-b text-center">
                       <Link to={`/orderdetails/${order.id}`}>
                         <button
-                          onClick={() => {}}
+                          onClick={() => { }}
                           className="w-[100%] flex items-center py-2 px-2 text-[#3271ab] bg-blue-100 rounded-lg duration-300 hover:text-blue-600 hover:bg-blue-300"
                         >
                           <span className="text-center text-xs font-semibold">

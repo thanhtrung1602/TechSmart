@@ -423,7 +423,7 @@ class ProductController {
 
     console.log(req.body);
 
-    if (!file || !manufacturerId || !name || !categoryId || !price || !stock) {
+    if (!file || !manufacturerId || !name || !categoryId) {
       return res.status(400).json("invalid value");
     }
     const hashSlug = removeVietnameseTones(name)
@@ -437,7 +437,7 @@ class ProductController {
       hashSlug
     );
 
-    await saveProductsToElasticsearch(product);
+    // await saveProductsToElasticsearch(product);
     if (!product) {
       return res.status(400).json({ message: "Không có sản phẩm" });
     }
