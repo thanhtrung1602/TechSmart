@@ -153,7 +153,7 @@ class ProductService {
 
   async getAllProducts(limit, offSet) {
     try {
-      const products = await db.Product.findAll();
+      // const products = await db.Product.findAll();
 
       const products = await db.Product.findAndCountAll({
         include: [
@@ -216,11 +216,7 @@ class ProductService {
 
   async getProductById(id) {
     try {
-      const product = await db.Product.findOne({
-        where: { id: id },
-      });
-
-      const product = await db.Product.findOne({
+     const product = await db.Product.findOne({
         where: { id: id },
         include: [
           {
