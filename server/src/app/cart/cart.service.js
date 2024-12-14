@@ -41,6 +41,16 @@ class CartService {
           color,
           rom,
         },
+        include: [
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.Product,
+            as: "productData",
+          },
+        ],
       });
 
       if (existingCartItem) {
@@ -84,6 +94,16 @@ class CartService {
           color,
           rom,
         },
+        include: [
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.Product,
+            as: "productData",
+          },
+        ]
       });
 
       const product = await productService.getProductById(cartItem.productId);
@@ -140,6 +160,16 @@ class CartService {
         where: {
           id,
         },
+        include: [
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.Product,
+            as: "productData",
+          },
+        ],
       });
 
       if (!cartItem) {

@@ -7,12 +7,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "userId",
         targetKey: "id",
         as: "userData",
-      });
+      })
       Comment.belongsTo(models.Product, {
         foreignKey: "productId",
         targetKey: "id",
         as: "productData",
-      });
+      })
+
     }
   }
   Comment.init(

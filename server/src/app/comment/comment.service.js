@@ -122,7 +122,6 @@ class CommentsService {
 
       // Kết hợp dữ liệu
       const rows = comments.map((comment) => ({
-        ...comment.toJSON(),
         userData: users.find((user) => user.id === comment.userId) || null,
         productData:
           products.find((product) => product.id === comment.productId) || null,
@@ -161,6 +160,7 @@ class CommentsService {
             as: "userData",
           },
         ],
+        attributes: ["id", "fullname", "phone"],
       });
 
       const commentIds = [...new Set(comments.rows.map((c) => c.id))];
@@ -186,7 +186,6 @@ class CommentsService {
 
       const result = comments.rows.map((comment) => {
         return {
-          ...comment.toJSON(),
           userData: users.find((user) => user.id === comment.userId) || null,
           productData:
             products.find((product) => product.id === comment.productId) ||
@@ -197,7 +196,6 @@ class CommentsService {
                 reply.commentId === comment.id && reply.isAdmin === true
             )
             .map((reply) => ({
-              ...reply.toJSON(),
               userData: users.find((user) => user.id === reply.userId) || null, // Gắn userData vào reply
             })),
         };
@@ -230,8 +228,15 @@ class CommentsService {
             as: "userData",
           },
         ],
+        attributes: ["id", "fullname", "phone"],
       });
+      const user = await userService.getOneUserById(comment.userId);
+      const product = await productService.getProductById(comment.productId);
 
+      const result = {
+        userData: user,
+        productData: product,
+      };
       if (!comment) {
         return { message: "Comment not found", id };
       }
