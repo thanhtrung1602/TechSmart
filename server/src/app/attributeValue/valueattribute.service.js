@@ -52,8 +52,6 @@ class ValueAttributeService {
       });
 
       const result = attributeValues?.map((value) => ({
-        ...value.toJSON(),
-        productData: product.toJSON(),
         attributeData:
           attributes.find((attr) => attr.id === value.attributeId)?.toJSON() ||
           null,
@@ -73,7 +71,18 @@ class ValueAttributeService {
           attributeId,
           value,
           productId,
+
         },
+        include:[
+          {
+            model:db.Attribute,   
+            as:"attributeData"
+          },
+          {
+            model: db.product,
+            as: "productData"
+          }
+        ],
         order: [["id", "DESC"]],
       });
 

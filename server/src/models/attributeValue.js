@@ -12,11 +12,20 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "attributeId",
         targetKey: "id",
         as: "attributeData",
+
       });
+      AttributeValue.belongsTo(models.Product, {
+        foreignKey: "productId",
+        targetKey: "id",
+        as: "productData",
+
+      });
+      
     }
   }
   AttributeValue.init(
     {
+
       attributeId: DataTypes.INTEGER,
       productId: DataTypes.INTEGER,
       value: DataTypes.STRING,
