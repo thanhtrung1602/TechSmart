@@ -16,24 +16,13 @@ class ValueAttributeService {
         where: {
           productId: productId,
         },
-        order: [["id", "DESC"]],
-      });
-
-      const getOneValueAttributeBySlug = await db.AttributeValue.findAll({
         include: [
-          {
-            model: db.Product,
-            as: "productData",
-            where: {
-              slug: slug,
-            },
-          },
           {
             model: db.Attribute,
             as: "attributeData",
           },
         ],
-        order: [["createdAt", "DESC"]],
+        order: [["id", "DESC"]],
       });
 
       if (!attributeValues) {
@@ -41,18 +30,8 @@ class ValueAttributeService {
           error: `Không tìm thấy getOneValueAttributeBySlug by slug ${productId}`,
         };
       }
-      const attributeIds = attributeValues?.map((value) => value.attributeId);
-      const attributes = await db.Attribute.findAll({
-        where: { id: attributeIds },
-      });
 
-      const result = attributeValues?.map((value) => ({
-        attributeData:
-          attributes.find((attr) => attr.id === value.attributeId)?.toJSON() ||
-          null,
-      }));
-
-      return result;
+      return attributeValues;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -94,28 +73,6 @@ class ValueAttributeService {
           },
         ],
       });
-
-      if (!getOneValueAttributeBySlug) {
-        const createValueAttribute = await db.AttributeValue.create(
-          {
-            attributeId,
-            productSlug,
-            value,
-          },
-          {
-            include: [
-              {
-                model: db.Product,
-                as: "productData",
-              },
-              {
-                model: db.Attribute,
-                as: "attributeData",
-              },
-            ],
-          }
-        );
-      }
 
       if (!getOneValueAttributeById) {
         const createValueAttribute = await db.AttributeValue.create({
