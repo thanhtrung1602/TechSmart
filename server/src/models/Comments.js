@@ -13,7 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "productData",
       })
-
+      // Quan hệ cha-con giữa các Comment
+      Comment.hasMany(models.Comment, {
+        as: "replies", // alias cho mối quan hệ replies
+        foreignKey: "commentId", // foreignKey chỉ ra mối quan hệ cha-con
+      });
     }
   }
   Comment.init(

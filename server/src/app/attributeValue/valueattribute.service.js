@@ -12,11 +12,15 @@ class ValueAttributeService {
   }
   async getOneValueAttributeById(productId) {
     try {
-      const attributeValues = await db.AttributeValue.findAll({
+      const getOneValueAttributeBySlug = await db.AttributeValue.findAll({
         where: {
           productId: productId,
         },
         include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
           {
             model: db.Attribute,
             as: "attributeData",
@@ -25,13 +29,13 @@ class ValueAttributeService {
         order: [["id", "DESC"]],
       });
 
-      if (!attributeValues) {
+      if (!getOneValueAttributeBySlug) {
         return {
           error: `Không tìm thấy getOneValueAttributeBySlug by slug ${productId}`,
         };
       }
 
-      return attributeValues;
+      return getOneValueAttributeBySlug;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -57,21 +61,6 @@ class ValueAttributeService {
           },
         ],
         order: [["id", "DESC"]],
-      });
-
-      const getOneValueAttributeBySlug = await db.AttributeValue.findOne({
-        where: {
-          attributeId,
-        },
-        include: [
-          {
-            model: db.Product,
-            as: "productData",
-            where: {
-              slug: productSlug,
-            },
-          },
-        ],
       });
 
       if (!getOneValueAttributeById) {

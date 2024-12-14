@@ -2,7 +2,7 @@ const db = require("../../models/index");
 
 class OrderDetailService {
   async createOrderDetail(
-    { orderId, productId, quantity, color, size },
+    { orderId, variantId, quantity, color, size },
     total,
     t
   ) {
@@ -10,7 +10,7 @@ class OrderDetailService {
       const orderDetail = await db.OrderDetail.create(
         {
           orderId,
-          productId,
+          variantId,
           quantity,
           total,
           color,
@@ -30,54 +30,20 @@ class OrderDetailService {
 
   async getAllOrderDetails() {
     try {
-      // Bước 1: Lấy tất cả OrderDetail
-      const orderDetails = await db.OrderDetail.findAll();
-
-      if (!orderDetails.length) {
-        return { error: "Không tìm thấy OrderDetails" };
-      }
-
       const orderDetails = await db.OrderDetail.findAll({
         include: [
-          {
-            model: db.Product,
-            as: "productData",
-          },
           {
             model: db.Order,
             as: "orderData",
           },
+          {
+            model: db.Variant,
+            as: "variantData",
+          },
         ],
       });
 
-      const productIds = [
-        ...new Set(orderDetails.map((detail) => detail.productId)),
-      ];
-      const products = await db.Product.findAll({
-        where: {
-          id: productIds,
-        },
-      });
-      const orderIds = [
-        ...new Set(orderDetails.map((detail) => detail.orderId)),
-      ];
-      const orders = await db.Order.findAll({
-        where: {
-          id: orderIds,
-        },
-      });
-
-      const result = orderDetails.map((detail) => ({
-        ...detail.toJSON(),
-        productData:
-          products
-            .find((product) => product.id === detail.productId)
-            ?.toJSON() || null,
-        orderData:
-          orders.find((order) => order.id === detail.orderId)?.toJSON() || null,
-      }));
-
-      return result;
+      return orderDetails;
     } catch (error) {
       console.error(error);
       throw new Error(error.message);
@@ -88,79 +54,45 @@ class OrderDetailService {
     try {
       const orderDetails = await db.OrderDetail.findAll({
         where: { orderId },
-      });
-
-      if (!orderDetails.length) {
-        return { error: "Không tìm thấy OrderDetail nào" };
-      }
-
-      const orderDetails = await db.OrderDetail.findAll({
-        where: { orderId },
         include: [
           {
-            model: db.Product,
-            as: "productData",
+            model: db.Variant,
+            as: "variantData",
           },
           {
             model: db.Order,
             as: "orderData",
+            include: [
+              {
+                model: db.User,
+                as: "userData",
+              },
+              {
+                model: db.Addresses,
+                as: "addressData",
+              },
+              {
+                model: db.Store,
+                as: "storeData",
+              },
+              {
+                model: db.StatusOrder,
+                as: "statusData",
+              },
+              {
+                model: db.PaymentMethod,
+                as: "paymentMethodData",
+              },
+              {
+                model: db.StatusPayment,
+                as: "statusPayData",
+              },
+            ],
           },
         ],
       });
 
-      const productIds = [
-        ...new Set(orderDetails.map((detail) => detail.productId)),
-      ];
-      const products = await db.Product.findAll({
-        where: { id: productIds },
-      });
-
-      const order = await db.Order.findOne({
-        where: { id: orderId },
-      });
-
-      if (!order) {
-        return { error: "Không tìm thấy Order" };
-      }
-
-      const user = await db.User.findOne({
-        where: { id: order.userId },
-      });
-
-      const address = await db.Addresses.findOne({
-        where: { id: order.addressId },
-        attributes: ["street", "ward", "district", "province"],
-      });
-
-      const store = await db.Store.findOne({
-        where: { id: order.storeId },
-      });
-
-      const statusOrder = await db.StatusOrder.findOne({
-        where: { id: order.statusId },
-      });
-
-      const paymentMethod = await db.PaymentMethod.findOne({
-        where: { id: order.paymentMethodId },
-      });
-
-      const result = orderDetails.map((detail) => ({
-        ...detail.toJSON(),
-        productData:
-          products
-            .find((product) => product.id === detail.productId)
-            ?.toJSON() || null,
-        orderData: {
-          ...order.toJSON(),
-          userData: user ? user.toJSON() : null,
-          addressData: address ? address.toJSON() : null,
-          statusData: statusOrder ? statusOrder.toJSON() : null,
-          paymentMethods: paymentMethod.toJSON() || null,
-          storeData: store ? store.toJSON() : null,
-        },
-      }));
-
-      return result;
+      return orderDetails;
     } catch (error) {
       throw new Error(error.message);
     }

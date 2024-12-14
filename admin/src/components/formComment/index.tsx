@@ -15,7 +15,6 @@ export default function FormComment({ id }: { id: number }) {
   const adminProfile = useSelector(
     (state: RootState) => state.adminProfile.adminProfile
   );
-  console.log(adminProfile);
   const { mutate } = usePost();
 
   const COMMENT_STATUS = {

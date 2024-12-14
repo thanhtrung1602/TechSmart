@@ -1,7 +1,7 @@
 const db = require("../../models/index");
 const { Op } = require("sequelize");
 const userService = require("../user/user.service");
-const productService = require("../product/product.service");
+const variantService = require("../variant/variant.service");
 
 class CartService {
   //Gat cart by user
@@ -17,9 +17,9 @@ class CartService {
             as: "userData",
           },
           {
-            model: db.Product,
-            as: "productData",
-          },
+            model: db.Variant,
+            as: "variantData",
+          }
         ],
         order: [["createdAt", "DESC"]],
       });
@@ -31,13 +31,13 @@ class CartService {
   }
 
   //Create Cart
-  async createCart({ userId, productId, quantity, color, rom, total }) {
+  async createCart({ userId, variantId, quantity, color, rom, total }) {
     try {
       // Await the result of the findOne call
       const existingCartItem = await db.Cart.findOne({
         where: {
           userId,
-          productId,
+          variantId,
           color,
           rom,
         },
@@ -47,8 +47,8 @@ class CartService {
             as: "userData",
           },
           {
-            model: db.Product,
-            as: "productData",
+            model: db.Variant,
+            as: "variantData",
           },
         ],
       });
@@ -65,7 +65,7 @@ class CartService {
         // If the product does not exist, create a new item in the cart
         const newCartItem = await db.Cart.create({
           userId,
-          productId,
+          variantId,
           quantity: parseInt(quantity),
           color,
           rom,
@@ -100,13 +100,13 @@ class CartService {
             as: "userData",
           },
           {
-            model: db.Product,
-            as: "productData",
+            model: db.Variant,
+            as: "variantData",
           },
         ]
       });
 
-      const product = await productService.getProductById(cartItem.productId);
+      const variant = await variantService.getVariantById(cartItem.variantId);;
 
       if (!cartItem) {
         return { error: "Cart item not found" };
@@ -140,7 +140,7 @@ class CartService {
       };
 
       // Tính giá dựa trên hệ số của ROM
-      const total = getPriceByRom(product.price, rom);
+      const total = getPriceByRom(variant.price, rom);
 
       // Cập nhật quantity và tổng giá
       cartItem.quantity = quantity;
@@ -166,8 +166,8 @@ class CartService {
             as: "userData",
           },
           {
-            model: db.Product,
-            as: "productData",
+            model: db.Variant,
+            as: "variantData",
           },
         ],
       });
@@ -203,11 +203,11 @@ class CartService {
   }
 
   // Delete cart item
-  async deleteCartOrderComplete(productId, color, rom) {
+  async deleteCartOrderComplete(variantId, color, rom) {
     try {
       const cartItem = await db.Cart.destroy({
         where: {
-          productId: productId,
+          variantId: variantId,
           color: color,
           rom: rom,
         },

@@ -49,22 +49,19 @@ const CommentList = () => {
   }>(urlPagination(currentPage, itemsPerPage));
 
   useEffect(() => {
-    if (Array.isArray(commentsPagination?.rows)) {
+    if (commentsPagination && commentsPagination?.rows && commentsPagination?.total) {
       setComments(commentsPagination?.rows);
+      setTotalComments(commentsPagination?.total);
     } else {
       setComments([]);
     }
-  }, [commentsPagination]);
+  }, [commentsPagination.rows, commentsPagination.total]);
 
   useEffect(() => {
-    setComments(newComment);
-  }, [newComment]);
-
-  useEffect(() => {
-    if (commentsPagination) {
-      setTotalComments(commentsPagination.total);
+    if (newComment) {
+      setComments(newComment);
     }
-  }, [commentsPagination]);
+  }, [newComment]);
 
   const handlePageClick = (_event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);

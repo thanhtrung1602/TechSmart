@@ -26,6 +26,8 @@ class ValueAttributeController {
 
     const { attributeId, productId, value } = req.body;
 
+    console.log(req.body)
+
     if (!attributeId || !productId || !value) {
       return res.status(400).json("Invalid input: attributeId, productId, value are required");
     }
