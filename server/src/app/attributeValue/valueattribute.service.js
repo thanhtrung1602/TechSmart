@@ -41,11 +41,6 @@ class ValueAttributeService {
           error: `Không tìm thấy getOneValueAttributeBySlug by slug ${productId}`,
         };
       }
-
-      const product = await db.Product.findOne({
-        where: { id: productId },
-      });
-
       const attributeIds = attributeValues?.map((value) => value.attributeId);
       const attributes = await db.Attribute.findAll({
         where: { id: attributeIds },
@@ -71,17 +66,16 @@ class ValueAttributeService {
           attributeId,
           value,
           productId,
-
         },
-        include:[
+        include: [
           {
-            model:db.Attribute,   
-            as:"attributeData"
+            model: db.Attribute,
+            as: "attributeData",
           },
           {
             model: db.product,
-            as: "productData"
-          }
+            as: "productData",
+          },
         ],
         order: [["id", "DESC"]],
       });
@@ -156,16 +150,16 @@ class ValueAttributeService {
         where: {
           attributeId: attributeId,
         },
-          include: [
-            {
-              model: db.Product,
-              as: "productData",
-            },
-            {
-              model: db.Attribute,
-              as: "attributeData",
-            },
-          ],
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -202,16 +196,16 @@ class ValueAttributeService {
         where: {
           id: id,
         },
-          include: [
-            {
-              model: db.Product,
-              as: "productData",
-            },
-            {
-              model: db.Attribute,
-              as: "attributeData",
-            },
-          ],
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -226,16 +220,16 @@ class ValueAttributeService {
           where: {
             id,
           },
-            include: [
-              {
-                model: db.Product,
-                as: "productData",
-              },
-              {
-                model: db.Attribute,
-                as: "attributeData",
-              },
-            ],
+          include: [
+            {
+              model: db.Product,
+              as: "productData",
+            },
+            {
+              model: db.Attribute,
+              as: "attributeData",
+            },
+          ],
         }
       );
 
@@ -253,16 +247,16 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
-          include: [
-            {
-              model: db.Product,
-              as: "productData",
-            },
-            {
-              model: db.Attribute,
-              as: "attributeData",
-            },
-          ],
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -275,16 +269,16 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
-          include: [
-            {
-              model: db.Product,
-              as: "productData",
-            },
-            {
-              model: db.Attribute,
-              as: "attributeData",
-            },
-          ],
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
         order: [["id", "DESC"]],
       });
 
