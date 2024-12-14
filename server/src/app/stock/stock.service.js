@@ -40,12 +40,6 @@ class StockService {
         where: {
           productId: id,
         },
-      });
-
-      const findAll = await db.Stock.findAll({
-        where: {
-          productId: id,
-        },
         include: [
           {
             model: db.Product,
@@ -58,21 +52,7 @@ class StockService {
         ],
       });
 
-      const productId = [...new Set(findAll.map((c) => c.productId))];
-      const storeId = [...new Set(findAll.map((c) => c.storeId))];
-
-      const [product, store] = await Promise.all([
-        db.Product.findAll({ where: { id: productId } }),
-        db.Store.findAll({ where: { id: storeId } }),
-      ]);
-
-      const result = findAll.map((stock) => ({
-        ...stock.toJSON(),
-        productData: product.find((p) => p.id === stock.productId),
-        storeData: store.find((s) => s.id === stock.storeId),
-      }));
-
-      return result;
+      return findAll;
     } catch (error) {
       throw new Error(error.message);
     }

@@ -223,10 +223,12 @@ class CommentsService {
             where: {
               id: productId,
             },
+            attributes: ["id", "name", "image"],
           },
           {
             model: db.User,
             as: "userData",
+            attributes: ["id", "fullname", "phone"],
           },
         ],
       });
