@@ -19,22 +19,22 @@ class CartController {
 
   //Created cart
   createCart = asyncWrapper(async (req, res) => {
-    const { userId, productId, quantity, color, rom, total } = req.body;
+    const { userId, variantId, quantity, color, rom, total } = req.body;
 
     // Kiểm tra từng sản phẩm
-    if (!userId || !productId || !quantity || !total) {
+    if (!userId || !variantId || !quantity || !total) {
       return res.status(400).json({ error: "Invalid product data" });
     }
 
     const parsedUserId = parseInt(userId);
-    const parsedProductId = parseInt(productId);
+    const parsedVariantId = parseInt(variantId);
     const parsedQuantity = parseInt(quantity);
     const parsedTotal = Math.round(parseInt(total));
 
     // Tạo giỏ hàng
     const cartItem = await cartService.createCart({
       userId: parsedUserId,
-      productId: parsedProductId,
+      variantId: parsedVariantId,
       quantity: parsedQuantity,
       color,
       rom,

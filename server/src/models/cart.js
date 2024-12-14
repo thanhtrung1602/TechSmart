@@ -13,16 +13,16 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "userData",
       })
-      Cart.belongsTo(models.Product, {
-        foreignKey: "productId",
+      Cart.belongsTo(models.Variant, {
+        foreignKey: "variantId",
         targetKey: "id",
-        as: "productData",
+        as: "variantData",
       })
     }
   }
   Cart.init(
     {
-      productId: DataTypes.INTEGER,
+      variantId: DataTypes.INTEGER,
       userId: DataTypes.INTEGER,
       quantity: {
         type: DataTypes.BIGINT,

@@ -65,7 +65,7 @@ router.post(
   "/createProduct",
   jwtMiddlewareRole,
   uploadCloud.single("img"),
-  productVal,
+  // productVal,
   ProductsController.createProduct
 );
 

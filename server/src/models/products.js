@@ -4,6 +4,16 @@ module.exports = (sequelize, DataTypes) => {
   class Product extends Model {
 
     static associate(models) {
+      Product.belongsTo(models.Categories, {
+        foreignKey: "categoryId",
+        targetKey: "id",
+        as: "categoryData",
+      })
+      Product.belongsTo(models.ManuFacturer, {
+        foreignKey: "manufacturerId",
+        targetKey: "id",
+        as: "manufacturerData",
+      })
     }
   }
   Product.init(

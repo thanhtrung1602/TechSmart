@@ -15,7 +15,7 @@ interface IOrders {
   paymentMethodId: number;
   createdAt: Date;
   updatedAt: Date;
-  paymentMethods: PaymentMethods;
+  paymentMethodData: PaymentMethods;
   statusData: Status;
   userData: Users;
   order_code: string;
@@ -40,7 +40,7 @@ class Orders implements IOrders {
   paymentMethodId: number;
   createdAt: Date;
   updatedAt: Date;
-  paymentMethods: PaymentMethods;
+  paymentMethodData: PaymentMethods;
   statusData: Status;
   userData: Users;
   order_code: string;
@@ -64,7 +64,7 @@ class Orders implements IOrders {
     paymentMethodId: number,
     createdAt: Date,
     updatedAt: Date,
-    paymentMethods: PaymentMethods,
+    paymentMethodData: PaymentMethods,
     statusData: Status,
     userData: Users,
     addressData: Address,
@@ -87,7 +87,7 @@ class Orders implements IOrders {
     this.paymentMethodId = paymentMethodId;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
-    this.paymentMethods = paymentMethods;
+    this.paymentMethodData = paymentMethodData;
     this.statusData = statusData;
     this.userData = userData;
     this.addressData = addressData;
