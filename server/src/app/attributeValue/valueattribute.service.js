@@ -156,6 +156,16 @@ class ValueAttributeService {
         where: {
           attributeId: attributeId,
         },
+          include: [
+            {
+              model: db.Product,
+              as: "productData",
+            },
+            {
+              model: db.Attribute,
+              as: "attributeData",
+            },
+          ],
       });
 
       if (!getOneValueAttributeById) {
@@ -192,6 +202,16 @@ class ValueAttributeService {
         where: {
           id: id,
         },
+          include: [
+            {
+              model: db.Product,
+              as: "productData",
+            },
+            {
+              model: db.Attribute,
+              as: "attributeData",
+            },
+          ],
       });
 
       if (!getOneValueAttributeById) {
@@ -206,6 +226,16 @@ class ValueAttributeService {
           where: {
             id,
           },
+            include: [
+              {
+                model: db.Product,
+                as: "productData",
+              },
+              {
+                model: db.Attribute,
+                as: "attributeData",
+              },
+            ],
         }
       );
 
@@ -223,6 +253,16 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
+          include: [
+            {
+              model: db.Product,
+              as: "productData",
+            },
+            {
+              model: db.Attribute,
+              as: "attributeData",
+            },
+          ],
       });
 
       if (!getOneValueAttributeById) {
@@ -235,6 +275,16 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
+          include: [
+            {
+              model: db.Product,
+              as: "productData",
+            },
+            {
+              model: db.Attribute,
+              as: "attributeData",
+            },
+          ],
         order: [["id", "DESC"]],
       });
 
