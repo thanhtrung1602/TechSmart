@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "productData",
 
+
+
+
+        
       });
       
     }
