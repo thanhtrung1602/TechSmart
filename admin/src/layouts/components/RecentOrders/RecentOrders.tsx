@@ -26,7 +26,7 @@ function RecentOrders() {
           <thead className="bg-gray-100 text-black font-semibold sticky top-0">
             <tr>
               <td className="rounded-l-lg px-3 py-3 text-center text-sm">
-                Mã đơn hàng
+                STT
               </td>
               <td className="px-3 py-3 text-center text-sm">Khách hàng</td>
               <td className="px-3 py-3 text-center text-sm">Ngày đặt</td>
@@ -40,7 +40,7 @@ function RecentOrders() {
             </tr>
           </thead>
           <tbody>
-            {orders?.rows?.map((order) => {
+            {orders?.rows?.map((order, index) => {
               const users = userList?.filter(
                 (user) => user.id === order.userId
               );
@@ -48,7 +48,7 @@ function RecentOrders() {
               return (
                 <tr className="text-center" key={order.id}>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200 ">
-                    <Link to={`/order/${order.id}`}>#{order.id}</Link>
+                  {index + 1}
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200 items-center">
                     <Link to={`/customer/${order.userId}`}>{username}</Link>
