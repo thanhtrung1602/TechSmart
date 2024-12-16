@@ -318,7 +318,10 @@ export default function Delivery() {
                         >
                           {statuses
                             ?.filter(
-                              (status) => status.id === 1 || status.id === 2 || status.id === 3
+                              (status) =>
+                                status.id === 1 ||
+                                status.id === 2 ||
+                                status.id === 3
                             )
                             ?.map((status) => (
                               <option key={status.id} value={status.id}>

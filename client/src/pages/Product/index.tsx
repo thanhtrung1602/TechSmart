@@ -157,17 +157,17 @@ function Product() {
     const stockProd = stockStatus[product.id] || product.stock - 2;
     const quantityProd = carts
       ? carts?.rows.find(
-        (item) =>
-          item.productData.id === product.id &&
-          item.rom === romValue &&
-          item.color === selectedColor?.value
-      )
+          (item) =>
+            item.productData.id === product.id &&
+            item.rom === romValue &&
+            item.color === selectedColor?.value
+        )
       : cartProducts.find(
-        (item) =>
-          item.id === product.id &&
-          item.rom === romValue &&
-          item.color === selectedColor?.value
-      );
+          (item) =>
+            item.id === product.id &&
+            item.rom === romValue &&
+            item.color === selectedColor?.value
+        );
 
     if (quantityProd && quantityProd?.quantity + 1 > stockProd) {
       toast.error(`Sản phẩm chỉ còn ${stockProd} trong kho`);
@@ -261,7 +261,7 @@ function Product() {
       }
       // Sau khi hoàn thành, tắt trạng thái loading
       setIsLoading(false);
-    }, 1000)
+    }, 1000);
   };
 
   const handleBuyNow = (product: Products) => {
@@ -278,17 +278,17 @@ function Product() {
     const stockProd = stockStatus[product.id] || product.stock - 2;
     const quantityProd = carts
       ? carts?.rows.find(
-        (item) =>
-          item.productData.id === product.id &&
-          item.rom === romValue &&
-          item.color === selectedColor?.value
-      )
+          (item) =>
+            item.productData.id === product.id &&
+            item.rom === romValue &&
+            item.color === selectedColor?.value
+        )
       : cartProducts.find(
-        (item) =>
-          item.id === product.id &&
-          item.rom === romValue &&
-          item.color === selectedColor?.value
-      );
+          (item) =>
+            item.id === product.id &&
+            item.rom === romValue &&
+            item.color === selectedColor?.value
+        );
 
     if (quantityProd && quantityProd?.quantity + 1 > stockProd) {
       toast.error(`Sản phẩm chỉ còn ${stockProd} trong kho`);
@@ -381,7 +381,7 @@ function Product() {
 
       // Sau khi hoàn tính, tắt trạng thái loading
       setIsLoading(false);
-    }, 1000)
+    }, 1000);
   };
 
   return (

@@ -17,7 +17,6 @@ type PropProducts = {
   className?: string;
 };
 
-
 function GetProducts({
   products,
   breakpoints,
@@ -46,8 +45,7 @@ function GetProducts({
             )}
 
             {/* Link sản phẩm */}
-            <Link
-              to={`/product/${product.categoryData.slug}/${product.slug}`}>
+            <Link to={`/product/${product.categoryData.slug}/${product.slug}`}>
               {/* Hình ảnh sản phẩm */}
               <div className="h-48 mb-2 flex justify-center items-center rounded-lg bg-white image-container overflow-hidden box-border">
                 <Image
@@ -66,7 +64,9 @@ function GetProducts({
 
             {/* Thông tin bổ sung */}
             <div className="flex items-center text-xs text-gray-500 mt-1 h-4">
-              <span className="mr-2">Thương hiệu: {product.manufacturerData.name}</span>
+              <span className="mr-2">
+                Thương hiệu: {product.manufacturerData.name}
+              </span>
             </div>
 
             {/* Giá sản phẩm */}
@@ -89,7 +89,7 @@ function GetProducts({
                     Math.round(
                       product.price / (1 - product.discount / 100) / 1000
                     ) *
-                    1000 -
+                      1000 -
                     product.price
                   )?.toLocaleString()}
                   đ

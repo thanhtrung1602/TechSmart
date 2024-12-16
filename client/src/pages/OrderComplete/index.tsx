@@ -23,11 +23,10 @@ function OrderComplete() {
   const orderId = location.state?.orderId;
 
   const { data: orderReturn } = useGet<OrderReturn>(
-    paymentMethod !== 2 ?
-      `/orders/getOrderReturn`
-      :
-      `/orders/getOrderById/${orderId}`
-  )
+    paymentMethod !== 2
+      ? `/orders/getOrderReturn`
+      : `/orders/getOrderById/${orderId}`
+  );
 
   console.log("orderReturn: ", orderReturn);
 
@@ -75,10 +74,7 @@ function OrderComplete() {
 
   const handlePayment = async () => {
     if (orderReturn) {
-      const result = await handleBank.bank(
-        orderReturn.total,
-        orderReturn.id
-      );
+      const result = await handleBank.bank(orderReturn.total, orderReturn.id);
       window.location.href = result?.url;
       return;
     }
@@ -110,7 +106,10 @@ function OrderComplete() {
                     <strong>Mã đơn hàng:</strong> {orderReturn?.order_code}
                   </p>
                   <p className="text-gray-700">
-                    <strong>Ngày:</strong> {dayjs(orderReturn?.createdAt).format("HH:mm:ss DD/MM/YYYY")}
+                    <strong>Ngày:</strong>{" "}
+                    {dayjs(orderReturn?.createdAt).format(
+                      "HH:mm:ss DD/MM/YYYY"
+                    )}
                   </p>
                   <p className="text-gray-700">
                     <strong>Tổng tiền:</strong>{" "}
@@ -158,7 +157,10 @@ function OrderComplete() {
                     <strong>Mã đơn hàng:</strong> {orderReturn?.order_code}
                   </p>
                   <p className="text-gray-700">
-                    <strong>Ngày:</strong> {dayjs(orderReturn?.createdAt).format("HH:mm:ss DD/MM/YYYY")}
+                    <strong>Ngày:</strong>{" "}
+                    {dayjs(orderReturn?.createdAt).format(
+                      "HH:mm:ss DD/MM/YYYY"
+                    )}
                   </p>
                   <p className="text-gray-700">
                     <strong>Tổng tiền:</strong>{" "}
@@ -202,7 +204,10 @@ function OrderComplete() {
                           "Không muốn chuyển khoản",
                           "Lý do khác",
                         ]?.map((reason) => (
-                          <label key={reason} className="flex items-center mb-2">
+                          <label
+                            key={reason}
+                            className="flex items-center mb-2"
+                          >
                             <input
                               type="radio"
                               name="cancelReason"
@@ -264,7 +269,8 @@ function OrderComplete() {
                   <strong>Mã đơn hàng:</strong> {orderReturn?.order_code}
                 </p>
                 <p className="text-gray-700">
-                  <strong>Ngày:</strong> {dayjs(orderReturn?.createdAt).format("HH:mm:ss DD/MM/YYYY")}
+                  <strong>Ngày:</strong>{" "}
+                  {dayjs(orderReturn?.createdAt).format("HH:mm:ss DD/MM/YYYY")}
                 </p>
                 <p className="text-gray-700">
                   <strong>Tổng tiền:</strong>{" "}
@@ -276,7 +282,8 @@ function OrderComplete() {
                   </span>
                 </p>
                 <p className="text-gray-700">
-                  <strong>Phương thức thanh toán:</strong> Thanh toán khi nhận hàng
+                  <strong>Phương thức thanh toán:</strong> Thanh toán khi nhận
+                  hàng
                 </p>
               </div>
               <Link
@@ -289,7 +296,6 @@ function OrderComplete() {
           </div>
         </>
       )}
-
     </>
   );
 }

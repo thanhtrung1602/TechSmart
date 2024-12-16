@@ -175,18 +175,25 @@ function CheckOut() {
                     {
                       onSuccess: (detailResponse) => {
                         if (detailResponse.status === 200) {
-                          console.log("Order detail created successfully: ", detailResponse);
+                          console.log(
+                            "Order detail created successfully: ",
+                            detailResponse
+                          );
                           queryClient.invalidateQueries({
-                            queryKey: [`/orderdetails/getAllOrderDetailByOrderId/${orderId}`],
+                            queryKey: [
+                              `/orderdetails/getAllOrderDetailByOrderId/${orderId}`,
+                            ],
                           });
 
                           // Xử lý thanh toán sau khi tạo thành công chi tiết đơn hàng
                           try {
                             toast.success("Đặt hàng thành công");
                             if (selectedPaymentMethod === 1) {
-                              handleBank.bank(totalDiscountedPrice, orderId).then((result) => {
-                                window.location.href = result?.url;
-                              });
+                              handleBank
+                                .bank(totalDiscountedPrice, orderId)
+                                .then((result) => {
+                                  window.location.href = result?.url;
+                                });
                             } else if (selectedPaymentMethod === 2) {
                               navigate("/ordercomplete", {
                                 state: {
@@ -372,9 +379,10 @@ function CheckOut() {
                     return (
                       <div
                         key={index}
-                        className={`flex items-center space-x-4 pb-4 ${productsToDisplay.length - 1 !== index &&
+                        className={`flex items-center space-x-4 pb-4 ${
+                          productsToDisplay.length - 1 !== index &&
                           `border-b-[1px]`
-                          }`}
+                        }`}
                       >
                         <Image
                           src={
@@ -411,8 +419,9 @@ function CheckOut() {
                               <p className="text-sm line-through text-gray-500">
                                 {Math.round(
                                   currentPrice /
-                                  (1 -
-                                    productDetail.productData.discount / 100)
+
+                                    (1 -
+                                      productDetail.productData.discount / 100)
                                 )?.toLocaleString("vi-VN")}
                                 đ
                               </p>

@@ -12,7 +12,7 @@ interface IResultSearch {
 }
 
 function ResultSearch(props: IResultSearch) {
-  const { data } = useGet<Products>(`/products/getOneProductById/${props.id}`);  
+  const { data } = useGet<Products>(`/products/getOneProductById/${props.id}`);
 
   return (
     <div className="mx-1 flex items-center justify-between bg-white p-2">

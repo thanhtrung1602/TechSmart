@@ -102,19 +102,17 @@ export default function ProductInfor() {
                       <p className="text-xs text-gray-500">
                         Số lượng: {detail.quantity}
                       </p>
-                      {
-                        detail.color &&
+                      {detail.color && (
                         <div className="text-xs gap-x-2 flex items-center text-[#6C7275]">
                           Màu:
-                          <span className="size-3 rounded-full block" style={{ backgroundColor: detail.color }}></span>
+                          <span
+                            className="size-3 rounded-full block"
+                            style={{ backgroundColor: detail.color }}
+                          ></span>
                         </div>
-                      }
+                      )}
                       <p className="text-xs text-gray-500">
-                        {detail.size &&
-                          <>
-                            Dung lượng: {detail.size}
-                          </>
-                        }
+                        {detail.size && <>Dung lượng: {detail.size}</>}
                       </p>
                     </div>
                   </div>
@@ -224,8 +222,8 @@ export default function ProductInfor() {
           </div>
         </Modal>
         {orderById?.statusPayId === 1 &&
-          orderById?.paymentMethodId !== 2 &&
-          orderById?.statusId !== 4 ? (
+        orderById?.paymentMethodId !== 2 &&
+        orderById?.statusId !== 4 ? (
           <button
             onClick={handlePayment}
             className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600"
@@ -236,5 +234,4 @@ export default function ProductInfor() {
       </div>
     </div>
   );
-  
 }

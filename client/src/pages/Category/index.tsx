@@ -217,7 +217,7 @@ function Category() {
         {/* Products */}
         <div className="md:col-span-2 lg:col-span-3 xl:col-span-3">
           {productOfManufacturerCategoryAndPrice &&
-            productOfManufacturerCategoryAndPrice.rows?.length > 0 ? (
+          productOfManufacturerCategoryAndPrice.rows?.length > 0 ? (
             <div className="grid grid-cols-2 gap-[10px] md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {productOfManufacturerCategoryAndPrice.rows?.map((product) => (
                 <div
@@ -278,7 +278,7 @@ function Category() {
                           Math.round(
                             product.price / (1 - product.discount / 100) / 1000
                           ) *
-                          1000 -
+                            1000 -
                           product.price
                         )?.toLocaleString()}
                         đ
@@ -304,8 +304,8 @@ function Category() {
 
           {/* Pagination controls */}
           {totalProducts &&
-            productsPagination &&
-            productOfManufacturerCategoryAndPrice ? (
+          productsPagination &&
+          productOfManufacturerCategoryAndPrice ? (
             <PaginationList
               currentPage={currentPage}
               itemsPerPage={itemsPerPage}
