@@ -30,7 +30,7 @@ function ResultSearch(props: IResultSearch) {
             <p>{props.name}</p>
             <p className="font-semibold">
               {props.price &&
-                props.price.toLocaleString("vi-VN", {
+                props.price?.toLocaleString("vi-VN", {
                   style: "currency",
                   currency: "VND",
                 })}

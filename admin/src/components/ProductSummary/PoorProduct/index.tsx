@@ -45,7 +45,7 @@ export default function PoorProduct() {
                 {calculateDiscountedPrice(
                   product.price,
                   product.discount
-                ).toLocaleString("vi")}{" "}
+                )?.toLocaleString("vi")}{" "}
                 VNĐ
               </div>
               <div className="text-xs text-gray-500 ">

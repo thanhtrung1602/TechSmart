@@ -417,7 +417,7 @@ function Product() {
               {/* Tien */}
               <div className="flex flex-col gap-y-2 p-4 sm:p-5 border border-gray-400 mb-4 rounded-lg">
                 <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#FF0000]">
-                  {currentPrice.toLocaleString()} đ
+                  {currentPrice?.toLocaleString()} đ
                 </span>
                 <p>
                   <span className="text-sm sm:text-base text-[#6C7275] line-through mr-3">

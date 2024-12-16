@@ -120,7 +120,7 @@ export default function ProductInfor() {
                   </div>
                 </td>
                 <td className="px-4 py-4 text-right text-sm md:text-base font-medium">
-                  {detail.total.toLocaleString()}đ
+                  {detail.total?.toLocaleString()}đ
                 </td>
               </tr>
             ))}

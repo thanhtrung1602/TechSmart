@@ -180,7 +180,7 @@ function Orders() {
                     {o.statusData?.status}
                   </td>
                   <td className="px-2 py-2 sm:px-4 sm:py-3 text-center">
-                    {o.total.toLocaleString()}đ
+                    {o.total?.toLocaleString()}đ
                   </td>
                   <td className="hidden lg:flex px-2 py-2 sm:px-4 sm:py-3 lg:justify-center">
                     {o?.paymentMethods?.type}

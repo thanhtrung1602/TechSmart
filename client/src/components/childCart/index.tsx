@@ -14,9 +14,7 @@ import calculatePriceByRom from "../CalculatePriceByRom";
 import { getSmallestRom } from "../ConvertRom";
 import ValueAttribute from "~/models/ValueAttribute";
 import Loading from "~/layouts/components/Loading";
-import Button from "../Button";
-import Modal from "../Modal";
-import { HiOutlineTrash } from "react-icons/hi2";
+
 
 interface ChildCartProps {
   id: number;
@@ -45,7 +43,6 @@ function ChildCart({
 }: ChildCartProps) {
   const queryClient = useQueryClient();
   const dispatch = useDispatch<AppDispatch>();
-  const [open, setOpen] = useState(false);
   const userProfile = useSelector(
     (state: RootState) => state.userProfile.userProfile
   );
@@ -106,7 +103,7 @@ function ChildCart({
         debouncedQuantity
       );
     }
-  }, [debouncedQuantity]);
+  }, [debouncedQuantity]);  
 
   // Lấy thông tin tồn kho từ `carts` (DB) hoặc từ Redux
   const getProductStock = (id: number, rom: string, color: string) => {
@@ -267,126 +264,98 @@ function ChildCart({
   return (
     <>
       <section key={id}>
-        <article className="flex justify-between py-[24px] items-center">
-          <div className="flex gap-4 items-center">
-            <div className="py-[24px]">
-              <input
-                type="checkbox"
-                className="size-4 bg-gray-200 checked:bg-blue-500 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                checked={
-                  idCart
-                    ? selectedItems[idCart] || false
-                    : selectedItems[id] || false
-                }
-                onChange={() => handleSelectItem(idCart || id)}
-              />
-            </div>
-            <div className="w-[66px] h-[76px]">
-              <Image
-                src={img}
-                alt={name}
-                className="object-cover w-full h-full"
-              />
-            </div>
-            <div className="max-w-[230px]">
-              <p className="line-clamp-2">
-                {name} {rom}
-              </p>
-              <div className="text-[15px] gap-x-2 flex items-center text-[#6C7275]">
-                Màu:
-                <span
-                  className="size-4 rounded-full"
-                  style={{ backgroundColor: color }}
-                ></span>
+      <div className="flex w-full gap-3 py-4 lg:py-3">
+          <div>
+            <div className="flex sm:flex-row gap-2 sm:gap-4 items-center">
+              <div className="flex justify-center py-2 sm:py-4">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 bg-gray-200 checked:bg-blue-500 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  checked={idCart ? selectedItems[idCart] || false : selectedItems[id] || false}
+                  onChange={() => handleSelectItem(idCart || id)}
+                />
+              </div>
+              <div className="flex w-16 h-16 items-center lg:w-17 lg:h-17">
+                <Image src={img} alt={name} className="object-cover w-full h-full" />
               </div>
             </div>
           </div>
-          <div className="h-[32px] w-[80px] flex justify-around border-[1px] border-black py-[12px] px-[8px] rounded-[4px] items-center">
-            <p
-              className="cursor-pointer"
-              onClick={() =>
-                handleQuantityChange(
-                  idCart || id,
-                  rom,
-                  color,
-                  quantities[idCart || `${id}-${rom}-${color}`] - 1
-                )
-              }
-            >
-              -
-            </p>
-            <input
-              type="text"
-              value={quantities[idCart || `${id}-${rom}-${color}`] || 1}
-              onChange={(e) => {
-                const newQuantity = Number(e.target.value);
-                handleQuantityChange(idCart || id, rom, color, newQuantity);
-              }}
-              className="w-[24px] bg-transparent outline-none text-center"
-            />
-            <p
-              className="cursor-pointer"
-              onClick={() =>
-                handleQuantityChange(
-                  idCart || id,
-                  rom,
-                  color,
-                  quantities[idCart || `${id}-${rom}-${color}`] + 1
-                )
-              }
-            >
-              +
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="font-bold">{totalPrice.toLocaleString("vi-VN")}đ</p>
-            <del className="text-[13px]">
-              {originalPrice.toLocaleString("vi-VN")}đ
-            </del>
-          </div>
-          <Button
-            onClick={() => {
-              setOpen(true);
-            }}
-            className="p-2 cursor-pointer"
-          >
-            <MdDeleteForever className="size-6 text-red-500" />
-          </Button>
-          <Modal open={open} onClose={() => setOpen(false)}>
-            <div className="text-center w-auto">
-              <HiOutlineTrash
-                size={56}
-                className="mx-auto text-red-500"
-              />
-              <div className="mx-auto my-4">
-                <h3 className="text-lg font-bold text-gray-800">
-                  Xác nhận xóa
-                </h3>
-                <p className="text-sm text-gray-500 my-2">
-                  Bạn muốn xóa sản phẩm này?
+          <div className="flex flex-col lg:flex-row w-full lg:justify-between lg:items-center">
+            <div className="grid lg:w-full lg:content-center lg:gap-0.5">
+              <div className="flex justify-between items-center gap-3 lg:gap-0.5 text-md sm:text-sm">
+                <span className="line-clamp-2 text-lg font-semibold">
+                  {name} {rom}
+                </span>
+                {/* Trash icon, visible only on smaller screens */}
+                <div className="lg:hidden">
+                  <div
+                    onClick={() => handleRemoveProduct(idCart || id, rom, color)}
+                    className="p-2 cursor-pointer"
+                  >
+                    <MdDeleteForever className="w-5 sm:w-6 h-5 sm:h-6 text-red-500" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-1 flex lg:mt-0">
+                Màu: {color}
+              </div>
+
+            </div>
+
+            <div className="flex flex-col items-start lg:flex-row lg:items-center lg:gap-6 mt-2 lg:mt-0">
+              <div className="flex items-start gap-2 lg:flex-col lg:items-end flex-row">
+                <p className="font-bold text-sm sm:text-base text-[#eb3e32]">{totalPrice.toLocaleString("vi-VN")}đ</p>
+                <del className="text-xs sm:text-sm">{originalPrice.toLocaleString("vi-VN")}đ</del>
+              </div>
+              <div className="flex lg:items-center h-8 w-20 justify-between border border-black rounded mt-2 lg:mt-0">
+                <p
+                  className="cursor-pointer px-2"
+                  onClick={() =>
+                    handleQuantityChange(
+                      idCart || id,
+                      rom,
+                      color,
+                      quantities[idCart || `${id}-${rom}-${color}`] - 1
+                    )
+                  }
+                >
+                  -
+                </p>
+                <input
+                  type="text"
+                  value={quantities[idCart || `${id}-${rom}-${color}`] || 1}
+                  onChange={(e) => {
+                    const newQuantity = Number(e.target.value);
+                    handleQuantityChange(idCart || id, rom, color, newQuantity);
+                  }}
+                  className="w-6 sm:w-8 bg-transparent outline-none text-center"
+                />
+                <p
+                  className="cursor-pointer px-2"
+                  onClick={() =>
+                    handleQuantityChange(
+                      idCart || id,
+                      rom,
+                      color,
+                      quantities[idCart || `${id}-${rom}-${color}`] + 1
+                    )
+                  }
+                >
+                  +
                 </p>
               </div>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleRemoveProduct(
-                    idCart || id,
-                    rom,
-                    color
-                  )}
-                  className="w-full bg-red-500 hover:bg-red-600 rounded-lg shadow text-white"
+              <div className="hidden lg:flex lg:items-center">
+                <div
+                  onClick={() => handleRemoveProduct(idCart || id, rom, color)}
+                  className="p-2 cursor-pointer"
                 >
-                  Xóa
-                </button>
-                <button
-                  className="w-full py-2 bg-white hover:bg-gray-100 rounded-lg shadow text-gray-500"
-                  onClick={() => setOpen(false)}
-                >
-                  Hủy
-                </button>
+                  <MdDeleteForever className="w-5 sm:w-6 h-5 sm:h-6 text-red-500" />
+                </div>
               </div>
             </div>
-          </Modal>
-        </article>
+          </div>
+        </div>
       </section >
       {isUpdating && <Loading />
       }

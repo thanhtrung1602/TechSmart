@@ -301,7 +301,7 @@ export default function Delivery() {
                       </td>
                       {/* Hiển thị tổng tiền */}
                       <td className="px-4 py-4 text-center">
-                        {order.total.toLocaleString()}đ
+                        {order.total?.toLocaleString()}đ
                       </td>
                       {/* Hiển thị phương thức thanh toán */}
                       <td className="py-3 px-4 text-center">
