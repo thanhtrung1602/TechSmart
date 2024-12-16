@@ -3,7 +3,14 @@ const db = require("../../models/index");
 class VariantService {
     async getAllVariant() {
         try {
-            const findAll = await db.Variant.findAll();
+            const findAll = await db.Variant.findAll({
+                include: [
+                    {
+                        model: db.Product,
+                        as: "productData"
+                    }
+                ]
+            });
             return findAll;
         } catch (error) {
             throw new Error(error.message);
@@ -57,8 +64,11 @@ class VariantService {
         }
     }
 
-    async createVariant({ productId, stock, price }) {
+    async createVariant(productId, stock, price) {
         try {
+
+            console.log("Service:", productId, stock, price)
+
             const create = await db.Variant.create({
                 productId,
                 stock,

@@ -1,7 +1,8 @@
 interface IValueAttribute {
     id: number
     attributeId: number
-    productSlug: string
+    productId: number
+    variatnId: number
     value: string
     createdAt: Date
     updatedAt: Date
@@ -23,6 +24,14 @@ interface IValueAttribute {
     attributeData: {
         id: number;
         name: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }
+    variantData: {
+        id: number;
+        productId: number;
+        price: number;
+        stock: number;
         createdAt: Date;
         updatedAt: Date;
     }
@@ -31,7 +40,8 @@ interface IValueAttribute {
 class ValueAttribute implements IValueAttribute {
     id: number
     attributeId: number
-    productSlug: string
+    productId: number
+    variatnId: number
     value: string
     createdAt: Date
     updatedAt: Date
@@ -56,8 +66,16 @@ class ValueAttribute implements IValueAttribute {
         createdAt: Date;
         updatedAt: Date;
     }
+    variantData: {
+        id: number;
+        productId: number;
+        price: number;
+        stock: number;
+        createdAt: Date;
+        updatedAt: Date;
+    }
 
-    constructor(id: number, attributeId: number, productSlug: string, value: string, createdAt: Date, updatedAt: Date, productData: {
+    constructor(id: number, attributeId: number, productId: number, variatnId: number, value: string, createdAt: Date, updatedAt: Date, productData: {
         id: number;
         categoryId: number;
         manufacturerId: number;
@@ -76,15 +94,25 @@ class ValueAttribute implements IValueAttribute {
         name: string;
         createdAt: Date;
         updatedAt: Date;
-    }) {
+    }, variantData: {
+        id: number;
+        productId: number;
+        price: number;
+        stock: number;
+        createdAt: Date;
+        updatedAt: Date;
+    }
+    ) {
         this.id = id
         this.attributeId = attributeId
-        this.productSlug = productSlug
+        this.productId = productId
+        this.variatnId = variatnId
         this.value = value
         this.createdAt = createdAt
         this.updatedAt = updatedAt
         this.productData = productData
         this.attributeData = attributeData
+        this.variantData = variantData
     }
 
 }
