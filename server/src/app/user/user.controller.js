@@ -57,8 +57,6 @@ class UsersController {
     }
     const updateUser = await userService.updateUser(req.body, id);
 
-    console.log("ádasdassssdadsassaa", updateUser.dataValues);
-
     const io = socket.getIo();
     io.emit("updateUser", updateUser.dataValues);
 

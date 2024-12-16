@@ -23,17 +23,21 @@ class VariantController {
         const parseStock = parseInt(stock);
         const parsePrice = parseInt(price);
 
-        console.log(req.body)
 
         if (!parseProductId || !parseStock || !parsePrice) {
             return res.status(400).json("Invalid input: variant is required");
         }
 
-        const variant = await variantService.createVariant({
+        console.log("Controller created:", parseProductId, parseStock, parsePrice);
+
+        const variant = await variantService.createVariant(
             parseProductId,
             parseStock,
             parsePrice
-        });
+        );
+
+        console.log("Response:", variant)
+
         res.status(200).json(variant);
     });
     updateVariant = asyncWrapper(async (req, res) => {

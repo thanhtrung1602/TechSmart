@@ -96,7 +96,7 @@ class ProductService {
           }
           : null;
       const visibleCondition =
-        visible === true || visible === false
+        visible && visible !== "null"
           ? { visible: visible } // Filter by visible status (true or false)
           : null;
       const categoryCondition =
@@ -133,6 +133,7 @@ class ProductService {
         limit,
         offset: offSet,
       });
+
       return {
         count,
         rows,
@@ -624,11 +625,15 @@ class ProductService {
     slug
   ) {
     try {
+
+      const categoryNumberId = parseInt(categoryId);
+      const manufacturerNumberId = parseInt(manufacturerId);
+
       const [product, created] = await db.Product.findOrCreate({
         where: { name, slug },
         defaults: {
-          categoryId,
-          manufacturerId,
+          categoryId: categoryNumberId,
+          manufacturerId: manufacturerNumberId,
           price,
           discount,
           img: file,

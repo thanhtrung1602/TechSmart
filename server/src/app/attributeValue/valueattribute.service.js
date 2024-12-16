@@ -41,59 +41,37 @@ class ValueAttributeService {
     }
   }
 
-  async createValueAttribute({ attributeId, productId, value }) {
+  async createValueAttribute({ attributeId, productId, variantId, value }) {
     try {
-      console.log("Service created:", productId, attributeId, value);
+      console.log("Service created:", productId, attributeId, variantId, value);
       const getOneValueAttributeById = await db.AttributeValue.findOne({
         where: {
           attributeId,
-          value,
           productId,
-        },
-        order: [["id", "DESC"]],
-      });
-
-      const getOneValueAttributeBySlug = await db.AttributeValue.findOne({
-        where: {
-          attributeId,
+          variantId,
+          value,
         },
         include: [
           {
             model: db.Product,
             as: "productData",
-            where: {
-              slug: productSlug,
-            },
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+          {
+            model: db.Variant,
+            as: "variantData",
           },
         ],
       });
-
-      if (!getOneValueAttributeBySlug) {
-        const createValueAttribute = await db.AttributeValue.create(
-          {
-            attributeId,
-            productSlug,
-            value,
-          },
-          {
-            include: [
-              {
-                model: db.Product,
-                as: "productData",
-              },
-              {
-                model: db.Attribute,
-                as: "attributeData",
-              },
-            ],
-          }
-        );
-      }
 
       if (!getOneValueAttributeById) {
         const createValueAttribute = await db.AttributeValue.create({
           attributeId,
           productId,
+          variantId,
           value,
         });
 
@@ -114,6 +92,7 @@ class ValueAttributeService {
   async updateOrCreateProductValueAttribute({
     productId,
     attributeId,
+    variantId,
     value,
     id,
   }) {
@@ -133,7 +112,7 @@ class ValueAttributeService {
 
       // Cập nhật giá trị thuộc tính
       const updateValueAttribute = await db.AttributeValue.update(
-        { productId, value },
+        { productId, variantId, value },
         {
           where: {
             attributeId,
@@ -153,7 +132,7 @@ class ValueAttributeService {
     }
   }
 
-  async updateValueAttribute(attributeId, productId, value, id) {
+  async updateValueAttribute(attributeId, productId, variantId, value, id) {
     try {
       const getOneValueAttributeById = await db.AttributeValue.findOne({
         where: {
@@ -168,7 +147,7 @@ class ValueAttributeService {
       }
 
       const updateValueAttribute = await db.AttributeValue.update(
-        { attributeId, productId, value },
+        { attributeId, productId, variantId, value },
         {
           where: {
             id,
