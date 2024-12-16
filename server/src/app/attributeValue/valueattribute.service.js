@@ -12,54 +12,30 @@ class ValueAttributeService {
   }
   async getOneValueAttributeById(productId) {
     try {
-      const attributeValues = await db.AttributeValue.findAll({
+      const getOneValueAttributeBySlug = await db.AttributeValue.findAll({
         where: {
           productId: productId,
         },
-        order: [["id", "DESC"]],
-      });
-
-      const getOneValueAttributeBySlug = await db.AttributeValue.findAll({
         include: [
           {
             model: db.Product,
             as: "productData",
-            where: {
-              slug: slug,
-            },
           },
           {
             model: db.Attribute,
             as: "attributeData",
           },
         ],
-        order: [["createdAt", "DESC"]],
+        order: [["id", "DESC"]],
       });
 
-      if (!attributeValues) {
+      if (!getOneValueAttributeBySlug) {
         return {
           error: `Không tìm thấy getOneValueAttributeBySlug by slug ${productId}`,
         };
       }
 
-      const product = await db.Product.findOne({
-        where: { id: productId },
-      });
-
-      const attributeIds = attributeValues?.map((value) => value.attributeId);
-      const attributes = await db.Attribute.findAll({
-        where: { id: attributeIds },
-      });
-
-      const result = attributeValues?.map((value) => ({
-        ...value.toJSON(),
-        productData: product.toJSON(),
-        attributeData:
-          attributes.find((attr) => attr.id === value.attributeId)?.toJSON() ||
-          null,
-      }));
-
-      return result;
+      return getOneValueAttributeBySlug;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -74,45 +50,18 @@ class ValueAttributeService {
           value,
           productId,
         },
-        order: [["id", "DESC"]],
-      });
-
-      const getOneValueAttributeBySlug = await db.AttributeValue.findOne({
-        where: {
-          attributeId,
-        },
         include: [
           {
-            model: db.Product,
+            model: db.Attribute,
+            as: "attributeData",
+          },
+          {
+            model: db.product,
             as: "productData",
-            where: {
-              slug: productSlug,
-            },
           },
         ],
+        order: [["id", "DESC"]],
       });
-
-      if (!getOneValueAttributeBySlug) {
-        const createValueAttribute = await db.AttributeValue.create(
-          {
-            attributeId,
-            productSlug,
-            value,
-          },
-          {
-            include: [
-              {
-                model: db.Product,
-                as: "productData",
-              },
-              {
-                model: db.Attribute,
-                as: "attributeData",
-              },
-            ],
-          }
-        );
-      }
 
       if (!getOneValueAttributeById) {
         const createValueAttribute = await db.AttributeValue.create({
@@ -147,6 +96,16 @@ class ValueAttributeService {
         where: {
           attributeId: attributeId,
         },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -183,6 +142,16 @@ class ValueAttributeService {
         where: {
           id: id,
         },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -197,6 +166,16 @@ class ValueAttributeService {
           where: {
             id,
           },
+          include: [
+            {
+              model: db.Product,
+              as: "productData",
+            },
+            {
+              model: db.Attribute,
+              as: "attributeData",
+            },
+          ],
         }
       );
 
@@ -214,6 +193,16 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -226,6 +215,16 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
         order: [["id", "DESC"]],
       });
 

@@ -1,6 +1,4 @@
 const db = require("../../models/index");
-const userService = require("../user/user.service");
-const productService = require("../product/product.service");
 const { Op } = require("sequelize");
 
 class CommentsService {
@@ -82,55 +80,31 @@ class CommentsService {
 
   async getAllComment(limit, offset) {
     try {
-      const count = await db.Comment.count();
-      // Lấy comments với phân trang
-      const comments = await db.Comment.findAll({
-        order: [["createdAt", "DESC"]],
-        limit,
-        offset,
-      });
-
       const comment = await db.Comment.findAndCountAll({
+        order: [["createdAt", "DESC"]],
         include: [
           {
             model: db.Product,
             as: "productData",
+          },
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.Comment,
+            as: "replies",
+            where: {
+              commentId: null,
+              isAdmin: true,
+            },
           },
         ],
         limit: limit,
         offset: offset,
       });
 
-      // Lấy danh sách các ID liên quan
-      const userIds = [...new Set(comments?.map((c) => c.userId))];
-      const productIds = [...new Set(comments?.map((c) => c.productId))];
-      const commentIds = [...new Set(comments?.map((c) => c.id))];
-
-      // Lấy thông tin liên quan song song
-      const [users, products, replies] = await Promise.all([
-        db.User.findAll({
-          where: { id: userIds },
-          attributes: ["id", "fullname", "phone"],
-        }),
-        db.Product.findAll({
-          where: { id: productIds },
-          attributes: ["id", "name"],
-        }),
-        db.Comment.findAll({ where: { id: commentIds } }),
-      ]);
-
-      // Kết hợp dữ liệu
-      const rows = comments.map((comment) => ({
-        ...comment.toJSON(),
-        userData: users.find((user) => user.id === comment.userId) || null,
-        productData:
-          products.find((product) => product.id === comment.productId) || null,
-        replies: replies.filter(
-          (reply) => reply.commentId === comment.id && reply.isAdmin === true
-        ),
-      }));
-
-      return { count, rows };
+      return comment;
     } catch (error) {
       console.error("Detailed error:", error);
       throw new Error("Error fetching comments");
@@ -139,14 +113,7 @@ class CommentsService {
 
   async getOneCommentByProductId(productId, limit, offset) {
     try {
-      const comments = await db.Comment.findAndCountAll({
-        where: { productId, commentId: null },
-        order: [["createdAt", "DESC"]],
-        limit: limit,
-        offset: offset,
-      });
-
-      const comment = await db.Comment.findAll({
+      const comment = await db.Comment.findAndCountAll({
         include: [
           {
             model: db.Product,
@@ -158,54 +125,25 @@ class CommentsService {
           {
             model: db.User,
             as: "userData",
+            attributes: ["id", "fullname", "phone"],
+          },
+          {
+            model: db.Comment,
+            as: "replies",
+            where: {
+              commentId: { [Op.not]: null },
+              isAdmin: true,
+            },
           },
         ],
-      });
-
-      const commentIds = [...new Set(comments.rows.map((c) => c.id))];
-      const userIds = [...new Set(comments.rows.map((c) => c.userId))];
-      const productIds = [...new Set(comments.rows.map((c) => c.productId))];
-
-      const replies = await db.Comment.findAll({
-        where: {
-          commentId: { [Op.in]: commentIds }, // Chỉ lấy reply của comment chính
-          isAdmin: true,
-        },
-      });
-
-      // Lấy thêm userId từ replies
-      const replyUserIds = [...new Set(replies.map((reply) => reply.userId))];
-      const allUserIds = [...new Set([...userIds, ...replyUserIds])]; // Loại bỏ trùng lặp
-
-      // Truy vấn đồng thời các dữ liệu liên quan
-      const [users, products] = await Promise.all([
-        db.User.findAll({ where: { id: allUserIds } }),
-        db.Product.findAll({ where: { id: productIds } }),
-      ]);
-
-      const result = comments.rows.map((comment) => {
-        return {
-          ...comment.toJSON(),
-          userData: users.find((user) => user.id === comment.userId) || null,
-          productData:
-            products.find((product) => product.id === comment.productId) ||
-            null,
-          replies: replies
-            .filter(
-              (reply) =>
-                reply.commentId === comment.id && reply.isAdmin === true
-            )
-            .map((reply) => ({
-              ...reply.toJSON(),
-              userData: users.find((user) => user.id === reply.userId) || null, // Gắn userData vào reply
-            })),
-        };
+        limit: limit,
+        offset: offset,
       });
 
       return {
-        total: comments.count,
-        comments: result,
-        totalPages: Math.ceil(comments.count / limit),
+        total: comment.count,
+        comments: comment.rows,
+        totalPages: Math.ceil(comment.count / limit),
         currentPage: Math.floor(offset / limit) + 1,
       };
     } catch (error) {
@@ -217,21 +155,27 @@ class CommentsService {
     try {
       const comment = await db.Comment.findOne({
         where: { id },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+            where: {
+              id: productId,
+            },
+            attributes: ["id", "name", "image"],
+          },
+          {
+            model: db.User,
+            as: "userData",
+            attributes: ["id", "fullname", "phone"],
+          },
+        ],
       });
 
-      const user = await userService.getOneUserById(comment.userId);
-      const product = await productService.getProductById(comment.productId);
-
-      const result = {
-        ...comment.toJSON(),
-        userData: user,
-        productData: product,
-      };
-
-      if (!result) {
+      if (!comment) {
         return { message: "Comment not found", id };
       }
-      return result;
+      return comment;
     } catch (error) {
       throw new Error(error.message);
     }

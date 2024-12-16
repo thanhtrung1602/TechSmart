@@ -1,19 +1,12 @@
 const db = require("../../models/index");
 const { Op } = require("sequelize");
 const userService = require("../user/user.service");
-const productService = require("../product/product.service");
+const variantService = require("../variant/variant.service");
 
 class CartService {
   //Gat cart by user
   async getAllCartByUserId(userId) {
     try {
-      const carts = await db.Cart.findAll({
-        where: {
-          userId,
-        },
-        order: [["createdAt", "DESC"]],
-      });
-
       const { count, rows } = await db.Cart.findAndCountAll({
         where: {
           userId,
@@ -24,27 +17,13 @@ class CartService {
             as: "userData",
           },
           {
-            model: db.Product,
-            as: "productData",
-          },
+            model: db.Variant,
+            as: "variantData",
+          }
         ],
         order: [["createdAt", "DESC"]],
       });
       return { count, rows };
-
-      const user = await userService.getOneUserById(userId);
-      const productIds = [...new Set(carts?.map((cart) => cart.productId))];
-      const products = await productService.findAllProductsById(productIds);
-
-      const result = carts?.map((cart) => ({
-        ...cart.toJSON(),
-        userData: user.toJSON(),
-        productData:
-          products.find((product) => product.id === cart.productId)?.toJSON() ||
-          null,
-      }));
-
-      return { count: result?.length, rows: result };
     } catch (error) {
       console.error("Error in CartService:", error.message);
       throw new Error(error.message);
@@ -52,16 +31,26 @@ class CartService {
   }
 
   //Create Cart
-  async createCart({ userId, productId, quantity, color, rom, total }) {
+  async createCart({ userId, variantId, quantity, color, rom, total }) {
     try {
       // Await the result of the findOne call
       const existingCartItem = await db.Cart.findOne({
         where: {
           userId,
-          productId,
+          variantId,
           color,
           rom,
         },
+        include: [
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.Variant,
+            as: "variantData",
+          },
+        ],
       });
 
       if (existingCartItem) {
@@ -76,7 +65,7 @@ class CartService {
         // If the product does not exist, create a new item in the cart
         const newCartItem = await db.Cart.create({
           userId,
-          productId,
+          variantId,
           quantity: parseInt(quantity),
           color,
           rom,
@@ -105,9 +94,19 @@ class CartService {
           color,
           rom,
         },
+        include: [
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.Variant,
+            as: "variantData",
+          },
+        ]
       });
 
-      const product = await productService.getProductById(cartItem.productId);
+      const variant = await variantService.getVariantById(cartItem.variantId);;
 
       if (!cartItem) {
         return { error: "Cart item not found" };
@@ -141,7 +140,7 @@ class CartService {
       };
 
       // Tính giá dựa trên hệ số của ROM
-      const total = getPriceByRom(product.price, rom);
+      const total = getPriceByRom(variant.price, rom);
 
       // Cập nhật quantity và tổng giá
       cartItem.quantity = quantity;
@@ -161,6 +160,16 @@ class CartService {
         where: {
           id,
         },
+        include: [
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.Variant,
+            as: "variantData",
+          },
+        ],
       });
 
       if (!cartItem) {
@@ -194,11 +203,11 @@ class CartService {
   }
 
   // Delete cart item
-  async deleteCartOrderComplete(productId, color, rom) {
+  async deleteCartOrderComplete(variantId, color, rom) {
     try {
       const cartItem = await db.Cart.destroy({
         where: {
-          productId: productId,
+          variantId: variantId,
           color: color,
           rom: rom,
         },

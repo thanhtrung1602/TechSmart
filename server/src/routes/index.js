@@ -4,6 +4,7 @@ const usersRouter = require("../app/user/user.router");
 const orderRouter = require("../app/order/order.router");
 const commentRouter = require("../app/comment/comment.router");
 const productsRouter = require("../app/product/product.router");
+const variantRouter = require("../app/variant/variant.router");
 const attributeRouter = require("../app/attribute/attribute.router");
 const categoriesRouter = require("../app/category/category.router");
 const orderdetailRouter = require("../app/orderDetail/orderdetail.router");
@@ -29,6 +30,7 @@ function route(app) {
   app.use("/address", addressRouter);
   app.use("/comments", commentRouter);
   app.use("/products", productsRouter);
+  app.use("/variants", variantRouter);
   app.use("/attribute", attributeRouter);
   app.use("/categories", categoriesRouter);
   app.use("/productimgs", productImgsRouter);

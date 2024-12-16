@@ -60,7 +60,7 @@ function RecentOrders() {
                     {order.total.toLocaleString()} VNĐ
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200">
-                    {order.paymentMethods.type}
+                    {order.paymentMethodData.type}
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200">
                     {getOrderStatus(order.statusData.status)}

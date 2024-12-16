@@ -49,49 +49,42 @@ class OrderService {
       // Lấy danh sách đơn hàng
       const { count, rows } = await db.Order.findAndCountAll({
         where: whereConditions,
+        include: [
+          {
+            model: db.StatusOrder,
+            as: "statusData",
+          },
+          {
+            model: db.PaymentMethod,
+            as: "paymentMethodData",
+          },
+          {
+            model: db.Addresses,
+            as: "addressData",
+          },
+          {
+            model: db.Store,
+            as: "storeData",
+          },
+          {
+            model: db.User,
+            as: "userData",
+          }, {
+            model: db.StatusPayment,
+            as: "statusPayData",
+          },
+        ],
         order: [["createdAt", "DESC"]],
         limit,
         offset,
       });
 
-      console.log("rows", rows);
-
-      // Thu thập các ID cần thiết từ Order
-      const orderIds = [...new Set(rows.map((order) => order.storeId))];
-      const orderStatusId = [...new Set(rows.map((order) => order.statusId))];
-      const addressId = [...new Set(rows.map((order) => order.addressId))];
-      const paymentMethodId = [...new Set(rows.map((order) => order.paymentMethodId))];
-      const userId = [...new Set(rows.map((order) => order.userId))];
-
-      const statusData = await db.StatusOrder.findAll({
-        where: { id: orderStatusId },
-      });
-      const paymentMethods = await db.PaymentMethod.findAll({
-        where: { id: paymentMethodId },
-      });
-      const addresses = await db.Addresses.findAll({
-        where: { id: addressId },
-      });
-      const stores = await db.Store.findAll({ where: { id: orderIds } });
-      const users = await db.User.findAll({ where: { id: userId } });
-
-      // Kết hợp dữ liệu lại
-      const result = rows.map((order) => ({
-        ...order.toJSON(),
-        statusData: statusData.find((s) => s.id === order.statusId),
-        paymentMethods: paymentMethods.find(
-          (p) => p.id === order.paymentMethodId
-        ),
-        addressData: addresses.find((a) => a.id === order.addressId),
-        storeData: stores.find((s) => s.id === order.storeId),
-        userData: users.find((u) => u.id === order.userId),
-      }));
-
-      return { count, rows: result };
+      return { count, rows };
     } catch (error) {
       throw new Error(error.message);
     }
   }
+
 
   async getProcessingOrder({ limit, offset, filterConditions, searchTerm }) {
     try {
@@ -106,42 +99,38 @@ class OrderService {
       // Lấy danh sách đơn hàng mà không bao gồm các bảng liên quan
       const { count, rows } = await db.Order.findAndCountAll({
         where: whereConditions, // Thêm điều kiện lọc vào
+        include: [
+          {
+            model: db.StatusOrder,
+            as: "statusData",
+          },
+          {
+            model: db.PaymentMethod,
+            as: "paymentMethodData",
+          },
+          {
+            model: db.Addresses,
+            as: "addressData",
+          },
+          {
+            model: db.Store,
+            as: "storeData",
+          },
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.StatusPayment,
+            as: "statusPayData",
+          }
+        ],
         order: [["createdAt", "DESC"]], // Sắp xếp theo ngày tạo
         limit: limit,
         offset: offset,
       });
 
-      const orderIds = [...new Set(rows.map((order) => order.storeId))];
-      const orderStatusId = [...new Set(rows.map((order) => order.statusId))];
-      const addressId = [...new Set(rows.map((order) => order.addressId))];
-      const paymentMethodId = [...new Set(rows.map((order) => order.paymentMethodId))];
-      const userId = [...new Set(rows.map((order) => order.userId))];
-
-      const statusData = await db.StatusOrder.findAll({
-        where: { id: orderStatusId },
-      });
-      const paymentMethods = await db.PaymentMethod.findAll({
-        where: { id: paymentMethodId },
-      });
-      const addresses = await db.Addresses.findAll({
-        where: { id: addressId },
-      });
-      const stores = await db.Store.findAll({ where: { id: orderIds } });
-      const users = await db.User.findAll({ where: { id: userId } });
-
-      // Kết hợp dữ liệu lại
-      const result = rows.map((order) => ({
-        ...order.toJSON(),
-        statusData: statusData.find((s) => s.id === order.statusId),
-        paymentMethods: paymentMethods.find(
-          (p) => p.id === order.paymentMethodId
-        ),
-        addressData: addresses.find((a) => a.id === order.addressId),
-        storeData: stores.find((s) => s.id === order.storeId),
-        userData: users.find((u) => u.id === order.userId),
-      }));
-
-      return { count, rows: result };
+      return { count, rows };
     } catch (error) {
       throw new Error(error.message);
     }
@@ -209,12 +198,8 @@ class OrderService {
     }
   }
 
-  async getAllOrder(limit, offSet, startDate, endDate) {
+  async getAllOrder(limit, offSet) {
     try {
-      const allOrders = await db.Order.findAll({
-        order: [["createdAt", "DESC"]],
-      });
-
       const allOrders = await db.Order.findAndCountAll({
         include: [
           {
@@ -223,45 +208,31 @@ class OrderService {
           },
           {
             model: db.PaymentMethod,
-            as: "paymentMethods",
+            as: "paymentMethodData",
+          },
+          {
+            model: db.Addresses,
+            as: "addressData",
+          },
+          {
+            model: db.Store,
+            as: "storeData",
+          },
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.StatusPayment,
+            as: "statusPayData",
           },
         ],
+        order: [["createdAt", "DESC"]],
         limit: limit,
         offset: offSet,
       });
 
-      const statusOrderId = [...new Set(allOrders.map((o) => o.statusId))];
-      const paymentMethodId = [
-        ...new Set(allOrders.map((o) => o.paymentMethodId)),
-      ];
-      const addressId = [...new Set(allOrders.map((o) => o.addressId))];
-      const storeId = [...new Set(allOrders.map((o) => o.storeId))];
-
-      const [status, payment, address, store] = await Promise.all([
-        db.StatusOrder.findAll({ where: { id: statusOrderId } }),
-        db.PaymentMethod.findAll({ where: { id: paymentMethodId } }),
-        db.Addresses.findAll({ where: { id: addressId } }),
-        db.Store.findAll({ where: { id: storeId } }),
-      ]);
-
-      const paginationOrder = allOrders.slice(offSet, offSet + limit);
-
-      const result = {
-        count: allOrders.length,
-        rows: paginationOrder.map((order) => ({
-          ...order.toJSON(),
-          statusData: status.find((s) => s.id === order.statusId),
-          paymentMethods: payment.find((p) => p.id === order.paymentMethodId),
-          addressData: address.find((a) => a.id === order.addressId),
-          storeData: store.find((s) => s.id === order.storeId),
-        })),
-      };
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return allOrders;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -270,39 +241,36 @@ class OrderService {
   async FindAllOrder() {
     try {
       const allOrders = await db.Order.findAll({
+        include: [
+          {
+            model: db.StatusOrder,
+            as: "statusData",
+          },
+          {
+            model: db.PaymentMethod,
+            as: "paymentMethodData",
+          },
+          {
+            model: db.Addresses,
+            as: "addressData",
+          },
+          {
+            model: db.Store,
+            as: "storeData",
+          },
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.StatusPayment,
+            as: "statusPayData",
+          },
+        ],
         order: [["createdAt", "ASC"]],
       });
 
-      const statusOrderId = [...new Set(allOrders.map((o) => o.statusId))];
-      const paymentMethodId = [
-        ...new Set(allOrders.map((o) => o.paymentMethodId)),
-      ];
-      const addressId = [...new Set(allOrders.map((o) => o.addressId))];
-      const storeId = [...new Set(allOrders.map((o) => o.storeId))];
-      const userId = [...new Set(allOrders.map((o) => o.userId))];
-
-      const [status, payment, address, store, user] = await Promise.all([
-        db.StatusOrder.findAll({ where: { id: statusOrderId } }),
-        db.PaymentMethod.findAll({ where: { id: paymentMethodId } }),
-        db.Addresses.findAll({ where: { id: addressId } }),
-        db.Store.findAll({ where: { id: storeId } }),
-        db.User.findAll({ where: { id: userId } }),
-      ]);
-
-      const result = allOrders.map((order) => ({
-        ...order.toJSON(),
-        statusData: status.find((s) => s.id === order.statusId),
-        paymentMethods: payment.find((p) => p.id === order.paymentMethodId),
-        addressData: address.find((a) => a.id === order.addressId),
-        storeData: store.find((s) => s.id === order.storeId),
-        userData: user.find((u) => u.id === order.userId),
-      }));
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return allOrders;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -314,12 +282,6 @@ class OrderService {
         where: {
           id,
         },
-      });
-
-      const order = await db.Order.findOne({
-        where: {
-          id,
-        },
         include: [
           {
             model: db.StatusOrder,
@@ -327,36 +289,28 @@ class OrderService {
           },
           {
             model: db.PaymentMethod,
-            as: "paymentMethods",
+            as: "paymentMethodData",
+          },
+          {
+            model: db.Addresses,
+            as: "addressData",
+          },
+          {
+            model: db.Store,
+            as: "storeData",
+          },
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.StatusPayment,
+            as: "statusPayData",
           },
         ],
       });
 
-      const paymentMethod = await paymentMethodService.findOnePaymentMethodById(
-        order.paymentMethodId
-      );
-      const address = await addressService.getAddressById(order.addressId);
-      const store = await storeService.findOne(order.storeId);
-      const user = await userService.getOneUserById(order.userId);
-      const statusOrder = await statusOrderService.findOneStatusOrder(
-        order.statusId
-      );
-      const statusPay = await statusPaymentService.findOneStatusPayment(
-        order.statusPayId
-      );
-
-      const result = {
-        ...order.toJSON(),
-        paymentMethods: paymentMethod ? paymentMethod.toJSON() : null,
-        addressData: address ? address.toJSON() : null,
-        storeData:
-          store && typeof store.toJSON === "function" ? store.toJSON() : null,
-        statusData: statusOrder ? statusOrder.toJSON() : null,
-        statusPayData: statusPay ? statusPay.toJSON() : null,
-        userData: user ? user.toJSON() : null,
-      };
-
-      return result;
+      return order;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -369,14 +323,6 @@ class OrderService {
         where: {
           userId: id,
         },
-        offset: offSet,
-        limit,
-      });
-
-      const orders = await db.Order.findAll({
-        where: {
-          userId,
-        },
         include: [
           {
             model: db.StatusOrder,
@@ -384,45 +330,30 @@ class OrderService {
           },
           {
             model: db.PaymentMethod,
-            as: "paymentMethods",
+            as: "paymentMethodData",
+          },
+          {
+            model: db.Addresses,
+            as: "addressData",
+          },
+          {
+            model: db.Store,
+            as: "storeData",
+          },
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.StatusPayment,
+            as: "statusPayData",
           },
         ],
+        offset: offSet,
+        limit,
       });
 
-
-      const statusOrderId = [...new Set(rows.map((o) => o.statusId))];
-      const paymentMethodId = [...new Set(rows.map((o) => o.paymentMethodId))];
-      const addressId = [...new Set(rows.map((o) => o.addressId))];
-      const storeId = [...new Set(rows.map((o) => o.storeId))];
-
-      const userData = await db.User.findOne({
-        where: {
-          id: id,
-        },
-      });
-
-      const [status, payment, address, store] = await Promise.all([
-        db.StatusOrder.findAll({ where: { id: statusOrderId } }),
-        db.PaymentMethod.findAll({ where: { id: paymentMethodId } }),
-        db.Addresses.findAll({ where: { id: addressId } }),
-        db.Store.findAll({ where: { id: storeId } }),
-      ]);
-
-      // Correcting the variable name from `orders` to `rows`
-      const result = rows.map((order) => ({
-        ...order.toJSON(),
-        statusData: status.find((s) => s.id === order.statusId),
-        paymentMethods: payment.find((p) => p.id === order.paymentMethodId),
-        addressData: address.find((a) => a.id === order.addressId),
-        storeData: store.find((s) => s.id === order.storeId),
-        userData: userData,
-      }));
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return { count, rows: result };
+      return { count, rows };
     } catch (error) {
       throw new Error(error.message);
     }
@@ -584,13 +515,6 @@ class OrderService {
         where: {
           statusId: id,
         },
-      });
-
-      const getOrderByIdUser = await db.Order.findAll({
-        where: {
-          userId: id,
-          statusId: id,
-        },
         include: [
           {
             model: db.StatusOrder,
@@ -598,33 +522,28 @@ class OrderService {
           },
           {
             model: db.PaymentMethod,
-            as: "paymentMethods",
+            as: "paymentMethodData",
+          },
+          {
+            model: db.Addresses,
+            as: "addressData",
+          },
+          {
+            model: db.Store,
+            as: "storeData",
+          },
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.StatusPayment,
+            as: "statusPayData",
           },
         ],
+      });
 
-      const statusOrderId = [
-        ...new Set(getOrderByIdUser.map((o) => o.statusId)),
-      ];
-      const paymentMethodId = [
-        ...new Set(getOrderByIdUser.map((o) => o.paymentMethodId)),
-      ];
-
-      const [status, payment] = await Promise.all([
-        db.StatusOrder.findAll({ where: { id: statusOrderId } }),
-        db.PaymentMethod.findAll({ where: { id: paymentMethodId } }),
-      ]);
-
-      const result = getOrderByIdUser.map((order) => ({
-        ...order.toJSON(),
-        statusData: status.find((s) => s.id === order.statusId),
-        paymentMethods: payment.find((p) => p.id === order.paymentMethodId),
-      }));
-
-      if (!result) {
-        return { error: "Not found" };
-      }
-
-      return result;
+      return getOrderByIdUser;
     } catch (error) {
       throw new Error(error.message);
     }

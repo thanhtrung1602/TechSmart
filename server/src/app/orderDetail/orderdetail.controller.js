@@ -1,15 +1,15 @@
 const asyncWrapper = require("../../middleware/async");
 const orderdetailService = require("./orderdetail.service");
-const productService = require("../product/product.service");
+const variant = require("../variant/variant.service");
 const socket = require("../../module/socket");
 const orderService = require("../order/order.service");
 const cartService = require("../cart/cart.service");
 
 class OrderDetailController {
   createOrderDetail = asyncWrapper(async (req, res) => {
-    const { orderId, productId, quantity, total, color, size } = req.body;
+    const { orderId, variantId, quantity, total, color, size } = req.body;
 
-    if (!orderId || !productId || !quantity || !total) {
+    if (!orderId || !variantId || !quantity || !total) {
       return res.status(400).json({ error: "Invalid product data" });
     }
 
@@ -24,14 +24,14 @@ class OrderDetailController {
 
     if (newOrderDetail) {
       // Sau khi tạo orderDetail, cập nhật kho cho sản phẩm
-      await productService.updateStock(productId, quantity);
+      await variant.updateStock(variantId, quantity);
 
       // Lấy thông tin sản phẩm sau khi cập nhật kho
-      const product = await productService.getProductById(productId);
+      const variant = await variant.getVariantById(variantId);
 
       // Nếu cần thông báo thay đổi kho qua WebSocket
       const io = socket.getIo();
-      io.emit('stockUpdate', { productId: productId, newStock: product.stock });
+      io.emit('stockUpdate', { variantId: variantId, newStock: variant.stock });
 
       // Xóa sản phẩm khỏi giỏ hàng dựa trên thông tin OrderDetail
       const cartItems = await cartService.getAllCartByUserId(order.userId);
@@ -39,9 +39,9 @@ class OrderDetailController {
       if (cartItems && cartItems.rows) {
         for (const cartItem of cartItems.rows) {
           console.log(cartItem);
-          // So sánh các thuộc tính productId, color, size
+          // So sánh các thuộc tính variantId, color, size
           if (
-            cartItem.productId === productId &&
+            cartItem.variantId === variantId &&
             cartItem.color === color &&
             cartItem.rom === size
           ) {

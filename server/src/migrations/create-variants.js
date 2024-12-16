@@ -1,43 +1,30 @@
 'use strict';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('productVariants', {
+    await queryInterface.createTable("variants", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      productSlug: {
-        type: Sequelize.STRING,
-        allowNull: false,
+      productId: {
+        type: Sequelize.INTEGER,
         references: {
           model: "products",
-          key: "slug"
+          key: "id",
         },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
+        onDelete: "CASCADE",
       },
-      romId: {
+      stock: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      price: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: "roms",
-          key: "id"
-        },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
-      },
-      colorId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "colors",
-          key: "id"
-        },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
       },
       createdAt: {
         allowNull: false,
@@ -49,7 +36,8 @@ module.exports = {
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('productVariants');
+    await queryInterface.dropTable("variants");
   }
 };
