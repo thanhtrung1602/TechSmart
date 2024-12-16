@@ -47,6 +47,14 @@ class StoreController {
     const delStore = await storeService.delStore(id);
     return res.status(200).json(delStore);
   });
+  updateStoreByVisible = asyncWrapper(async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (!id) {
+      return res.status(500).json({ error: "invalid id" });
+    }
+    const updateStoreByVisible = await storeService.updateStoreByVisible(id);
+    return res.status(200).json(updateStoreByVisible);
+  });
 }
 
 module.exports = new StoreController();

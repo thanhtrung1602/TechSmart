@@ -55,7 +55,7 @@ function DashboardStat() {
             <span className="text-sm text-gray-500 font-light">Doanh thu</span>
             <div className="flex items-center">
               <strong className="text-3xl font-semibold pt-4">
-                ${totalRevenue.toLocaleString()}
+                ${totalRevenue?.toLocaleString()}
               </strong>
             </div>
             <div className="div"></div>

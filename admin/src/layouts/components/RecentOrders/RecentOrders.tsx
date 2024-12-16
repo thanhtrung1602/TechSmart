@@ -57,7 +57,7 @@ function RecentOrders() {
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200">
-                    {order.total.toLocaleString()} VNĐ
+                    {order.total?.toLocaleString()} VNĐ
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200">
                     {order.paymentMethodData.type}

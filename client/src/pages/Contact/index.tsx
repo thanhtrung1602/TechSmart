@@ -2,6 +2,7 @@ import { LuPhone } from "react-icons/lu";
 import { IoStorefrontOutline } from "react-icons/io5";
 import { MdMailOutline } from "react-icons/md";
 import usePost from "~/hooks/usePost";
+import usePatch from "~/hooks/usePost";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import ContactData from "~/types/dataContact";
@@ -11,7 +12,7 @@ function Contact() {
     handleSubmit,
     formState: { errors },
   } = useForm<ContactData>();
-  const { mutate: contact } = usePost();
+  const { mutate: contact } = usePatch();
   const onSubmit = (data: ContactData) => {
     console.log(data);
     contact(
@@ -90,18 +91,18 @@ function Contact() {
               Họ và tên
             </label>
             <input
-              id="fullname"
-              {...register("fullname", {
+              id="fullName"
+              {...register("fullName", {
                 required: "Vui lòng nhập họ và tên",
               })}
               className="w-full px-4 py-2 border border-black rounded-md bg-white text-neutral-900 outline-none"
               type="text"
               placeholder="Họ và tên"
             />
-            {errors.fullname &&
-              typeof errors.fullname.message === "string" && ( //thông báo lỗi (và nó là một chuỗi), thì lỗi sẽ được hiển thị.
+            {errors.fullName &&
+              typeof errors.fullName.message === "string" && ( //thông báo lỗi (và nó là một chuỗi), thì lỗi sẽ được hiển thị.
                 <p className="text-red-500 text-sm">
-                  {errors.fullname.message}
+                  {errors.fullName.message}
                 </p>
               )}
           </div>

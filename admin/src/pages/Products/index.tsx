@@ -278,11 +278,11 @@ function ProductList() {
                     {calculateDiscountedPrice(
                       product.price,
                       product.discount
-                    ).toLocaleString("vi")}
+                    )?.toLocaleString("vi")}
                     đ
                   </td>
                   <td className="py-3 px-4 w-2/12 text-center ">
-                    {product.price.toLocaleString("vi")}đ
+                    {product.price?.toLocaleString("vi")}đ
                   </td>
                   <td className="py-3 px-4 w-3/12 text-center">
                     {product.discount}%
