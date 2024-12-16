@@ -58,13 +58,13 @@ export default function ProductForm() {
   );
 
   const { mutate: createProduct } = usePost();
-  const { mutate: createVariant } = usePost();
+  const { mutateAsync: createVariant } = usePost();
   const { mutate: createAttributeValue } = usePost();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormEvent>(); // Specify FormData type here
+  } = useForm<FormEvent>();
   const [file, setFile] = useState<File | null>(null);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [formData, setFormData] = useState<FormData>({
@@ -101,11 +101,24 @@ export default function ProductForm() {
     field: "stock" | "price",
     value: string
   ) => {
-    setFormData((prevFormData) => {
-      const newVariants = [...prevFormData.variants];
-      newVariants[variantIndex][field] = Number(value);
-      return { ...prevFormData, variants: newVariants };
-    });
+    // Kiểm tra nếu giá trị nhập vào là một số hợp lệ và không dưới 0
+    const parsedValue = Number(value);
+
+    if (!isNaN(parsedValue) && parsedValue >= 0) {
+      // Nếu giá trị hợp lệ, cập nhật giá trị
+      setFormData((prevFormData) => {
+        const newVariants = [...prevFormData.variants];
+        newVariants[variantIndex][field] = parsedValue;
+        return { ...prevFormData, variants: newVariants };
+      });
+    } else {
+      // Nếu không hợp lệ (không phải số hoặc dưới 0), giữ nguyên giá trị cũ hoặc đặt giá trị về 0
+      setFormData((prevFormData) => {
+        const newVariants = [...prevFormData.variants];
+        newVariants[variantIndex][field] = 0; // Đặt về 0 nếu không hợp lệ
+        return { ...prevFormData, variants: newVariants };
+      });
+    }
   };
 
   // Handle attribute value changes for variants
@@ -254,7 +267,7 @@ export default function ProductForm() {
               );
 
               // Xử lý các variants và attributeValue cần tạo variant
-              const variantPromises = variantAttributes && formData.variants.map(async (variantData) => {
+              const variantPromises = formData.variants.map(async (variantData) => {
                 const variantFormData = {
                   productId: productId,
                   stock: variantData.stock,
@@ -263,65 +276,54 @@ export default function ProductForm() {
 
                 console.log("Variant form data:", variantFormData);
 
-                await createVariant(
-                  { url: "/variants/createVariant", data: variantFormData },
-                  {
-                    onSuccess: async (variantResponse) => {
-                      if (variantResponse.status === 200) {
-                        console.log(
-                          "Variant created successfully",
-                          variantResponse.data
-                        );
+                try {
+                  // Đợi tạo variant
+                  const variantResponse = await createVariant({
+                    url: "/variants/createVariant",
+                    data: variantFormData,
+                  });
 
-                        const variantId = variantResponse.data.id;
-                        if (!variantId) return;
+                  console.log("Variant response:", variantResponse);
+                  if (variantResponse.status === 200) {
+                    console.log("Variant created successfully", variantResponse.data);
 
-                        const attributeValuePromises =
-                          variantAttributes.map((attrValue) => {
-                            const attributeValueFormData = {
-                              attributeId: attrValue.attributeId,
-                              variantId: variantId,
-                              productId: productId,
-                              value: attrValue.value.trim(),
-                            };
+                    const variantId = variantResponse.data.id;
+                    if (!variantId) return;
 
-                            console.log(
-                              "Attribute value form data:",
-                              attributeValueFormData
-                            );
+                    console.log("Variant ID:", variantId);
 
-                            return createAttributeValue({
-                              url: `/valueAttribute/createValueAttribute`,
-                              data: attributeValueFormData,
-                            }, {
-                              onSuccess: (response) => {
-                                if (response.status === 200) {
-                                  console.log(
-                                    "Attribute value created successfully variant",
-                                    response.data
-                                  );
-                                  setOpen(true);
-                                  navigate("/products");
-                                }
-                              },
-                              onError: (error) => {
-                                console.error(
-                                  "Error creating attribute value variant:",
-                                  error
-                                );
-                              },
-                            });
-                          });
+                    // Lọc các attributeValues cho variant này (color, ROM)
+                    const attributeValuePromises = variantData.attributeValues.map((attrValue) => {
+                      const attributeValueFormData = {
+                        attributeId: attrValue.attributeId,
+                        variantId: variantId,  // Gán variantId cho attribute value này
+                        productId: productId,
+                        value: attrValue.value.trim(), // Lấy giá trị từ attribute
+                      };
+                      console.log("Attribute value form data:", attributeValueFormData);
+                      // Tạo attribute value cho variant
+                      return createAttributeValue({
+                        url: `/valueAttribute/createValueAttribute`,
+                        data: attributeValueFormData,
+                      });
+                    });
 
-                        await Promise.all(attributeValuePromises);
-                      }
-                    },
+                    // Đợi tất cả các attributeValues được tạo cho variant
+                    if (attributeValuePromises.length > 0) {
+                      await Promise.all(attributeValuePromises);
+                      window.location.href = "/products";
+                      queryClient.invalidateQueries({
+                        queryKey: ["/products/getAllProducts"],
+                      });
+                    }
                   }
-                );
+                } catch (error) {
+                  console.error("Error during variant creation or attribute value creation:", error);
+                }
               });
 
               // Chờ tất cả các promise hoàn tất
-              await Promise.all([...nonVariantAttributePromises, ...variantPromises]);
+              await Promise.all([nonVariantAttributePromises, variantPromises]);
 
               // Reset form và các xử lý khác              
               setFormData({
@@ -344,9 +346,6 @@ export default function ProductForm() {
               setPreviewImages([]);
               setSelectedCategory({ id: 0, slug: "" });
               setSelectedManufacturer(0);
-              queryClient.invalidateQueries({
-                queryKey: ["/products/getAllProducts"],
-              });
             }
           },
           onError: (error) => {
@@ -424,14 +423,24 @@ export default function ProductForm() {
           <div>
             <label className="block text-sm font-medium mb-1">Giá giảm</label>
             <input
-              type="number"
+              type="text"
               placeholder="Giá giảm..."
               {...register("discount", { valueAsNumber: true })}
               className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
               value={formData.discount || 0}
-              onChange={(e) =>
-                setFormData({ ...formData, discount: Number(e.target.value) })
-              }
+              onChange={(e) => {
+                // Lấy giá trị nhập vào và kiểm tra nếu nó là số hợp lệ
+                const value = e.target.value;
+                const parsedValue = Number(value);
+
+                // Kiểm tra nếu giá trị là một số và không dưới 0
+                if (!isNaN(parsedValue) && parsedValue >= 0) {
+                  setFormData({ ...formData, discount: parsedValue });
+                } else {
+                  // Nếu không phải số hoặc dưới 0, giữ nguyên giá trị cũ
+                  setFormData({ ...formData, discount: 0 });
+                }
+              }}
             />
           </div>
 
@@ -520,7 +529,7 @@ export default function ProductForm() {
           <span className="font-bold text-lg bg-[#1B253C] text-white rounded-full px-3 py-1 inline-flex items-center justify-center">
             2
           </span>
-          <span className="text-xl font-bold">Biến thể sản phẩm</span>
+          <span className="text-xl font-bold">Thông tin sản phẩm</span>
         </div>
         {/* Non-variant attributes */}
         <div className="mt-6">
@@ -572,7 +581,7 @@ export default function ProductForm() {
               <div>
                 <label className="block text-sm font-medium mb-1">Giá</label>
                 <input
-                  type="number"
+                  type="text"
                   placeholder="Giá..."
                   className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
                   value={variant.price}
@@ -584,7 +593,7 @@ export default function ProductForm() {
               <div>
                 <label className="block text-sm font-medium mb-1">Số lượng</label>
                 <input
-                  type="number"
+                  type="text"
                   placeholder="Số lượng..."
                   className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
                   value={variant.stock}

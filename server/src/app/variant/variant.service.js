@@ -66,9 +66,6 @@ class VariantService {
 
     async createVariant(productId, stock, price) {
         try {
-
-            console.log("Service:", productId, stock, price)
-
             const create = await db.Variant.create({
                 productId,
                 stock,
