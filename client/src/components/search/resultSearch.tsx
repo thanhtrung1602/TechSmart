@@ -12,7 +12,7 @@ interface IResultSearch {
 }
 
 function ResultSearch(props: IResultSearch) {
-  const { data } = useGet<Products>(`/products/getOneProductById/${props.id}`);  
+  const { data } = useGet<Products>(`/products/getOneProductById/${props.id}`);
 
   return (
     <div className="mx-1 flex items-center justify-between bg-white p-2">
@@ -30,7 +30,7 @@ function ResultSearch(props: IResultSearch) {
             <p>{props.name}</p>
             <p className="font-semibold">
               {props.price &&
-                props.price.toLocaleString("vi-VN", {
+                props.price?.toLocaleString("vi-VN", {
                   style: "currency",
                   currency: "VND",
                 })}

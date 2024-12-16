@@ -339,9 +339,9 @@ function ChildCart({
             </p>
           </div>
           <div className="text-right">
-            <p className="font-bold">{totalPrice.toLocaleString("vi-VN")}đ</p>
+            <p className="font-bold">{totalPrice?.toLocaleString("vi-VN")}đ</p>
             <del className="text-[13px]">
-              {originalPrice.toLocaleString("vi-VN")}đ
+              {originalPrice?.toLocaleString("vi-VN")}đ
             </del>
           </div>
           <Button
@@ -354,10 +354,7 @@ function ChildCart({
           </Button>
           <Modal open={open} onClose={() => setOpen(false)}>
             <div className="text-center w-auto">
-              <HiOutlineTrash
-                size={56}
-                className="mx-auto text-red-500"
-              />
+              <HiOutlineTrash size={56} className="mx-auto text-red-500" />
               <div className="mx-auto my-4">
                 <h3 className="text-lg font-bold text-gray-800">
                   Xác nhận xóa
@@ -368,11 +365,7 @@ function ChildCart({
               </div>
               <div className="flex gap-4">
                 <button
-                  onClick={() => handleRemoveProduct(
-                    idCart || id,
-                    rom,
-                    color
-                  )}
+                  onClick={() => handleRemoveProduct(idCart || id, rom, color)}
                   className="w-full bg-red-500 hover:bg-red-600 rounded-lg shadow text-white"
                 >
                   Xóa
@@ -387,9 +380,8 @@ function ChildCart({
             </div>
           </Modal>
         </article>
-      </section >
-      {isUpdating && <Loading />
-      }
+      </section>
+      {isUpdating && <Loading />}
     </>
   );
 }

@@ -175,18 +175,25 @@ function CheckOut() {
                     {
                       onSuccess: (detailResponse) => {
                         if (detailResponse.status === 200) {
-                          console.log("Order detail created successfully: ", detailResponse);
+                          console.log(
+                            "Order detail created successfully: ",
+                            detailResponse
+                          );
                           queryClient.invalidateQueries({
-                            queryKey: [`/orderdetails/getAllOrderDetailByOrderId/${orderId}`],
+                            queryKey: [
+                              `/orderdetails/getAllOrderDetailByOrderId/${orderId}`,
+                            ],
                           });
 
                           // Xử lý thanh toán sau khi tạo thành công chi tiết đơn hàng
                           try {
                             toast.success("Đặt hàng thành công");
                             if (selectedPaymentMethod === 1) {
-                              handleBank.bank(totalDiscountedPrice, orderId).then((result) => {
-                                window.location.href = result?.url;
-                              });
+                              handleBank
+                                .bank(totalDiscountedPrice, orderId)
+                                .then((result) => {
+                                  window.location.href = result?.url;
+                                });
                             } else if (selectedPaymentMethod === 2) {
                               navigate("/ordercomplete", {
                                 state: {
@@ -372,9 +379,10 @@ function CheckOut() {
                     return (
                       <div
                         key={index}
-                        className={`flex items-center space-x-4 pb-4 ${productsToDisplay.length - 1 !== index &&
+                        className={`flex items-center space-x-4 pb-4 ${
+                          productsToDisplay.length - 1 !== index &&
                           `border-b-[1px]`
-                          }`}
+                        }`}
                       >
                         <Image
                           src={
@@ -406,14 +414,14 @@ function CheckOut() {
                             </div>
                             <div>
                               <p className="text-red-600 text-base font-semibold">
-                                {currentPrice.toLocaleString("vi-VN")}đ
+                                {currentPrice?.toLocaleString("vi-VN")}đ
                               </p>
                               <p className="text-sm line-through text-gray-500">
                                 {Math.round(
                                   currentPrice /
-                                  (1 -
-                                    productDetail.productData.discount / 100)
-                                ).toLocaleString("vi-VN")}
+                                    (1 -
+                                      productDetail.productData.discount / 100)
+                                )?.toLocaleString("vi-VN")}
                                 đ
                               </p>
                             </div>
@@ -472,7 +480,7 @@ function CheckOut() {
             <div className="flex justify-between">
               <span className="text-gray-700">Tổng tiền</span>
               <span className="font-semibold">
-                {totalOriginalPrice.toLocaleString("vi-VN")}đ
+                {totalOriginalPrice?.toLocaleString("vi-VN")}đ
               </span>
             </div>
             <hr className="my-2" />
@@ -480,7 +488,7 @@ function CheckOut() {
             <div className="flex justify-between">
               <span className="text-gray-700">Tổng khuyến mãi</span>
               <span className="font-semibold">
-                {totalDiscount.toLocaleString("vi-VN")}đ
+                {totalDiscount?.toLocaleString("vi-VN")}đ
               </span>
             </div>
 
@@ -494,7 +502,7 @@ function CheckOut() {
             <div className="flex justify-between">
               <span className="text-gray-700">Cần thanh toán</span>
               <span className="font-semibold text-red-600 text-lg">
-                {totalDiscountedPrice.toLocaleString("vi-VN")}đ
+                {totalDiscountedPrice?.toLocaleString("vi-VN")}đ
               </span>
             </div>
 

@@ -301,7 +301,7 @@ export default function Delivery() {
                       </td>
                       {/* Hiển thị tổng tiền */}
                       <td className="px-4 py-4 text-center">
-                        {order.total.toLocaleString()}đ
+                        {order.total?.toLocaleString()}đ
                       </td>
                       {/* Hiển thị phương thức thanh toán */}
                       <td className="py-3 px-4 text-center">
@@ -318,7 +318,10 @@ export default function Delivery() {
                         >
                           {statuses
                             ?.filter(
-                              (status) => status.id === 1 || status.id === 2 || status.id === 3
+                              (status) =>
+                                status.id === 1 ||
+                                status.id === 2 ||
+                                status.id === 3
                             )
                             ?.map((status) => (
                               <option key={status.id} value={status.id}>

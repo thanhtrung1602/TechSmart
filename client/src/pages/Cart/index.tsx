@@ -94,20 +94,20 @@ function Cart() {
       if (selectedItems[productDetail.id]) {
         const price = carts?.rows
           ? calculatePriceByRom(
-            productDetail.productData.price,
-            productDetail.rom
-          )
+              productDetail.productData.price,
+              productDetail.rom
+            )
           : calculatePriceByRom(productDetail.price, productDetail.rom);
         const discount =
           productDetail.productData?.discount || productDetail.discount;
         return (
           total +
           Math.round(price / (1 - discount / 100)) *
-          (quantities[
-            carts?.rows
-              ? productDetail.id
-              : `${productDetail.id}-${productDetail.rom}-${productDetail.color}`
-          ] || 1)
+            (quantities[
+              carts?.rows
+                ? productDetail.id
+                : `${productDetail.id}-${productDetail.rom}-${productDetail.color}`
+            ] || 1)
         );
       }
       return total;
@@ -121,18 +121,18 @@ function Cart() {
       if (selectedItems[productDetail.id]) {
         const price = carts?.rows
           ? calculatePriceByRom(
-            productDetail.productData.price,
-            productDetail.rom
-          )
+              productDetail.productData.price,
+              productDetail.rom
+            )
           : calculatePriceByRom(productDetail.price, productDetail.rom);
         return (
           total +
           price *
-          (quantities[
-            carts?.rows
-              ? productDetail.id
-              : `${productDetail.id}-${productDetail.rom}-${productDetail.color}`
-          ] || 1)
+            (quantities[
+              carts?.rows
+                ? productDetail.id
+                : `${productDetail.id}-${productDetail.rom}-${productDetail.color}`
+            ] || 1)
         );
       }
       return total;
@@ -191,7 +191,7 @@ function Cart() {
       // Tính tổng số lượng cho mỗi sản phẩm với ID giống nhau
       for (const product of selectedProducts) {
         const productId = product.productData.id;
-        const quantity = product.quantity; // Lấy số lượng của sản phẩm từ selectedItems        
+        const quantity = product.quantity; // Lấy số lượng của sản phẩm từ selectedItems
 
         if (productQuantity[productId]) {
           console.log(productQuantity[productId]);
@@ -210,7 +210,8 @@ function Cart() {
 
         console.log(stock, requestedQuantity);
 
-        if (stock - requestedQuantity < 2) { // Kiểm tra nếu số lượng tồn kho còn lại không đủ yêu cầu
+        if (stock - requestedQuantity < 2) {
+          // Kiểm tra nếu số lượng tồn kho còn lại không đủ yêu cầu
           outOfStockProducts.add(product.productData.name); // Sử dụng Set để chỉ thêm tên sản phẩm một lần
         }
       }
@@ -224,7 +225,7 @@ function Cart() {
             <div className="flex items-center gap-x-4">
               <AiOutlineInfoCircle className="h-6 w-6 text-red-500" />
               <p className="text-sm font-medium text-gray-700">
-                Rất tiếc phải xin lỗi quý khách, sản phẩm {" "}
+                Rất tiếc phải xin lỗi quý khách, sản phẩm{" "}
                 <span className="font-semibold text-red-600">
                   "{outOfStockArray[0]}"
                 </span>{" "}
@@ -344,34 +345,34 @@ function Cart() {
                 {/* Items List */}
                 {userProfile
                   ? carts?.rows?.map((productDetail) => (
-                    <ChildCart
-                      key={productDetail.id}
-                      idCart={productDetail.id}
-                      id={productDetail.productData.id}
-                      price={productDetail.productData.price}
-                      discount={productDetail.productData.discount}
-                      img={productDetail.productData.img}
-                      name={productDetail.productData.name}
-                      rom={productDetail.rom}
-                      color={productDetail.color}
-                      selectedItems={selectedItems}
-                      handleSelectItem={handleSelectItem}
-                    />
-                  ))
+                      <ChildCart
+                        key={productDetail.id}
+                        idCart={productDetail.id}
+                        id={productDetail.productData.id}
+                        price={productDetail.productData.price}
+                        discount={productDetail.productData.discount}
+                        img={productDetail.productData.img}
+                        name={productDetail.productData.name}
+                        rom={productDetail.rom}
+                        color={productDetail.color}
+                        selectedItems={selectedItems}
+                        handleSelectItem={handleSelectItem}
+                      />
+                    ))
                   : cart?.map((productDetail, index) => (
-                    <ChildCart
-                      key={index}
-                      id={productDetail.id}
-                      img={productDetail.img}
-                      name={productDetail.name}
-                      price={productDetail.price}
-                      discount={productDetail.discount}
-                      rom={productDetail.rom}
-                      color={productDetail.color}
-                      selectedItems={selectedItems}
-                      handleSelectItem={handleSelectItem}
-                    />
-                  ))}
+                      <ChildCart
+                        key={index}
+                        id={productDetail.id}
+                        img={productDetail.img}
+                        name={productDetail.name}
+                        price={productDetail.price}
+                        discount={productDetail.discount}
+                        rom={productDetail.rom}
+                        color={productDetail.color}
+                        selectedItems={selectedItems}
+                        handleSelectItem={handleSelectItem}
+                      />
+                    ))}
               </div>
             ) : (
               <div className="flex flex-col justify-center items-center">
@@ -393,7 +394,7 @@ function Cart() {
                 <div className="flex justify-between py-2 lg:py-[13px]">
                   <p className="text-sm lg:text-base">Tổng tiền</p>
                   <p className="font-bold text-sm lg:text-base">
-                    {totalOriginalPrice.toLocaleString("vi-VN")}đ
+                    {totalOriginalPrice?.toLocaleString("vi-VN")}đ
                   </p>
                 </div>
               </div>
@@ -402,7 +403,7 @@ function Cart() {
                 <div className="flex justify-between py-2 lg:py-[13px]">
                   <p className="text-sm lg:text-base">Tổng khuyến mãi</p>
                   <p className="font-bold text-sm lg:text-base">
-                    {totalDiscount.toLocaleString("vi-VN")}đ
+                    {totalDiscount?.toLocaleString("vi-VN")}đ
                   </p>
                 </div>
                 <div className="flex justify-between py-2 lg:py-[13px]">
@@ -416,7 +417,7 @@ function Cart() {
                   <p className="text-sm lg:text-base">Cần thanh toán</p>
                   <div className="font-bold">
                     <p className="font-bold text-red-600 text-sm lg:text-base">
-                      {totalDiscountedPrice.toLocaleString("vi-VN")}đ
+                      {totalDiscountedPrice?.toLocaleString("vi-VN")}đ
                     </p>
                   </div>
                 </div>

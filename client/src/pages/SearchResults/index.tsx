@@ -245,7 +245,7 @@ function SearchResults() {
                           </span>
                         )}
                         <span className="font-semibold text-base md:text-lg text-red-600">
-                          {product.price.toLocaleString()}đ
+                          {product.price?.toLocaleString()}đ
                         </span>
                         {product.discount > 0 && (
                           <span className="text-[0.7rem] md:text-xs text-green-600">
@@ -258,7 +258,7 @@ function SearchResults() {
                               ) *
                                 1000 -
                               product.price
-                            ).toLocaleString()}
+                            )?.toLocaleString()}
                             đ
                           </span>
                         )}

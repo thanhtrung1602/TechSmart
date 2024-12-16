@@ -45,7 +45,9 @@ function Orders() {
   const userProfile = useSelector(
     (state: RootState) => state.userProfile.userProfile
   );
-  const orderCreated = useSelector((state: RootState) => state.socket.orderCreated);
+  const orderCreated = useSelector(
+    (state: RootState) => state.socket.orderCreated
+  );
 
   const urlPagination = (page: number, size: number) => {
     return `/orders/getOrderByIdUser/${userProfile?.id}?page=${page}&size=${size}`;
@@ -70,10 +72,12 @@ function Orders() {
   useEffect(() => {
     if (orderCreated && orderCreated.length > 0 && orderCreated[0].id !== 0) {
       setOrder((prevOrder) => {
-        const isOrderExists = prevOrder.some((order) => order.id === orderCreated[0].id);
+        const isOrderExists = prevOrder.some(
+          (order) => order.id === orderCreated[0].id
+        );
         if (!isOrderExists) {
           // Thêm đơn hàng mới vào mảng order nếu đơn hàng chưa tồn tại
-          return [orderCreated[0], ...prevOrder];  // orderCreated[0] vì orderCreated là mảng Orders[]
+          return [orderCreated[0], ...prevOrder]; // orderCreated[0] vì orderCreated là mảng Orders[]
         }
         return prevOrder;
       });
@@ -91,15 +95,15 @@ function Orders() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const filterStatusOrder = (orderCreated ? order : orderPagination.rows).filter((status) => {
+  const filterStatusOrder = (
+    orderCreated ? order : orderPagination.rows
+  ).filter((status) => {
     const matches = status.statusId === selectedStatusId;
     if (selectedStatusId === 0) {
       return status;
     }
     return matches;
   });
-
-
 
   return (
     <section>
@@ -119,10 +123,11 @@ function Orders() {
       <div className="hidden mb-3 lg:flex flex-wrap gap-2">
         <button
           onClick={() => handleButtonClick("Tất cả", 0)}
-          className={`hidden md:block px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-md border ${selectedStatus === "Tất cả"
-            ? "bg-[#eb3e32] text-white"
-            : "hover:bg-[#eb3e32] hover:text-white duration-200 ease-in-out"
-            }`}
+          className={`hidden md:block px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-md border ${
+            selectedStatus === "Tất cả"
+              ? "bg-[#eb3e32] text-white"
+              : "hover:bg-[#eb3e32] hover:text-white duration-200 ease-in-out"
+          }`}
         >
           Tất cả
         </button>
@@ -130,10 +135,11 @@ function Orders() {
           <button
             key={s.status}
             onClick={() => handleButtonClick(s.status, s.id)}
-            className={`px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-md border ${selectedStatus === s.status
-              ? "bg-[#eb3e32] text-white"
-              : "hover:bg-[#eb3e32] hover:text-white duration-200 ease-in-out"
-              }`}
+            className={`px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-md border ${
+              selectedStatus === s.status
+                ? "bg-[#eb3e32] text-white"
+                : "hover:bg-[#eb3e32] hover:text-white duration-200 ease-in-out"
+            }`}
           >
             {s.status}
           </button>
@@ -180,7 +186,7 @@ function Orders() {
                     {o.statusData?.status}
                   </td>
                   <td className="px-2 py-2 sm:px-4 sm:py-3 text-center">
-                    {o.total.toLocaleString()}đ
+                    {o.total?.toLocaleString()}đ
                   </td>
                   <td className="hidden lg:flex px-2 py-2 sm:px-4 sm:py-3 lg:justify-center">
                     {o?.paymentMethods?.type}
