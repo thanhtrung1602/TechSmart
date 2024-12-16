@@ -1,14 +1,14 @@
 
 import useGet from "~/hooks/useGet";
 import Users from "~/models/Users";
-import { FiRefreshCw, FiPlus } from "react-icons/fi";
+import { FiRefreshCw } from "react-icons/fi";
+import { MdBlock } from "react-icons/md";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { usePatch } from "~/hooks/usePost";
-import { MdBlock } from "react-icons/md";
 import Modal from "~/components/Modal/Modal";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function User() {
   const [isBanning, setIsBanning] = useState<number | null>(null);
@@ -21,10 +21,6 @@ function User() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
-  console.log(users);
-
-
-
   const handleBanUser = () => {
     if (!isBanning) return;
     banUser(
@@ -36,7 +32,7 @@ function User() {
           console.log(response);
           if (response.status === 200) {
             queryClient.invalidateQueries({
-              queryKey: [`/manufacturer/getAllManufacturer`],
+              queryKey: [`/users/getAllUser`],
             });
             toast.success("Cập nhật thành công");
             setOpen(false);
@@ -49,7 +45,7 @@ function User() {
           alert("Error deleting category: " + error.message);
           toast.error("Có lỗi xảy ra ");
           setIsBanning(null);
-          navigate("/manufacturers");
+          navigate("/users");
         },
       }
     );
@@ -141,19 +137,20 @@ function User() {
                     <td className="py-3 px-4 border-b">{user.bom}</td>
                     <td className="py-3 px-4 border-b">
                       <button
-                                            onClick={() => {
-                                              setOpen(true);
-                                              setIsBanning(user.id); // Chuyển thành setIsUpdating(category.id) nếu cần
-                                            }}
-                                            disabled={isBanning === user.id} // Điều kiện này vẫn giữ nguyên
-                                            className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   ${user.ban === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
-                                          >
-                                            {user.ban === false ? (
-                                              <p>Chặn</p>
-                                            ) : (
-                                              <p>Bỏ chặn</p>
-                                            )}
-                                          </button>
+                        onClick={() => {
+                          setOpen(true);
+                          setIsBanning(user.id); // Chuyển thành setIsUpdating(category.id) nếu cần
+                        }}
+                        disabled={isBanning === user.id} // Điều kiện này vẫn giữ nguyên
+                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   
+                        ${user.ban === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
+                      >
+                        {user.ban === false ? (
+                          <p>Chặn</p>
+                        ) : (
+                          <p>Bỏ chặn</p>
+                        )}
+                      </button>
 
                       <Modal open={open} onClose={() => setOpen(false)}>
                         <div className="text-center w-auto">
