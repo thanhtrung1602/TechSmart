@@ -26,7 +26,7 @@ class ValueAttributeService {
             as: "attributeData",
           },
         ],
-        order: [["id", "DESC"]],
+        order: [["createdAt", "DESC"]],
       });
 
       if (!getOneValueAttributeBySlug) {
@@ -41,32 +41,37 @@ class ValueAttributeService {
     }
   }
 
-  async createValueAttribute({ attributeId, productId, value }) {
+  async createValueAttribute({ attributeId, productId, variantId, value }) {
     try {
-      console.log("Service created:", productId, attributeId, value);
+      console.log("Service created:", productId, attributeId, variantId, value);
       const getOneValueAttributeById = await db.AttributeValue.findOne({
         where: {
           attributeId,
-          value,
           productId,
+          variantId,
+          value,
         },
         include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
           {
             model: db.Attribute,
             as: "attributeData",
           },
           {
-            model: db.product,
-            as: "productData",
+            model: db.Variant,
+            as: "variantData",
           },
         ],
-        order: [["id", "DESC"]],
       });
 
       if (!getOneValueAttributeById) {
         const createValueAttribute = await db.AttributeValue.create({
           attributeId,
           productId,
+          variantId,
           value,
         });
 
@@ -87,6 +92,7 @@ class ValueAttributeService {
   async updateOrCreateProductValueAttribute({
     productId,
     attributeId,
+    variantId,
     value,
     id,
   }) {
@@ -96,16 +102,6 @@ class ValueAttributeService {
         where: {
           attributeId: attributeId,
         },
-        include: [
-          {
-            model: db.Product,
-            as: "productData",
-          },
-          {
-            model: db.Attribute,
-            as: "attributeData",
-          },
-        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -116,7 +112,7 @@ class ValueAttributeService {
 
       // Cập nhật giá trị thuộc tính
       const updateValueAttribute = await db.AttributeValue.update(
-        { productId, value },
+        { productId, variantId, value },
         {
           where: {
             attributeId,
@@ -136,22 +132,12 @@ class ValueAttributeService {
     }
   }
 
-  async updateValueAttribute(attributeId, productId, value, id) {
+  async updateValueAttribute(attributeId, productId, variantId, value, id) {
     try {
       const getOneValueAttributeById = await db.AttributeValue.findOne({
         where: {
           id: id,
         },
-        include: [
-          {
-            model: db.Product,
-            as: "productData",
-          },
-          {
-            model: db.Attribute,
-            as: "attributeData",
-          },
-        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -161,21 +147,11 @@ class ValueAttributeService {
       }
 
       const updateValueAttribute = await db.AttributeValue.update(
-        { attributeId, productId, value },
+        { attributeId, productId, variantId, value },
         {
           where: {
             id,
           },
-          include: [
-            {
-              model: db.Product,
-              as: "productData",
-            },
-            {
-              model: db.Attribute,
-              as: "attributeData",
-            },
-          ],
         }
       );
 
@@ -193,16 +169,6 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
-        include: [
-          {
-            model: db.Product,
-            as: "productData",
-          },
-          {
-            model: db.Attribute,
-            as: "attributeData",
-          },
-        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -215,16 +181,6 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
-        include: [
-          {
-            model: db.Product,
-            as: "productData",
-          },
-          {
-            model: db.Attribute,
-            as: "attributeData",
-          },
-        ],
         order: [["id", "DESC"]],
       });
 

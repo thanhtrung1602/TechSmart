@@ -8,42 +8,49 @@ import Modal from "~/components/Modal/Modal";
 import useDelete from "~/hooks/useDelete";
 import useGet from "~/hooks/useGet";
 import InterStore from "~/models/Store";
-
+import { usePatch } from "~/hooks/usePost";
+import { BiSolidHide } from "react-icons/bi";
+import { BiSolidShow } from "react-icons/bi";
 function Store() {
   // Lấy dữ liệu cửa hàng từ API
   const { data: store } = useGet<InterStore[]>("/store/findAll");
-
+  const [isUpdateVisible, setIsUpdateVisible] = useState<number | null>(null);
+  const { mutate: UpdateVisible } = usePatch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { mutate: deleteStore } = useDelete();
   const [open, setOpen] = useState(false);
   //search
   const [searchTerm, setSearchTerm] = useState("");
 
   // Trạng thái xoá và lựa chọn tỉnh/thành phố
-  const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<string>("");
   const [SelectedDistrict, setSelectedDistrict] = useState<string>("");
+  const [SelectedVisible, setSelectedVisible] =  useState("");
 
-  const handleDelete = () => {
-    if (!isDeleting) return;
-    deleteStore(
+  const handleUpdateVisible = () => {
+    if (!isUpdateVisible) return;
+    UpdateVisible(
       {
-        url: `/store/delStore/${isDeleting}`,
+        url: `/store/updateStoreByVisible/${isUpdateVisible}`,
       },
       {
         onSuccess: (response) => {
+          console.log(response);
           if (response.status === 200) {
-            queryClient.invalidateQueries({ queryKey: ["/store/FindAll"] });
-            setIsDeleting(null);
-            toast.success("Sản phẩm đã được xóa thành công");
-            navigate(0);
+            queryClient.invalidateQueries({
+              queryKey: ["/store/findAll"],
+            });
+            toast.success("Cập nhật thành công");
+            setOpen(false);
+            setIsUpdateVisible(null);
+            navigate("/store");
           }
         },
         onError: (error) => {
-          alert("Error deleting store: " + error.message);
-          toast.error("Có lỗi xảy ra khi xóa sản phẩm");
-          setIsDeleting(null);
+          alert("Error deleting category: " + error.message);
+          toast.error("Có lỗi xảy ra ");
+          setIsUpdateVisible(null);
+          navigate("/store");
         },
       }
     );
@@ -61,7 +68,7 @@ function Store() {
   const filteredStores = store?.filter((s) => {
     const lowerCaseSearchTerm = searchTerm?.trim().toLowerCase() || "";
 
-    if (lowerCaseSearchTerm === "" && !selectedProvince && !SelectedDistrict) {
+    if (lowerCaseSearchTerm === "" && !selectedProvince && !SelectedDistrict && !SelectedVisible) {
       return true; // Không áp dụng lọc nếu không có điều kiện
     }
 
@@ -69,6 +76,11 @@ function Store() {
       !selectedProvince || s.province?.name === selectedProvince;
     const matchesDistrict =
       !SelectedDistrict || s.district?.name === SelectedDistrict;
+
+      const matchesStatus =
+      SelectedVisible === ""||
+      (SelectedVisible === "true" && s.visible === true) ||
+      (SelectedVisible === "false" && s.visible === false);
 
     const matchesSearchTerm =
       !searchTerm ||
@@ -80,8 +92,9 @@ function Store() {
         false) ||
       (s.codeStore?.toLowerCase().includes(lowerCaseSearchTerm) ?? false) ||
       (String(s.phone)?.toLowerCase().includes(lowerCaseSearchTerm) ?? false);
-
-    return matchesProvince && matchesSearchTerm && matchesDistrict;
+    (
+      s.visible?.toString().includes(lowerCaseSearchTerm) ?? false)
+    return matchesProvince && matchesSearchTerm && matchesDistrict && matchesStatus;
   });
 
   const handleClearFilters = () => {
@@ -135,6 +148,15 @@ function Store() {
                     </option>
                   ))
                 : null}
+            </select>
+            <select
+              className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg"
+              value={SelectedVisible}
+              onChange={(e) => setSelectedVisible(e.target.value)}
+            >
+              <option value="" disabled hidden>Tất cả</option>
+              <option value="true">Hiện</option>
+              <option value="false">Ẩn</option>
             </select>
             <input
               type="text"
@@ -228,42 +250,43 @@ function Store() {
                           <HiOutlinePencilAlt className="text-lg flex items-center justify-center" />
                         </Link>
                         <button
-                          className="w-[100%] flex items-center py-2 px-2 text-[#EF3826] bg-red-100 rounded-tr-md rounded-br-md duration-500 hover:text-red-600 hover:bg-red-300"
                           onClick={() => {
                             setOpen(true);
-                            setIsDeleting(store.id);
+                            setIsUpdateVisible(store.id); // Chuyển thành setIsUpdating(store.id) nếu cần
                           }}
-                          disabled={isDeleting === store.id}
+                          disabled={isUpdateVisible === store.id} // Điều kiện này vẫn giữ nguyên
+                          className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${store.visible === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
                         >
-                          <HiOutlineTrash className="text-lg flex items-center justify-center" />
+                          {store.visible === false ? (
+                            <BiSolidHide className="size-4" />
+                          ) : (
+                            <BiSolidShow className="size-4" />
+                          )}
                         </button>
-                        <Modal
-                          open={open}
-                          onClose={() => {
-                            setOpen(false);
-                          }}
-                        >
+
+
+                        <Modal open={open} onClose={() => { setOpen(false); }}>
                           <div className="text-center w-auto">
-                            <HiOutlineTrash
-                              size={56}
-                              className="mx-auto text-red-500"
-                            />
+                            {/* Conditional icon rendering */}
+                            {store.visible == true ? (
+                              <BiSolidHide size={56} className="mx-auto text-red-500" />
+                            ) : (
+                              <BiSolidShow size={56} className="mx-auto  text-green-500" />
+                            )}
                             <div className="mx-auto my-4">
                               <h3 className="text-lg font-bold text-gray-800">
-                                Xác nhận xóa
+                                {store.visible == true ? "Xác nhận ẩn sản phẩm" : "Xác nhận hiện sản phẩm"}
                               </h3>
                               <p className="text-sm text-gray-500 my-2">
-                                Bạn muốn xóa cửa hàng này?
+                                {store.visible == true ? "Bạn có muốn ẩn sản phẩm này không?" : "Bạn có muốn hiện sản phẩm này không?"}
                               </p>
                             </div>
                             <div className="flex gap-4">
                               <button
-                                onClick={() => handleDelete()}
+                                onClick={() => handleUpdateVisible()}
                                 className="w-full bg-red-500 hover:bg-red-600 rounded-lg shadow text-white"
                               >
-                                {isDeleting === store.id
-                                  ? "Đang xóa..."
-                                  : "Xóa"}
+                                {store.visible ? "Có" : "Có"}
                               </button>
                               <button
                                 className="w-full py-2 bg-white hover:bg-gray-100 rounded-lg shadow text-gray-500"

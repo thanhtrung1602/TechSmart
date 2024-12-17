@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import Banner from "~/layouts/components/Banner";
 import Nav from "~/layouts/components/Nav";
-import bannerProductPopular from "~/assets/images/bannerProductPopular.png";
+// import bannerProductPopular from "~/assets/images/bannerProductPopular.png";
 import SwiperItem from "~/components/Swiper";
 import Products from "~/models/Products";
+import Variants from "~/models/Variants";
 import useGet from "~/hooks/useGet";
 import GetProducts from "~/features/getProducts";
-import Image from "~/components/Image";
+// import Image from "~/components/Image";
 import useBlog from "~/hooks/useBlog";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import Blog from "~/models/blog";
 import BlogChildren from "~/components/Blog/BlogComponent/BigBlog/BigBlog";
 import Button from "~/components/Button";
@@ -19,25 +20,55 @@ function Home() {
 
   const { data: blogs } = useBlog<Blog[] | undefined>(`/posts`);
   const { data: products } = useGet<Products[]>("/products/findAll");
-  const { data: products1 } = useGet<{ total: number; rows: Products[] }>(
-    "/products/getAllProducts?page=1&size=20"
-  );
-  const { data: products2 } = useGet<{ total: number; rows: Products[] }>(
-    "/products/getAllProducts?page=2&size=20"
-  );
-  const { data: computerProducts } = useGet<{ rows: Products[] }>(
-    "products/getProductAllCategory/man-hinh"
-  );
+  const { data: variantProducts } = useGet<Variants[]>("/variants/getAllVariant");
+  // const { data: products1 } = useGet<{ total: number; rows: Products[] }>(
+  //   "/products/getAllProducts?page=1&size=20"
+  // );
+  // const { data: products2 } = useGet<{ total: number; rows: Products[] }>(
+  //   "/products/getAllProducts?page=2&size=20"
+  // );
+  // const { data: computerProducts } = useGet<{ rows: Products[] }>(
+  //   "products/getProductAllCategory/man-hinh"
+  // );
 
-  const { data: earphoneProducts } = useGet<{ rows: Products[] }>(
-    "products/getProductAllCategory/tai-nghe"
-  );
+  // const { data: earphoneProducts } = useGet<{ rows: Products[] }>(
+  //   "products/getProductAllCategory/tai-nghe"
+  // );
 
-  const { data: lapProducts } = useGet<{ rows: Products[] }>(
-    "products/getProductAllCategory/laptop"
-  );
+  // const { data: lapProducts } = useGet<{ rows: Products[] }>(
+  //   "products/getProductAllCategory/laptop"
+  // );
 
-  const hotProductsPage1 = products?.filter((product) => product.hot > 50);
+  console.log("Variant Products", variantProducts);
+
+  console.log("Products", products);
+
+  // Kiểm tra xem mỗi sản phẩm có variant tương ứng hay không
+  const productsWithVariants = products?.filter((product) => {
+    // Kiểm tra nếu có ít nhất một variant tương ứng với productId của sản phẩm
+    return variantProducts?.some((variant) => variant.productId === product.id);
+  });
+
+  console.log("Products with variants:", productsWithVariants);
+
+  // const productsVariant1 = products1?.row?.filter((product) => {
+  //   const variant = variantProducts?.find((variant) => variant.productId === product.id);
+  //   return variant;
+  // });
+  // const productsVariant2 = products2?.rows?.filter((product) => {
+  //   const variant = variantProducts?.find((variant) => variant.productId === product.id);
+  //   return variant;
+  // });
+
+
+  // const hotProductsPage1 = products?.filter((product) => {
+  //   const variant = variantProducts?.find((variant) => variant.productId === product.id && variant.hot > 50);
+  //   return variant;
+  // });
+  // const hotProductsPage1 = products?.filter((product) => {
+  //   const variant = variantProducts?.find((variant) => variant.productId === product.id && variant.hot > 50);
+  //   return variant;
+  // });
 
   useEffect(() => {
     const handleShow = () => {
@@ -76,7 +107,8 @@ function Home() {
           <div className="flex gap-x-2 overflow-hidden">
             <div className="size-full rounded-lg overflow-hidden">
               <GetProducts
-                products={hotProductsPage1 ?? []}
+                products={productsWithVariants ?? []}
+                variants={variantProducts ?? []}
                 breakpoints={{
                   320: { slidesPerView: 2 },
                   768: { slidesPerView: 3 },
@@ -92,7 +124,7 @@ function Home() {
         </div>
       </section>
       {/* Sản phẩm phổ biến */}
-      <section className="container mx-auto px-4 my-3 md:px-10 xl:px-40 md:py-2">
+      {/* <section className="container mx-auto px-4 my-3 md:px-10 xl:px-40 md:py-2">
         <div className="flex flex-col w-full">
           <div className="mb-2 text-left border-b-2 border-[#eb3e32] flex items-center justify-between ">
             <h2 className="text-base md:text-xl bg-[#eb3e32] text-white rounded-t-md py-2 px-3 inline-block">
@@ -102,7 +134,7 @@ function Home() {
           <div className="flex items-center gap-x-2 overflow-hidden">
             <div className="w-full lg:w-3/5 md:h-full">
               <GetProducts
-                products={products1?.rows ?? []}
+                products={productsVariant1 ?? []}
                 breakpoints={{
                   320: { slidesPerView: 2 },
                   768: { slidesPerView: 3 },
@@ -114,7 +146,7 @@ function Home() {
                 className="relative group py-2"
               />
               <GetProducts
-                products={products2?.rows ?? []}
+                products={productsVariant2 ?? []}
                 breakpoints={{
                   320: { slidesPerView: 2 },
                   768: { slidesPerView: 3 },
@@ -135,9 +167,9 @@ function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       {/* Laptop */}
-      <section className="container mx-auto px-4 my-3 md:px-10 xl:px-40 md:py-2">
+      {/* <section className="container mx-auto px-4 my-3 md:px-10 xl:px-40 md:py-2">
         <div className="flex flex-col w-full">
           <div className="mb-2 text-left border-b-2 border-[#eb3e32] flex items-center justify-between ">
             <h2 className="text-base md:text-xl bg-[#eb3e32] text-white rounded-t-md py-2 px-3 inline-block">
@@ -194,9 +226,9 @@ function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       {/* Màn hình */}
-      <section className="px-4 my-3 md:px-10 xl:px-40 md:py-2">
+      {/* <section className="px-4 my-3 md:px-10 xl:px-40 md:py-2">
         <div className="flex flex-col w-full">
           <div className="mb-2 text-left border-b-2 border-[#eb3e32] flex items-center justify-between ">
             <h2 className="text-base md:text-xl bg-[#eb3e32] text-white rounded-t-md py-2 px-3 inline-block">
@@ -253,9 +285,9 @@ function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       {/* Tai nghe */}
-      <section className="px-4 my-3 md:px-10 xl:px-40 md:py-2">
+      {/* <section className="px-4 my-3 md:px-10 xl:px-40 md:py-2">
         <div className="flex flex-col  w-full">
           <div className="mb-2 text-left border-b-2 border-[#eb3e32] flex items-center justify-between ">
             <h2 className="text-base md:text-xl bg-[#eb3e32] text-white rounded-t-md py-2 px-3 inline-block">
@@ -312,7 +344,7 @@ function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       {/* Blog */}
       <section className="px-4 md:px-10 xl:px-40 py-4 lg:py-10">
         <div className="flex flex-col w-full">

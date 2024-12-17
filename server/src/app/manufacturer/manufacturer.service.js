@@ -28,8 +28,8 @@ class ManufacturerService {
           : null;
 
       const visibleCondition =
-        visible === true || visible === false
-          ? { visible: visible }
+        visible && visible !== "null"
+          ? { visible: visible } // Filter by visible status (true or false)
           : null;
 
       const categoryCondition =

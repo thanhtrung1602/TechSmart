@@ -24,15 +24,13 @@ class ValueAttributeController {
 
   createValueAttribute = asyncWrapper(async (req, res) => {
 
-    const { attributeId, productId, value } = req.body;
+    const { attributeId, productId, variantId, value } = req.body;
 
-    console.log(req.body)
+    console.log("Controller created:", req.body)
 
     if (!attributeId || !productId || !value) {
       return res.status(400).json("Invalid input: attributeId, productId, value are required");
     }
-
-    console.log("Controller created:", productId, attributeId, value);
 
     const numberAttributeId = parseInt(attributeId);
 
@@ -40,6 +38,7 @@ class ValueAttributeController {
       await ValueAttributeService.createValueAttribute({
         attributeId: numberAttributeId,
         productId,
+        variantId,
         value
       });
     return res.status(200).json(createValueAttribute);

@@ -32,7 +32,7 @@ class CategoriesController {
     const size = parseInt(req.query.size) || 10;
     const search = req.query.search || "";
     const filter = req.query.filter || "";
-    const visible = req.query.visible  === "null" 
+    const visible = req.query.visible || null;
 
     const limit = size;
     const offSet = (page - 1) * size;

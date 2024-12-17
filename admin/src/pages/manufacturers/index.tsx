@@ -153,14 +153,15 @@ function Manufacturers() {
             </select>
             <select
               className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg focus:outline-none"
-              value={filterStatus === null ? "null" : filterStatus.toString()}
+              value={filterStatus !== null ? filterStatus.toString() : ""}
               onChange={(e) => {
                 const value = e.target.value;
-                setFilterStatus(value === "null" ? null : value === "true");
+                console.log(value);
+                setFilterStatus(value === "true" ? true : value === "false" ? false : null);
               }}
             >
-              {/* <option value="null">Tất cả</option> */}
-              <option value="null">Đang hiện</option>
+              <option value="" disabled hidden>Tất cả</option>
+              <option value="true">Đang hiện</option>
               <option value="false">Đã ẩn</option>
             </select>
             <div className="search-bar">
@@ -252,9 +253,9 @@ function Manufacturers() {
                             setIsUpdateVisible(m.id); // Chuyển thành setIsUpdating(category.id) nếu cần
                           }}
                           disabled={isUpdateVisible === m.id} // Điều kiện này vẫn giữ nguyên
-                          className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${m.visible === true ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
+                          className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${m.visible === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
                         >
-                          {m.visible === true ? (
+                          {m.visible === false ? (
                             <BiSolidHide className="size-4" />
                           ) : (
                             <BiSolidShow className="size-4" />
