@@ -379,17 +379,39 @@ export default function EditProduct() {
 
           let variantId = null; // Biến lưu variantId chính xác
 
-          if (existingVariant) {
-            // Nếu variant đã tồn tại, cập nhật
-            const variantResponse = await update({
-              url: `/variants/updateProductVariant/${existingVariant.id}`,
-              data: variantFormData,
-            });
+          console.log("Existing variant:", existingVariant);
 
-            if (variantResponse.status === 200) {
-              console.log("Variant updated successfully:", variantResponse.data);
-              variantId = existingVariant.id; // Lấy id của variant đã tồn tại
+          if (existingVariant) {
+            //Nếu variant có tồn tại nhưng không cập nhật hay thêm thì giữ nguyên giá trị
+            variantId = existingVariant.id;
+
+            // Tìm giá trị trong initialFormData  
+            const initialAttrValue = initialFormData?.variants.find(
+              (initialVariant) =>
+                initialVariant.id === existingVariant.id &&
+                initialVariant.attributeValues.every((initialAttr) =>
+                  variant.attributeValues.some(
+                    (attr) =>
+                      attr.attributeId === initialAttr.attributeId &&
+                      attr.value === initialAttr.value
+                  )
+                )
+            )
+
+            console.log("Initial attribute values:", initialAttrValue);
+            if (initialAttrValue.price !== existingVariant.price || initialAttrValue.stock !== existingVariant.stock) {
+              // Nếu variant đã tồn tại, cập nhật
+              const variantResponse = await update({
+                url: `/variants/updateProductVariant/${existingVariant.id}`,
+                data: variantFormData,
+              });
+
+              if (variantResponse.status === 200) {
+                console.log("Variant updated successfully:", variantResponse.data);
+                variantId = existingVariant.id; // Lấy id của variant đã tồn tại
+              }
             }
+            console.log("Variant ID:", variantId);
           } else {
             // Nếu variant chưa tồn tại, tạo mới
             const variantResponse = await create({
@@ -405,13 +427,21 @@ export default function EditProduct() {
 
           // Xử lý attribute values sau khi có variantId
           if (variantId) {
+            console.log("Variant ID:", variantId);
             await Promise.all(
               variant.attributeValues.map(async (attrValue) => {
-                const existingAttrValue = initialFormData?.variants
-                  .find((v) => v.id === variantId)
-                  ?.attributeValues.find(
-                    (initialAttr) => initialAttr.attributeId === attrValue.attributeId
-                  );
+                // Bước 1: Tìm variant cũ trong initialFormData
+                const initialVariant = variantAttributes.find((v) => v.id === variantId);
+
+                // Bước 2: Tìm attributeValue cũ trong variant cũ
+                const existingAttrValue = initialVariant?.attributeValues.find(
+                  (initialAttr) => initialAttr.attributeId === attrValue.attributeId
+                );
+
+
+                console.log("Existing attribute value:", existingAttrValue);
+                console.log("Attribute value:", attrValue);
+                console.log("Form data:", formData.variants.map((v) => v.attributeValues));
 
                 // Nếu attributeValue chưa tồn tại => tạo mới
                 if (!existingAttrValue) {
@@ -427,9 +457,6 @@ export default function EditProduct() {
                 }
                 // Nếu attributeValue đã tồn tại nhưng giá trị thay đổi => cập nhật
                 else if (existingAttrValue.value !== attrValue.value) {
-
-                  console.log("Existing attribute value:", existingAttrValue);
-
                   await update({
                     url: `/valueAttribute/updateProductValueAttribute/${product?.id}`,
                     data: {
@@ -445,9 +472,8 @@ export default function EditProduct() {
           }
         }
 
-
         // Step 5: Refresh and redirect
-        window.location.href = "/products";
+        // window.location.href = "/products";
         queryClient.invalidateQueries({
           queryKey: ["/products/getAllProducts"],
         });
@@ -652,45 +678,6 @@ export default function EditProduct() {
               <option value="Hide">Ẩn</option>
             </select>
           </div>
-
-          {/* Ảnh con */}
-          <div className="w-max">
-            <div className="flex items-center gap-x-2 mb-1">
-              <label className="block text-sm font-medium mb-1">Ảnh con</label>
-              <button
-                type="button"
-                className="text-blue-500"
-                onClick={() => {
-                  handleImage();
-                }}
-              >
-                <FiPlusCircle />
-              </button>
-            </div>
-            <input
-              ref={inputRef}
-              type="file"
-              multiple
-              name="images"
-              className="hidden"
-            />
-            <div className="grid grid-cols-5 gap-4">
-              {images && images?.length > 0 ? (
-                images?.map((image, index) => (
-                  <div key={index}>
-                    <img
-                      src={image.img}
-                      alt={`Image ${index}`}
-                      className="w-20 h-20 object-cover mix-blend-darken"
-                      loading="lazy"
-                    />
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500">Chưa có hình ảnh</p>
-              )}
-            </div>
-          </div>
         </div>
 
         <div className="pt-6 mb-4 flex items-center space-x-2">
@@ -706,8 +693,8 @@ export default function EditProduct() {
           <div className="grid grid-cols-3 gap-4">
             {categoryAttributes
               ?.filter((attr) => ![4, 29, 6].includes(attr.attributeData.id))
-              .map((catAttr) => (
-                <div key={catAttr.attributeData.id}>
+              .map((catAttr, index) => (
+                <div key={index}>
                   <label className="block text-sm font-medium mb-1">
                     {catAttr.attributeData.name}
                   </label>
@@ -777,8 +764,8 @@ export default function EditProduct() {
               <div className="grid grid-cols-3 gap-4 mt-4">
                 {categoryAttributes
                   ?.filter((attr) => [4, 29, 6].includes(attr.attributeId))
-                  .map((catAttr) => (
-                    <div key={catAttr.id}>
+                  .map((catAttr, index) => (
+                    <div key={index}>
                       <label className="block text-sm font-medium mb-1">
                         {catAttr.attributeData.name}
                       </label>
