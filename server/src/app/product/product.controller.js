@@ -512,6 +512,27 @@ class ProductController {
     return res.status(200).json(updatedProduct);
   });
 
+  updateProductStock = asyncWrapper(async (req, res) => {
+    const id = parseInt(req.params.id);
+
+    const updatedProduct = await productService.updateProductStock(
+      id,
+      req.body
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Không thay đổi product" });
+    }
+
+    //Đồng bộ khi update
+    const io = socket.getIo();
+    io.emit("updateProduct", {
+      updatedProduct,
+    });
+
+    return res.status(200).json(updatedProduct);
+  });
+
   //Delete product
 
   deleteProduct = asyncWrapper(async (req, res) => {

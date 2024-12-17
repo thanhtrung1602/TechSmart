@@ -22,6 +22,32 @@ class ValueAttributeController {
     return res.status(200).json(getOneValueAttributeById);
   });
 
+  getOneValueAttributeByProductId = asyncWrapper(async (req, res) => {
+    const id = parseInt(req.params.id);
+
+    if (!id) {
+      return res.status(400).json("Invalid input: id is required");
+    }
+
+    const getOneValueAttributeByProductId =
+      await ValueAttributeService.getOneValueAttributeByProductId(id);
+
+    return res.status(200).json(getOneValueAttributeByProductId);
+  });
+
+  getAttributeValueByVariant = asyncWrapper(async (req, res) => {
+    const id = parseInt(req.params.id);
+
+    if (!id) {
+      return res.status(400).json("Invalid input: id is required");
+    }
+
+    const getAttributeValueByVariant =
+      await ValueAttributeService.getAttributeValueByVariant(id);
+
+    return res.status(200).json(getAttributeValueByVariant);
+  });
+
   createValueAttribute = asyncWrapper(async (req, res) => {
 
     const { attributeId, productId, variantId, value } = req.body;

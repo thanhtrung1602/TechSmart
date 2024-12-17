@@ -19,7 +19,13 @@ class CartService {
           {
             model: db.Variant,
             as: "variantData",
-          }
+            include: [
+              {
+                model: db.Product,
+                as: "productData",
+              },
+            ],
+          },
         ],
         order: [["createdAt", "DESC"]],
       });
@@ -103,48 +109,18 @@ class CartService {
             model: db.Variant,
             as: "variantData",
           },
-        ]
+        ],
       });
 
-      const variant = await variantService.getVariantById(cartItem.variantId);;
+      const variant = await variantService.getVariantById(cartItem.variantId);
 
       if (!cartItem) {
         return { error: "Cart item not found" };
       }
-
-      // Hệ số giá theo dung lượng ROM
-      const getPriceByRom = (basePrice, rom) => {
-        let coefficient = 1.0;
-        switch (rom) {
-          case "128GB":
-            coefficient = 1.2;
-            break;
-          case "256GB":
-            coefficient = 1.3;
-            break;
-          case "512GB":
-            coefficient = 1.4;
-            break;
-          case "1TB":
-            coefficient = 2;
-            break;
-          case "2TB":
-            coefficient = 2.1;
-            break;
-          case "64GB":
-          case null:
-          default:
-            coefficient = 1.0;
-        }
-        return basePrice * coefficient;
-      };
-
-      // Tính giá dựa trên hệ số của ROM
-      const total = getPriceByRom(variant.price, rom);
-
+      console.log(variant);
       // Cập nhật quantity và tổng giá
       cartItem.quantity = quantity;
-      cartItem.total = Math.round(total * quantity);
+      cartItem.total = Math.round(variant.dataValues.price * quantity);
       await cartItem.save();
       return { cart: cartItem, message: "Cart item quantity updated" };
     } catch (error) {

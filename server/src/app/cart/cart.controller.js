@@ -22,7 +22,7 @@ class CartController {
     const { userId, variantId, quantity, color, rom, total } = req.body;
 
     // Kiểm tra từng sản phẩm
-    if (!userId || !variantId || !quantity || !total) {
+    if (!userId || !quantity || !total) {
       return res.status(400).json({ error: "Invalid product data" });
     }
 

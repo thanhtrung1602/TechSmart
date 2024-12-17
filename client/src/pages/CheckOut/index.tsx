@@ -91,7 +91,7 @@ function CheckOut() {
   useEffect(() => {
     const check = async () => {
       const productIds = productsToDisplay?.map(
-        (product) => product.productData.id
+        (product) => product.variantData.productId
       );
 
       const value = await CheckValueReturnTime(productIds, selectIdStore);
@@ -159,7 +159,7 @@ function CheckOut() {
 
                   const detailOrder = {
                     orderId,
-                    productId: cartItem.productData.id,
+                    productId: cartItem.variantData.productId,
                     quantity: Number(cartItem.quantity),
                     total: cartItem.total,
                     color: cartItem.color,
@@ -240,7 +240,7 @@ function CheckOut() {
 
     // Tính tổng số lượng cho mỗi sản phẩm với ID giống nhau
     for (const product of selectedProducts) {
-      const productId = product.productData.id;
+      const productId = product.variantData.productId;
       const quantity = product.quantity; // Lấy số lượng của sản phẩm từ selectedItems
 
       if (productQuantity[productId]) {
@@ -253,14 +253,14 @@ function CheckOut() {
 
     // Kiểm tra stock cho từng sản phẩm đã chọn
     for (const product of selectedProducts) {
-      const productId = product.productData.id;
+      const productId = product.variantData.productId;
 
       const stock = stockStatus[productId]; // Lấy stock tổng của sản phẩm theo ID
       const requestedQuantity = productQuantity[productId]; // Số lượng đã yêu cầu cho sản phẩm theo ID
 
       if (stock - requestedQuantity < 2) {
         // Kiểm tra nếu số lượng tồn kho còn lại không đủ yêu cầu
-        outOfStockProducts.add(product.productData.name); // Sử dụng Set để chỉ thêm tên sản phẩm một lần
+        outOfStockProducts.add(product.variantData.productData.name); // Sử dụng Set để chỉ thêm tên sản phẩm một lần
       }
     }
 
@@ -373,7 +373,7 @@ function CheckOut() {
                 {productsToDisplay &&
                   productsToDisplay?.map((productDetail, index) => {
                     const currentPrice = calculatePriceByRom(
-                      productDetail.productData.price,
+                      productDetail.variantData.price,
                       productDetail.rom
                     );
                     return (
@@ -385,17 +385,17 @@ function CheckOut() {
                       >
                         <Image
                           src={
-                            productDetail.productData.img ||
+                            productDetail.variantData.productData.img ||
                             "https://via.placeholder.com/100"
                           }
-                          alt={productDetail.productData.name}
+                          alt={productDetail.variantData.productData.name}
                           className="w-24 h-24 object-cover rounded-lg"
                         />
                         <div className="space-y-2 w-full">
                           <div className="flex justify-between items-start">
                             <div className="w-full">
                               <h4 className="line-clamp-1 text-sm font-semibold w-2/3">
-                                {productDetail.productData.name}{" "}
+                                {productDetail.variantData.productData.name}{" "}
                                 {productDetail.rom}
                               </h4>
                               <div className="text-sm gap-x-2 flex items-center text-[#6C7275]">
@@ -419,7 +419,9 @@ function CheckOut() {
                                 {Math.round(
                                   currentPrice /
                                   (1 -
-                                    productDetail.productData.discount / 100)
+                                    productDetail.variantData.productData
+                                      .discount /
+                                    100)
                                 )?.toLocaleString("vi-VN")}
                                 đ
                               </p>

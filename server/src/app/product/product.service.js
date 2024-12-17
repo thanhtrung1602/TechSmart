@@ -8,13 +8,13 @@ class ProductService {
       const searchCondition =
         query && query.trim() !== ""
           ? {
-              [Op.or]: [
-                { name: { [Op.iLike]: `%${query}%` } },
-                { slug: { [Op.iLike]: `%${query}%` } },
-              ],
-            }
+            [Op.or]: [
+              { name: { [Op.iLike]: `%${query}%` } },
+              { slug: { [Op.iLike]: `%${query}%` } },
+            ],
+          }
           : null;
-  
+
       // Tìm kiếm sản phẩm với các liên kết đúng
       const { count, rows } = await db.Product.findAndCountAll({
         where: searchCondition,
@@ -29,7 +29,7 @@ class ProductService {
           },
         ],
       });
-  
+
       return {
         products: rows,
         categories: [...new Set(rows.map((product) => product.categoryData))],
@@ -40,7 +40,7 @@ class ProductService {
       throw new Error("Lỗi khi tìm kiếm dữ liệu.");
     }
   }
-  
+
 
   async filteredProducts(
     limit,

@@ -25,8 +25,82 @@ class ValueAttributeService {
             model: db.Attribute,
             as: "attributeData",
           },
+          {
+            model: db.Variant,
+            as: "variantData",
+          },
         ],
         order: [["createdAt", "DESC"]],
+      });
+
+      if (!getOneValueAttributeBySlug) {
+        return {
+          error: `Không tìm thấy getOneValueAttributeBySlug by slug ${productId}`,
+        };
+      }
+
+      return getOneValueAttributeBySlug;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getOneValueAttributeByProductId(productId) {
+    try {
+      const getOneValueAttributeBySlug = await db.AttributeValue.findOne({
+        where: {
+          productId: productId,
+        },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+          {
+            model: db.Variant,
+            as: "variantData",
+          },
+        ],
+        order: [["id", "DESC"]],
+      });
+
+      if (!getOneValueAttributeBySlug) {
+        return {
+          error: `Không tìm thấy getOneValueAttributeBySlug by slug ${productId}`,
+        };
+      }
+
+      return getOneValueAttributeBySlug;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getAttributeValueByVariant(variantId) {
+    try {
+      const getOneValueAttributeBySlug = await db.AttributeValue.findAll({
+        where: {
+          variantId: variantId,
+        },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+          {
+            model: db.Variant,
+            as: "variantData",
+          },
+        ],
+        order: [["id", "DESC"]],
       });
 
       if (!getOneValueAttributeBySlug) {
@@ -97,12 +171,21 @@ class ValueAttributeService {
     id,
   }) {
     try {
-      console.log("Service updated:", productId, attributeId, variantId, value, id);
       // Tìm giá trị thuộc tính theo attributeId
       const getOneValueAttributeById = await db.AttributeValue.findOne({
         where: {
           attributeId: attributeId,
         },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -141,6 +224,16 @@ class ValueAttributeService {
         where: {
           id: id,
         },
+        include: [
+          {
+            model: db.Product,
+            as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
+          },
+        ],
       });
 
       if (!getOneValueAttributeById) {

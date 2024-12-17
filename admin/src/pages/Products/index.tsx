@@ -67,7 +67,9 @@ function ProductList() {
 
   console.log("productsPagination", productsPagination);
 
-  const { data: variantProduct } = useGet<Variants[]>(`/variants/getAllVariant`);
+  const { data: variantProduct } = useGet<Variants[]>(
+    `/variants/getAllVariant`
+  );
 
   useEffect(() => {
     if (productsPagination) {
@@ -109,7 +111,7 @@ function ProductList() {
     price: number,
     discount: number
   ): number => {
-    return Math.round((price / (1 - discount / 100)) / 1000) * 1000;
+    return Math.round(price / (1 - discount / 100) / 1000) * 1000;
   };
 
   // Handle product deletion
@@ -200,7 +202,9 @@ function ProductList() {
               setFilterStatus(value === "true" ? true : value === "false" ? false : null);
             }}
           >
-            <option value="" disabled hidden>Tất cả</option>
+            <option value="" disabled hidden>
+              Tất cả
+            </option>
             <option value="true">Đang hiện</option>
             <option value="false">Đã ẩn</option>
           </select>
@@ -269,10 +273,16 @@ function ProductList() {
           <tbody>
             {productsPagination && productsPagination?.total ? (
               productsPagination.rows?.map((product, index) => {
-                const variant = variantProduct ? variantProduct?.filter((item) => item.productId === product.id)[0] : null
+                const variant = variantProduct
+                  ? variantProduct?.filter(
+                      (item) => item.productId === product.id
+                    )[0]
+                  : null;
                 return (
                   <tr className="border-b" key={product.id}>
-                    <td className="py-3 px-4 w-1/12 text-center">{index + 1}</td>
+                    <td className="py-3 px-4 w-1/12 text-center">
+                      {index + 1}
+                    </td>
                     <td className="py-3 px-4 w-2/12">
                       <Image
                         src={product.img}
@@ -323,7 +333,11 @@ function ProductList() {
                             setIsUpdateVisible(product.id); // Chuyển thành setIsUpdating(category.id) nếu cần
                           }}
                           disabled={isUpdateVisible === product.id} // Điều kiện này vẫn giữ nguyên
-                          className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${product.visible === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
+                          className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${
+                            product.visible === false
+                              ? "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300"
+                              : "bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300"
+                          }`}
                         >
                           {product.visible === false ? (
                             <BiSolidHide className="size-4" />
@@ -332,21 +346,35 @@ function ProductList() {
                           )}
                         </button>
 
-
-                        <Modal open={open} onClose={() => { setOpen(false); }}>
+                        <Modal
+                          open={open}
+                          onClose={() => {
+                            setOpen(false);
+                          }}
+                        >
                           <div className="text-center w-auto">
                             {/* Conditional icon rendering */}
                             {product.visible == true ? (
-                              <BiSolidHide size={56} className="mx-auto text-red-500" />
+                              <BiSolidHide
+                                size={56}
+                                className="mx-auto text-red-500"
+                              />
                             ) : (
-                              <BiSolidShow size={56} className="mx-auto  text-green-500" />
+                              <BiSolidShow
+                                size={56}
+                                className="mx-auto  text-green-500"
+                              />
                             )}
                             <div className="mx-auto my-4">
                               <h3 className="text-lg font-bold text-gray-800">
-                                {product.visible == true ? "Xác nhận ẩn sản phẩm" : "Xác nhận hiện sản phẩm"}
+                                {product.visible == true
+                                  ? "Xác nhận ẩn sản phẩm"
+                                  : "Xác nhận hiện sản phẩm"}
                               </h3>
                               <p className="text-sm text-gray-500 my-2">
-                                {product.visible == true ? "Bạn có muốn ẩn sản phẩm này không?" : "Bạn có muốn hiện sản phẩm này không?"}
+                                {product.visible == true
+                                  ? "Bạn có muốn ẩn sản phẩm này không?"
+                                  : "Bạn có muốn hiện sản phẩm này không?"}
                               </p>
                             </div>
                             <div className="flex gap-4">
@@ -368,7 +396,7 @@ function ProductList() {
                       </span>
                     </td>
                   </tr>
-                )
+                );
               })
             ) : (
               <tr>

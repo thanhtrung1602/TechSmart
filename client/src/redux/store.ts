@@ -1,10 +1,11 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import cookieReducer from "./cookieSlice";
 import cartReducer from "./cartSlice";
 import addressReducer from "./addressSlice";
 import menuReducer from "./menuSlice";
 import userProfileReducer from "./userProfileSlice";
-import socketReducer from './socketSlice';
+import socketReducer from "./socketSlice";
+import productReducer from "./productSlice";
 export const store = configureStore({
   reducer: {
     cookie: cookieReducer,
@@ -13,10 +14,10 @@ export const store = configureStore({
     address: addressReducer,
     menu: menuReducer,
     socket: socketReducer,
+    product: productReducer,
   },
   // Middleware mặc định bao gồm thunk
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware(), // Không cần thêm thunk ở đây nữa
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware(), // Không cần thêm thunk ở đây nữa
 });
 
 export type RootState = ReturnType<typeof store.getState>;
