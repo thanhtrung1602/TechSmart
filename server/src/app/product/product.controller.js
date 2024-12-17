@@ -68,7 +68,9 @@ class ProductController {
     const category = req.query.category || null;
     const manufacturer = req.query.manufacturer || null;
     const search = req.query.search || "";
-    const visible = req.query.visible === "null";
+    const visible = req.query.visible || null;
+
+    console.log("Visible: ", visible);
 
     const limit = size;
     const offSet = (page - 1) * size;
@@ -487,6 +489,27 @@ class ProductController {
       visible,
       file,
       hashSlug
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Không thay đổi product" });
+    }
+
+    //Đồng bộ khi update
+    const io = socket.getIo();
+    io.emit("updateProduct", {
+      updatedProduct,
+    });
+
+    return res.status(200).json(updatedProduct);
+  });
+
+  updateProductStock = asyncWrapper(async (req, res) => {
+    const id = parseInt(req.params.id);
+
+    const updatedProduct = await productService.updateProductStock(
+      id,
+      req.body
     );
 
     if (!updatedProduct) {

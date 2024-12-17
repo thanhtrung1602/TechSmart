@@ -1,4 +1,3 @@
-
 import useGet from "~/hooks/useGet";
 import Users from "~/models/Users";
 import { FiRefreshCw, FiPlus } from "react-icons/fi";
@@ -23,8 +22,6 @@ function User() {
 
   console.log(users);
 
-
-
   const handleBanUser = () => {
     if (!isBanning) return;
     banUser(
@@ -36,13 +33,11 @@ function User() {
           console.log(response);
           if (response.status === 200) {
             queryClient.invalidateQueries({
-              queryKey: [`/manufacturer/getAllManufacturer`],
+              queryKey: [`/users/getAllUser`],
             });
             toast.success("Cập nhật thành công");
             setOpen(false);
             setIsBanning(null);
-            navigate("/users");
-            window.location.reload();
           }
         },
         onError: (error) => {
@@ -141,31 +136,39 @@ function User() {
                     <td className="py-3 px-4 border-b">{user.bom}</td>
                     <td className="py-3 px-4 border-b">
                       <button
-                                            onClick={() => {
-                                              setOpen(true);
-                                              setIsBanning(user.id); // Chuyển thành setIsUpdating(category.id) nếu cần
-                                            }}
-                                            disabled={isBanning === user.id} // Điều kiện này vẫn giữ nguyên
-                                            className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   ${user.ban === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
-                                          >
-                                            {user.ban === false ? (
-                                              <p>Chặn</p>
-                                            ) : (
-                                              <p>Bỏ chặn</p>
-                                            )}
-                                          </button>
+                        onClick={() => {
+                          setOpen(true);
+                          setIsBanning(user.id); // Chuyển thành setIsUpdating(category.id) nếu cần
+                        }}
+                        disabled={isBanning === user.id} // Điều kiện này vẫn giữ nguyên
+                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   ${
+                          user.ban === false
+                            ? "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300"
+                            : "bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300"
+                        }`}
+                      >
+                        {user.ban === false ? <p>Chặn</p> : <p>Bỏ chặn</p>}
+                      </button>
 
                       <Modal open={open} onClose={() => setOpen(false)}>
                         <div className="text-center w-auto">
                           {/* Conditional icon rendering */}
                           {user.ban === false ? (
-                            <MdBlock size={56} className="mx-auto text-red-500" />
+                            <MdBlock
+                              size={56}
+                              className="mx-auto text-red-500"
+                            />
                           ) : (
-                            <MdBlock size={56} className="mx-auto text-green-500" />
+                            <MdBlock
+                              size={56}
+                              className="mx-auto text-green-500"
+                            />
                           )}
                           <div className="mx-auto my-4">
                             <h3 className="text-lg font-bold text-gray-800">
-                              {user.ban === true ? "Xác nhận bỏ chặn sản phẩm" : "Xác nhận chặn sản phẩm"}
+                              {user.ban === true
+                                ? "Xác nhận bỏ chặn sản phẩm"
+                                : "Xác nhận chặn sản phẩm"}
                             </h3>
                             <p className="text-sm text-gray-500 my-2">
                               {user.ban === true
@@ -189,7 +192,6 @@ function User() {
                           </div>
                         </div>
                       </Modal>
-
                     </td>
                   </tr>
                 ))
@@ -200,7 +202,6 @@ function User() {
                   </td>
                 </tr>
               )}
-
             </tbody>
           </table>
         </div>

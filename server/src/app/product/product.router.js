@@ -75,6 +75,8 @@ router.patch(
   uploadCloud.single("img"),
   ProductsController.updateProduct
 );
+
+router.patch("/updateProductStock/:id", ProductsController.updateProductStock);
 router.get("/suggestProduct/:id", ProductsController.suggestProduct);
 router.delete(
   "/deleteProduct/:id",
@@ -84,6 +86,10 @@ router.delete(
 
 //Check stock
 router.get("/checkStock/:id", ProductsController.checkStock);
-router.patch("/updateProductByVisible/:id", jwtMiddlewareRole, ProductsController.updateProductByVisible);
+router.patch(
+  "/updateProductByVisible/:id",
+  jwtMiddlewareRole,
+  ProductsController.updateProductByVisible
+);
 
 module.exports = router;

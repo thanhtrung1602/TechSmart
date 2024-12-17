@@ -11,9 +11,20 @@ router.get(
   "/getOneValueAttributeById/:id",
   ValueAttributeController.getOneValueAttributeById
 );
+
+router.get(
+  "/getOneValueAttributeByProductId/:id",
+  ValueAttributeController.getOneValueAttributeByProductId
+);
+
+router.get(
+  "/getAttributeValueByVariant/:id",
+  ValueAttributeController.getAttributeValueByVariant
+);
+
 router.post(
   "/createValueAttribute",
-  jwtMiddlewareRole,
+
   ValueAttributeController.createValueAttribute
 );
 router.patch(

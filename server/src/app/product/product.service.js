@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const db = require("../../models/index");
 const categoryService = require("../category/category.service");
 const manufacturerService = require("../manufacturer/manufacturer.service");
@@ -9,11 +9,11 @@ class ProductService {
       const searchCondition =
         query && query.trim() !== ""
           ? {
-            [Op.or]: [
-              { name: { [Op.iLike]: `%${query}%` } },
-              { slug: { [Op.iLike]: `%${query}%` } },
-            ],
-          }
+              [Op.or]: [
+                { name: { [Op.iLike]: `%${query}%` } },
+                { slug: { [Op.iLike]: `%${query}%` } },
+              ],
+            }
           : null;
 
       // Tìm kiếm sản phẩm
@@ -28,7 +28,7 @@ class ProductService {
             model: db.ManuFacturer,
             as: "manufacturer",
           },
-        ]
+        ],
       });
 
       // Lấy danh sách categoryId và manufacturerId từ sản phẩm
@@ -43,16 +43,16 @@ class ProductService {
       const categories =
         categoryIds.length > 0
           ? await db.Categories.findAll({
-            where: { id: { [Op.in]: categoryIds } },
-          })
+              where: { id: { [Op.in]: categoryIds } },
+            })
           : [];
 
       // Tìm kiếm hãng sản xuất
       const manufacturers =
         manufacturerIds.length > 0
           ? await db.ManuFacturer.findAll({
-            where: { id: { [Op.in]: manufacturerIds } },
-          })
+              where: { id: { [Op.in]: manufacturerIds } },
+            })
           : [];
 
       // Trả về kết quả
@@ -89,14 +89,14 @@ class ProductService {
       const searchCondition =
         search && search.trim() !== "" && search !== "null"
           ? {
-            [Op.or]: [
-              { name: { [Op.iLike]: `%${search}%` } },
-              { slug: { [Op.iLike]: `%${search}%` } },
-            ],
-          }
+              [Op.or]: [
+                { name: { [Op.iLike]: `%${search}%` } },
+                { slug: { [Op.iLike]: `%${search}%` } },
+              ],
+            }
           : null;
       const visibleCondition =
-        visible === true || visible === false
+        visible && visible !== "null"
           ? { visible: visible } // Filter by visible status (true or false)
           : null;
       const categoryCondition =
@@ -133,6 +133,7 @@ class ProductService {
         limit,
         offset: offSet,
       });
+
       return {
         count,
         rows,
@@ -624,11 +625,14 @@ class ProductService {
     slug
   ) {
     try {
+      const categoryNumberId = parseInt(categoryId);
+      const manufacturerNumberId = parseInt(manufacturerId);
+
       const [product, created] = await db.Product.findOrCreate({
         where: { name, slug },
         defaults: {
-          categoryId,
-          manufacturerId,
+          categoryId: categoryNumberId,
+          manufacturerId: manufacturerNumberId,
           price,
           discount,
           img: file,
@@ -670,17 +674,24 @@ class ProductService {
 
       const fileImg = file ? file : product.img;
 
-      const updatedProduct = await product.update({
-        categoryId,
-        manufacturerId,
-        name,
-        slug,
-        price,
-        discount,
-        img: fileImg,
-        stock,
-        visible,
-      });
+      const updatedProduct = await db.Product.update(
+        {
+          categoryId,
+          manufacturerId,
+          name,
+          slug,
+          price,
+          discount,
+          img: fileImg,
+          stock,
+          visible,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
       if (updatedProduct) {
         return updatedProduct;
       }
@@ -794,6 +805,26 @@ class ProductService {
         } else {
           return { error: "Update visible thất bại" };
         }
+      }
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async updateProductStock(id, { stock }) {
+    try {
+      const updatedProduct = await db.Product.update(
+        {
+          stock,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+      if (updatedProduct) {
+        return updatedProduct;
       }
     } catch (error) {
       throw new Error(error.message);

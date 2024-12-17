@@ -10,17 +10,16 @@ import Carts from "~/models/Carts";
 import useGet from "~/hooks/useGet";
 import useDebounce from "~/hooks/useDebounce";
 import toast from "react-hot-toast";
-import calculatePriceByRom from "../CalculatePriceByRom";
-import { getSmallestRom } from "../ConvertRom";
 import ValueAttribute from "~/models/ValueAttribute";
 import Loading from "~/layouts/components/Loading";
 import Button from "../Button";
 import Modal from "../Modal";
 import { HiOutlineTrash } from "react-icons/hi2";
+import currencyFormat from "../CurrencyFormat";
 
 interface ChildCartProps {
   id: number;
-  price: number;
+  price?: number;
   discount: number;
   img: string;
   name: string;
@@ -33,9 +32,9 @@ interface ChildCartProps {
 
 function ChildCart({
   id,
-  price,
   discount,
   img,
+  price,
   name,
   idCart,
   rom,
@@ -61,8 +60,8 @@ function ChildCart({
     }
   );
 
-  const { data: attributeValue } = useGet<ValueAttribute[]>(
-    `/valueAttribute/getOneValueAttributeById/${id}`,
+  const { data: attributeValue } = useGet<ValueAttribute>(
+    `/valueAttribute/getOneValueAttributeByProductId/${id}`,
     {
       enabled: !!id,
     }
@@ -72,9 +71,7 @@ function ChildCart({
     [key: number | string]: number;
   }>({});
   const [isUpdating, setIsUpdating] = useState(false);
-  const [capacitySmall, setCapacitySmall] = useState<string | undefined>(
-    undefined
-  );
+  const [capacitySmall] = useState<string | undefined>(undefined);
 
   const debouncedQuantity = useDebounce(
     quantities[idCart || `${id}-${rom}-${color}`],
@@ -113,13 +110,13 @@ function ChildCart({
     // Nếu người dùng đã đăng nhập, lấy stock từ DB
     if (userProfile && carts) {
       const cartItem = carts.rows.find((item) => item.id === id);
-      return cartItem ? cartItem.productData.stock : 0;
+      return cartItem ? cartItem.variantData.stock : 0;
     }
     // Nếu người dùng chưa đăng nhập, lấy stock từ Redux
     const cartItem = cart.find(
       (item) => item.id === id && item.rom === rom && item.color === color
     );
-    return cartItem ? cartItem.stock : 0;
+    return cartItem ? cartItem.variantData.stock : 0;
   };
 
   // Handle removing product from cart
@@ -237,15 +234,7 @@ function ChildCart({
     }
   };
 
-  useEffect(() => {
-    // Lấy ROM nhỏ nhất và lưu vào state khi component được tải
-    if (attributeValue) {
-      const smallestRom = getSmallestRom({ attributeValue });
-      if (smallestRom) {
-        setCapacitySmall(smallestRom.value); // Lưu ROM nhỏ nhất vào state
-      }
-    }
-  }, [attributeValue]);
+  console.log("aaaaaa: ", attributeValue);
 
   // Giá hiện tại dựa trên ROM
   const currentPrice = useMemo(() => {
@@ -254,15 +243,16 @@ function ChildCart({
       return price || 0;
     }
     // Nếu không, tính giá mới dựa trên hàm calculatePriceByRom
-    return calculatePriceByRom(price || 0, rom || "");
+    return price || 0;
   }, [rom, capacitySmall, price]);
 
   // Tính toán tổng giá trị
   const totalPrice =
     currentPrice * (quantities[idCart || `${id}-${rom}-${color}`] ?? 1);
-  const originalPrice =
-    Math.round(currentPrice / (1 - discount / 100)) *
-    (quantities[idCart || `${id}-${rom}-${color}`] ?? 1);
+
+  // const originalPrice =
+  //   Math.round(currentPrice / (1 - discount / 100)) *
+  //   (quantities[idCart || `${id}-${rom}-${color}`] ?? 1);
 
   return (
     <>
@@ -341,7 +331,11 @@ function ChildCart({
           <div className="text-right">
             <p className="font-bold">{totalPrice?.toLocaleString("vi-VN")}đ</p>
             <del className="text-[13px]">
-              {originalPrice?.toLocaleString("vi-VN")}đ
+              {currencyFormat({
+                paramFirst: Number(currentPrice),
+                paramSecond: discount,
+              })}
+              đ
             </del>
           </div>
           <Button

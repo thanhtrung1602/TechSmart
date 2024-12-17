@@ -17,23 +17,20 @@ import StoreProduct from "~/components/store";
 import AttributeColorRom from "~/components/AttributeColorRom";
 import ProductImg from "~/components/ProductImg";
 import Confirmed from "~/components/Confirmed";
-import calculatePriceByRom from "~/components/CalculatePriceByRom";
-import { getSmallestRom } from "~/components/ConvertRom";
+import { getSmallestRom, parseCapacityValue } from "~/components/ConvertRom";
 import Carts from "~/models/Carts";
 import { AxiosError } from "axios";
 import Description from "~/components/Description";
 import Blog from "~/models/blog";
 import useBlog from "~/hooks/useBlog";
 import Loading from "~/layouts/components/Loading";
+import { setPrice } from "~/redux/productSlice";
 
 function Product() {
   const { slugCategory, slugProduct } = useParams();
   const queryClient = useQueryClient();
   const [capacity, setCapacity] = useState(0);
   const [colors, setColors] = useState(0);
-  const [capacitySmall, setCapacitySmall] = useState<string | undefined>(
-    undefined
-  );
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -44,9 +41,14 @@ function Product() {
   const cartProducts = useSelector(
     (state: RootState) => state.cart.cartProducts
   );
-  const stockStatus = useSelector(
-    (state: RootState) => state.socket.stockStatus
+
+  const changePrice = useSelector(
+    (state: RootState) => state.product.changePrice
   );
+
+  // const stockStatus = useSelector(
+  //   (state: RootState) => state.socket.stockStatus
+  // );
 
   const { mutate } = usePost();
 
@@ -57,9 +59,34 @@ function Product() {
     `/products/getOneProduct/${slugProduct}`
   );
 
-  const { data: attributeValue } = useGet<ValueAttribute[]>(
-    `/valueAttribute/getOneValueAttributeById/${productDetail?.id}`
+  const [sortedCapacities, setSortedCapacities] = useState<ValueAttribute[]>(
+    []
   );
+
+  console.log(sortedCapacities);
+
+  const { data: attributeValue, isLoading: isLoadPrice } = useGet<
+    ValueAttribute[]
+  >(`/valueAttribute/getOneValueAttributeById/${productDetail?.id}`);
+
+  useEffect(() => {
+    setSortedCapacities([]);
+  }, [productDetail?.id]);
+
+  const sorted = [
+    ...(attributeValue?.filter((item) => item.attributeId === 6) || []),
+  ].sort((a, b) => {
+    const capacityA = parseCapacityValue(a.value);
+    const capacityB = parseCapacityValue(b.value);
+    return capacityA - capacityB;
+  });
+
+  useEffect(() => {
+    if (sorted.length > 0 && sorted[0]?.variantData?.price) {
+      setSortedCapacities(sorted);
+      dispatch(setPrice(sorted[0].variantData.price.toLocaleString()));
+    }
+  }, [productDetail?.id, attributeValue, dispatch]);
 
   const { data: carts } = useGet<{ count: number; rows: Carts[] }>(
     `/cart/getAllCartByUserId/${userProfile?.id}`
@@ -75,8 +102,6 @@ function Product() {
         attributeValue,
       });
       if (smallestRom) {
-        setCapacitySmall(smallestRom.value); // Lưu ID của ROM nhỏ nhất
-        // Set capacity cho ROM nhỏ nhất
         setCapacity(smallestRom.id);
       }
     }
@@ -135,30 +160,27 @@ function Product() {
     ? selectedRomAsPhoneAndTablet?.value
     : selectedRom?.value || null;
 
-  // Giá hiện tại dựa trên ROM
-  const currentPrice =
-    romValue === capacitySmall
-      ? productDetail?.price || 0
-      : calculatePriceByRom(productDetail?.price || 0, romValue || "");
-  const currentStock =
-    stockStatus[productDetail ? productDetail?.id : 0] ?? productDetail?.stock;
-
-  const handleAddToCart = (product: Products) => {
+  const handleAddToCart = (
+    product: Products,
+    stockChecked: number,
+    variantId: number,
+    total: number
+  ) => {
     if (userProfile && userProfile.ban === true) {
       toast.error("Tài khoản của bạn bị chặn");
       return;
     }
 
-    if (currentStock < 2) {
+    if (stockChecked < 2) {
       toast.error("Sản phẩm này hết hàng!");
       return;
     }
 
-    const stockProd = stockStatus[product.id] || product.stock - 2;
+    const stockProd = stockChecked || stockChecked - 2;
     const quantityProd = carts
       ? carts?.rows.find(
           (item) =>
-            item.productData.id === product.id &&
+            item.variantData.productId === product.id &&
             item.rom === romValue &&
             item.color === selectedColor?.value
         )
@@ -182,18 +204,18 @@ function Product() {
         // Dữ liệu cho cart
         const data: {
           userId: number;
-          productId: number;
+          variantId: number;
           quantity: number;
           color: string | null;
           rom: string | null;
           total: number;
         } = {
           userId: userProfile.id,
-          productId: product.id,
+          variantId: variantId,
           quantity: 1,
           color: selectedColor?.value || null,
           rom: romValue || null,
-          total: currentPrice,
+          total: total,
         };
 
         mutate(
@@ -264,22 +286,27 @@ function Product() {
     }, 1000);
   };
 
-  const handleBuyNow = (product: Products) => {
+  const handleBuyNow = (
+    product: Products,
+    stockChecked: number,
+    variantId: number,
+    total: number
+  ) => {
     if (userProfile && userProfile.ban === true) {
       toast.error("Tài khoản của bạn bị chặn");
       return;
     }
 
-    if (currentStock < 2) {
+    if (stockChecked < 2) {
       toast.error("Sản phẩm này hết hàng!");
       return;
     }
 
-    const stockProd = stockStatus[product.id] || product.stock - 2;
+    const stockProd = stockChecked || stockChecked - 2;
     const quantityProd = carts
       ? carts?.rows.find(
           (item) =>
-            item.productData.id === product.id &&
+            item.variantData.productId === product.id &&
             item.rom === romValue &&
             item.color === selectedColor?.value
         )
@@ -303,18 +330,18 @@ function Product() {
         // Dữ liệu cho cart
         const data: {
           userId: number;
-          productId: number;
+          variantId: number;
           quantity: number;
           color: string | null;
           rom: string | null;
           total: number;
         } = {
           userId: userProfile.id,
-          productId: product.id,
+          variantId: variantId,
           quantity: 1, // Luôn gửi số lượng 1, backend sẽ xử lý tăng số lượng
           color: selectedColor?.value || null,
           rom: romValue || null,
-          total: currentPrice,
+          total: total,
         };
 
         mutate(
@@ -384,6 +411,22 @@ function Product() {
     }, 1000);
   };
 
+  {
+    isLoadPrice ? (
+      <span>Loading...</span>
+    ) : (
+      <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#FF0000]">
+        {sorted?.[0]?.variantData?.price.toLocaleString()}đ
+      </span>
+    );
+  }
+
+  const stockChecked = attributeValue?.find((item) => item?.variantData.stock);
+
+  const variant = attributeValue?.find((item) => item?.variantId);
+
+  console.log("adadadhhhhhhhhhhh ", variant);
+
   return (
     <>
       {isLoading && <Loading />}
@@ -417,12 +460,18 @@ function Product() {
               {/* Tien */}
               <div className="flex flex-col gap-y-2 p-4 sm:p-5 border border-gray-400 mb-4 rounded-lg">
                 <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#FF0000]">
-                  {currentPrice?.toLocaleString()} đ
+                  {changePrice === 0 && sorted?.length
+                    ? sorted?.[0]?.variantData?.price.toLocaleString()
+                    : changePrice?.toLocaleString()}{" "}
+                  đ
                 </span>
+
                 <p>
                   <span className="text-sm sm:text-base text-[#6C7275] line-through mr-3">
                     {currencyFormat({
-                      paramFirst: productDetail.price,
+                      paramFirst:
+                        Number(changePrice) ||
+                        Number(sorted?.[0]?.variantData?.price),
                       paramSecond: productDetail.discount,
                     })}
                     đ
@@ -433,12 +482,17 @@ function Product() {
                 </p>
               </div>
               {/* Nutthaotac */}
-              {currentStock > 2 ? (
+              {stockChecked || 0 > 2 ? (
                 <div className="flex flex-wrap gap-3 mb-4">
                   <button
                     className="bg-[#eb3e32] px-3 py-3 rounded duration-300 hover:bg-red-600"
                     onClick={() => {
-                      handleAddToCart(productDetail);
+                      handleAddToCart(
+                        productDetail,
+                        Number(stockChecked?.variantData.stock),
+                        Number(variant?.variantId),
+                        Number(variant?.variantData.price)
+                      );
                     }}
                   >
                     <BsFillCartFill className="text-white text-xl sm:text-2xl" />
@@ -446,7 +500,12 @@ function Product() {
                   <button
                     className="flex-1 bg-[#eb3e32] px-8 py-2 sm:px-20 sm:h-12 rounded duration-300 hover:bg-red-600"
                     onClick={() => {
-                      handleBuyNow(productDetail);
+                      handleBuyNow(
+                        productDetail,
+                        Number(stockChecked?.variantData.stock),
+                        Number(variant?.variantId),
+                        Number(variant?.variantData.price)
+                      );
                     }}
                   >
                     <span className="text-sm sm:text-lg text-white">

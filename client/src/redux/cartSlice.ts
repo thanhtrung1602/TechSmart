@@ -10,7 +10,7 @@ const getCartFromLocalStorage = () => {
   return JSON.parse(localStorage.getItem("tempCart") || "[]");
 };
 
-const initialState: CartState = {
+export const initialState: CartState = {
   cartProducts: getCartFromLocalStorage(),
 };
 

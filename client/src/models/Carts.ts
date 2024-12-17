@@ -1,4 +1,4 @@
-import Products from "./Products";
+import Variants from "./Variants";
 
 // Interface defining the additional properties for a cart
 export interface ICarts {
@@ -8,21 +8,21 @@ export interface ICarts {
   rom: string;
   color: string;
   imgCart: string;
-  productData: Products;
+  variantData: Variants;
   createdAt: Date;
   updatedAt: Date;
   total: number;
 }
 
 // Carts class extends Products and implements ICarts
-class Carts extends Products implements ICarts {
+class Carts implements ICarts {
   id: number;
   userId: number;
   quantity: number;
   rom: string;
   color: string;
   imgCart: string;
-  productData: Products;
+  variantData: Variants;
   createdAt: Date;
   updatedAt: Date;
   total: number;
@@ -33,34 +33,16 @@ class Carts extends Products implements ICarts {
     rom: string,
     color: string,
     imgCart: string,
-    productData: Products,
+    variantData: Variants,
     total: number
   ) {
-    super(
-      productData.id,
-      productData.categoryId,
-      productData.manufacturerId,
-      productData.name,
-      productData.slug,
-      productData.price,
-      productData.discount,
-      productData.img,
-      productData.stock,
-      productData.visible,
-      productData.hot,
-      productData.createdAt,
-      productData.updatedAt,
-      productData.categoryData,
-      productData.manufacturerData
-    );
-
     this.id = id;
     this.userId = userId;
     this.quantity = quantity;
     this.rom = rom;
     this.color = color;
     this.imgCart = imgCart;
-    this.productData = productData;
+    this.variantData = variantData;
     this.createdAt = new Date();
     this.updatedAt = new Date();
     this.total = total;

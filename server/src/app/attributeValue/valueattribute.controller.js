@@ -22,17 +22,42 @@ class ValueAttributeController {
     return res.status(200).json(getOneValueAttributeById);
   });
 
-  createValueAttribute = asyncWrapper(async (req, res) => {
+  getOneValueAttributeByProductId = asyncWrapper(async (req, res) => {
+    const id = parseInt(req.params.id);
 
-    const { attributeId, productId, value } = req.body;
-
-    console.log(req.body)
-
-    if (!attributeId || !productId || !value) {
-      return res.status(400).json("Invalid input: attributeId, productId, value are required");
+    if (!id) {
+      return res.status(400).json("Invalid input: id is required");
     }
 
-    console.log("Controller created:", productId, attributeId, value);
+    const getOneValueAttributeByProductId =
+      await ValueAttributeService.getOneValueAttributeByProductId(id);
+
+    return res.status(200).json(getOneValueAttributeByProductId);
+  });
+
+  getAttributeValueByVariant = asyncWrapper(async (req, res) => {
+    const id = parseInt(req.params.id);
+
+    if (!id) {
+      return res.status(400).json("Invalid input: id is required");
+    }
+
+    const getAttributeValueByVariant =
+      await ValueAttributeService.getAttributeValueByVariant(id);
+
+    return res.status(200).json(getAttributeValueByVariant);
+  });
+
+  createValueAttribute = asyncWrapper(async (req, res) => {
+    const { attributeId, productId, variantId, value } = req.body;
+
+    console.log("Controller created:", req.body);
+
+    if (!attributeId || !productId || !value) {
+      return res
+        .status(400)
+        .json("Invalid input: attributeId, productId, value are required");
+    }
 
     const numberAttributeId = parseInt(attributeId);
 
@@ -40,7 +65,8 @@ class ValueAttributeController {
       await ValueAttributeService.createValueAttribute({
         attributeId: numberAttributeId,
         productId,
-        value
+        variantId,
+        value,
       });
     return res.status(200).json(createValueAttribute);
   });
@@ -60,7 +86,10 @@ class ValueAttributeController {
         value,
         id
       );
-    return res.status(200).json({ message: "Updated attributes successfully", results: updateValueAttribute });
+    return res.status(200).json({
+      message: "Updated attributes successfully",
+      results: updateValueAttribute,
+    });
   });
 
   updateProductValueAttribute = asyncWrapper(async (req, res) => {
@@ -75,11 +104,19 @@ class ValueAttributeController {
 
     const numberAttributeId = parseInt(attributeId);
     const valueId = parseInt(id);
-    const updateResults = await ValueAttributeService.updateOrCreateProductValueAttribute({ productId, attributeId: numberAttributeId, value, id: valueId });
+    const updateResults =
+      await ValueAttributeService.updateOrCreateProductValueAttribute({
+        productId,
+        attributeId: numberAttributeId,
+        value,
+        id: valueId,
+      });
 
-    return res.status(200).json({ message: "Updated attributes successfully", results: updateResults });
+    return res.status(200).json({
+      message: "Updated attributes successfully",
+      results: updateResults,
+    });
   });
-
 
   delValueAttribute = asyncWrapper(async (req, res) => {
     const id = parseInt(req.params.id);

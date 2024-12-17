@@ -12,8 +12,7 @@ import toast from "react-hot-toast";
 import useGet from "~/hooks/useGet";
 import { useDelete } from "~/hooks/usePost";
 import { useQueryClient } from "@tanstack/react-query";
-import ChildCart from "~/components/ChildCart";
-import calculatePriceByRom from "~/components/CalculatePriceByRom";
+import ChildCart from "~/components/childCart";
 import { removeCart } from "~/redux/cartSlice";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import Modal from "~/components/Modal";
@@ -29,6 +28,7 @@ function Cart() {
   const stockStatus = useSelector(
     (state: RootState) => state.socket.stockStatus
   );
+
   const socketCart = useSelector((state: RootState) => state.socket.cartUpdate);
   const { data: carts } = useGet<{ count: number; rows: Carts[] }>(
     `/cart/getAllCartByUserId/${socketCart.userId || userProfile?.id}`,
@@ -42,9 +42,6 @@ function Cart() {
 
   const navigate = useNavigate();
 
-  const [quantities, setQuantities] = useState<{
-    [key: number | string]: number;
-  }>({});
   const [selectedItems, setSelectedItems] = useState<{
     [key: number]: boolean;
   }>({});
@@ -63,7 +60,6 @@ function Cart() {
       initialSelectedItems[item.id] = true; // Default selection state to true
     });
 
-    setQuantities(initialQuantities);
     setSelectedItems(initialSelectedItems);
   }, [carts, cart]); // Depend on both carts and cart
 
@@ -92,55 +88,32 @@ function Cart() {
     const items = carts?.rows || cart || [];
     return items.reduce((total, productDetail) => {
       if (selectedItems[productDetail.id]) {
-        const price = carts?.rows
-          ? calculatePriceByRom(
-              productDetail.productData.price,
-              productDetail.rom
-            )
-          : calculatePriceByRom(productDetail.price, productDetail.rom);
-        const discount =
-          productDetail.productData?.discount || productDetail.discount;
-        return (
-          total +
-          Math.round(price / (1 - discount / 100)) *
-            (quantities[
-              carts?.rows
-                ? productDetail.id
-                : `${productDetail.id}-${productDetail.rom}-${productDetail.color}`
-            ] || 1)
-        );
+        const price = Number(productDetail.variantData.price); // Original price
+        const discount = productDetail.variantData.productData.discount || 0; // Discount
+
+        // Calculate original price before the discount
+        const originalPrice = Math.round(price / (1 - discount / 100));
+        return total + originalPrice;
       }
       return total;
     }, 0);
-  }, [carts, cart, selectedItems, quantities]);
+  }, [carts, cart, selectedItems]);
 
   // Memoized calculation for total discounted price
   const totalDiscountedPrice = useMemo(() => {
     const items = carts?.rows || cart || [];
     return items.reduce((total, productDetail) => {
       if (selectedItems[productDetail.id]) {
-        const price = carts?.rows
-          ? calculatePriceByRom(
-              productDetail.productData.price,
-              productDetail.rom
-            )
-          : calculatePriceByRom(productDetail.price, productDetail.rom);
-        return (
-          total +
-          price *
-            (quantities[
-              carts?.rows
-                ? productDetail.id
-                : `${productDetail.id}-${productDetail.rom}-${productDetail.color}`
-            ] || 1)
-        );
+        const price = Number(productDetail.variantData.price); // Discounted price
+        return total + price;
       }
       return total;
     }, 0);
-  }, [carts, cart, selectedItems, quantities]);
+  }, [carts, cart, selectedItems]);
 
+  // Memoized calculation for total discount
   const totalDiscount = useMemo(() => {
-    return totalOriginalPrice - totalDiscountedPrice;
+    return Math.round(totalOriginalPrice - totalDiscountedPrice);
   }, [totalOriginalPrice, totalDiscountedPrice]);
 
   const handleRemoveCart = () => {
@@ -190,7 +163,7 @@ function Cart() {
 
       // Tính tổng số lượng cho mỗi sản phẩm với ID giống nhau
       for (const product of selectedProducts) {
-        const productId = product.productData.id;
+        const productId = product.variantData.productId;
         const quantity = product.quantity; // Lấy số lượng của sản phẩm từ selectedItems
 
         if (productQuantity[productId]) {
@@ -203,16 +176,16 @@ function Cart() {
 
       // Kiểm tra stock cho từng sản phẩm đã chọn
       for (const product of selectedProducts) {
-        const productId = product.productData.id;
+        const productId = product.variantData.productId;
 
-        const stock = stockStatus[productId] || product.productData.stock; // Lấy stock tổng của sản phẩm theo ID
+        const stock = stockStatus[productId] || product.variantData.stock; // Lấy stock tổng của sản phẩm theo ID
         const requestedQuantity = productQuantity[productId]; // Số lượng đã yêu cầu cho sản phẩm theo ID
 
         console.log(stock, requestedQuantity);
 
         if (stock - requestedQuantity < 2) {
           // Kiểm tra nếu số lượng tồn kho còn lại không đủ yêu cầu
-          outOfStockProducts.add(product.productData.name); // Sử dụng Set để chỉ thêm tên sản phẩm một lần
+          outOfStockProducts.add(product.variantData.productData.name); // Sử dụng Set để chỉ thêm tên sản phẩm một lần
         }
       }
 
@@ -348,11 +321,13 @@ function Cart() {
                       <ChildCart
                         key={productDetail.id}
                         idCart={productDetail.id}
-                        id={productDetail.productData.id}
-                        price={productDetail.productData.price}
-                        discount={productDetail.productData.discount}
-                        img={productDetail.productData.img}
-                        name={productDetail.productData.name}
+                        id={productDetail?.variantData?.productData.id}
+                        price={productDetail?.variantData?.price}
+                        discount={
+                          productDetail?.variantData?.productData.discount
+                        }
+                        img={productDetail?.variantData?.productData.img}
+                        name={productDetail?.variantData?.productData.name}
                         rom={productDetail.rom}
                         color={productDetail.color}
                         selectedItems={selectedItems}
@@ -362,11 +337,13 @@ function Cart() {
                   : cart?.map((productDetail, index) => (
                       <ChildCart
                         key={index}
-                        id={productDetail.id}
-                        img={productDetail.img}
-                        name={productDetail.name}
-                        price={productDetail.price}
-                        discount={productDetail.discount}
+                        id={productDetail?.variantData?.productData.id}
+                        price={productDetail?.variantData?.price}
+                        discount={
+                          productDetail?.variantData?.productData.discount
+                        }
+                        img={productDetail?.variantData?.productData.img}
+                        name={productDetail?.variantData?.productData.name}
                         rom={productDetail.rom}
                         color={productDetail.color}
                         selectedItems={selectedItems}

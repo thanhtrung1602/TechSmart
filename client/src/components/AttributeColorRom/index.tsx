@@ -1,5 +1,7 @@
 import ValueAttribute from "~/models/ValueAttribute";
 import { parseCapacityValue } from "../ConvertRom";
+import { useDispatch } from "react-redux";
+import { setPrice } from "~/redux/productSlice";
 
 interface AttributeColorRom {
   attributeValue: ValueAttribute[];
@@ -79,10 +81,11 @@ function ColorProduct({
             return (
               <button
                 key={item.id}
-                className={`relative overflow-hidden flex items-center gap-x-3 p-1 ${colors === item.id
+                className={`relative overflow-hidden flex items-center gap-x-3 p-1 ${
+                  colors === item.id
                     ? "border-[#ff3737] bg-[#ff373722]"
                     : "border-[#b8b8b8]"
-                  } border-[2px] rounded-full`}
+                } border-[2px] rounded-full`}
                 onClick={() => handleColorChange(item.id)}
               >
                 <span
@@ -109,7 +112,7 @@ function CapacityProduct({
   capacity: number;
 }) {
   const capacities = attributeValue.filter((item) => item.attributeId === 6);
-
+  const dispatch = useDispatch();
   const sortedRom = capacities.sort((a, b) => {
     const capacityA = parseCapacityValue(a.value);
     const capacityB = parseCapacityValue(b.value);
@@ -130,17 +133,22 @@ function CapacityProduct({
           return (
             <button
               key={item.id}
-              className={`relative overflow-hidden flex items-center gap-x-3 p-2 ${selectedCapacity === item.id
+              className={`relative overflow-hidden flex items-center gap-x-3 p-2 ${
+                selectedCapacity === item.id
                   ? "border-[#ff3737] bg-[#ff373722] before:absolute before:-right-5 before:top-0 before:size-7 before:bg-[#ff3737] before:content-[''] before:transform before:rotate-45 before:origin-top-right after:absolute after:right-1 after:top-0 after:translate-x-[2px] after:-translate-y-[2px] after:text-white after:content-['✔'] after:text-[10px]"
                   : "border-[#b8b8b8]"
-                } border-[2px] rounded`}
-              onClick={() => handleCapacityChange(item.id)}
+              } border-[2px] rounded`}
+              onClick={() => {
+                dispatch(setPrice(item?.variantData?.price));
+                handleCapacityChange(item.id);
+              }}
             >
               <span
-                className={`text-sm font-medium ${selectedCapacity === item.id
+                className={`text-sm font-medium ${
+                  selectedCapacity === item.id
                     ? "text-[#ff3737]"
                     : "text-[#b8b8b8]"
-                  }`}
+                }`}
               >
                 {item.value}
               </span>

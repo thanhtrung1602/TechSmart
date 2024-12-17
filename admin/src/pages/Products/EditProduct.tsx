@@ -7,28 +7,29 @@ import CategoryAttribute from "~/models/CategoryAttribute";
 import Manufacturer from "~/models/Manufacturer";
 import Products from "~/models/Products";
 import ValueAttribute from "~/models/ValueAttribute";
+import Variants from "~/models/Variants";
 import Image from "~/components/Image";
 import { useQueryClient } from "@tanstack/react-query";
 import { FiMinusCircle, FiPlusCircle } from "react-icons/fi";
 import toast from "react-hot-toast";
 
-interface Value {
-  id: number | null; // Allow null or number to handle new values
+interface AttributeValueData {
+  attributeId: number;
   value: string;
 }
 
-interface Attribute {
-  attributeId: number;
-  values: Value[];
+interface VariantData {
+  stock: number;
+  price: number;
+  attributeValues: AttributeValueData[];
 }
 
 interface FormData {
   name: string;
-  price: number;
   discount: number;
-  stock: number;
   visible: boolean;
-  attributes: Attribute[];
+  variants: VariantData[];
+  attributeValues: AttributeValueData[]; // For non-variant attributes
 }
 
 type ProductImage = {
@@ -56,11 +57,16 @@ export default function EditProduct() {
   const [productImages, setProductImages] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    price: 0,
     discount: 0,
-    stock: 0,
     visible: false,
-    attributes: [],
+    variants: [
+      {
+        stock: 0,
+        price: 0,
+        attributeValues: [], // Initialize as empty array
+      },
+    ],
+    attributeValues: [], // Initialize as empty array
   });
   const [initialFormData, setInitialFormData] = useState<FormData | null>(null); // Lưu dữ liệu ban đầu của form
 
@@ -79,6 +85,11 @@ export default function EditProduct() {
   const { data: categoryAttribute } = useGet<CategoryAttribute[]>(
     `/categoryAttribute/getCategoryAttributesByCategory/${selectedCategory.id}`
   );
+
+  const { data: variants } = useGet<Variants[]>(
+    `/variants/getAllVariantByProductId/${productId}`
+  );
+
   const { data: attributeValues } = useGet<ValueAttribute[]>(
     `/valueAttribute/getOneValueAttributeById/${product?.id}`
   );
@@ -91,30 +102,38 @@ export default function EditProduct() {
     if (product && categoryAttribute && attributeValues) {
       const initialAttributes = categoryAttribute?.map((catAttr) => ({
         attributeId: catAttr.attributeData.id,
-        values: attributeValues
-          .filter((av) => av.attributeId === catAttr.attributeData.id)
-          ?.map((av) => ({ id: av.id, value: av.value })) || [
-            { id: 0, value: "" },
-          ],
+        value: attributeValues?.find(
+          (attr) => attr.attributeId === catAttr.attributeData.id
+        )?.value,
       }));
+
+      const initialVariants = variants?.map((variant) => ({
+        stock: variant.stock,
+        price: variant.price,
+        attributeValues: attributeValues
+          ?.filter((attr) => attr.variatnId && attr.variatnId === variant.id)
+          .map((va) => ({
+            attributeId: va.attributeId,
+            value: va.value,
+          })),
+      }));
+
       //Lưu giá trị ban đầu
       setInitialFormData({
         name: product.name,
-        price: product.price,
         discount: product.discount,
-        stock: product.stock,
         visible: product.visible,
-        attributes: initialAttributes,
+        variants: initialVariants,
+        attributeValues: initialAttributes,
       });
 
       setFormData((prev) => ({
         ...prev,
         name: product.name,
-        price: product.price,
         discount: product.discount,
-        stock: product.stock,
         visible: product.visible,
-        attributes: initialAttributes,
+        variants: initialVariants,
+        attributeValues: initialAttributes,
       }));
 
       setSelectedCategory({ id: product.categoryId, slug: "" });
@@ -124,19 +143,13 @@ export default function EditProduct() {
         setProductImages(product.img);
       }
     }
-  }, [product, attributeValues, categoryAttribute]);
+  }, [product, attributeValues, categoryAttribute, variants]);
 
   // Hàm xử lý khi thay đổi giá trị của thuộc tính
-  const handleAttributeChange = (
-    attributeId: number,
-    index: number,
-    value: string
-  ) => {
+  const handleAttributeChange = (attributeId: number, value: string) => {
     setFormData((prevFormData) => {
-      const updatedAttributes = prevFormData.attributes?.map((attr) => {
+      const updatedAttributes = prevFormData.attributeValues?.map((attr) => {
         if (attr.attributeId === attributeId) {
-          const newValues = [...attr.values];
-          newValues[index] = { ...newValues[index], value };
           return { ...attr, values: newValues };
         }
         return attr;
@@ -163,7 +176,7 @@ export default function EditProduct() {
 
   // Hàm xử lý khi xóa một giá trị của thuộc tính
   const handleRemoveValue = async (attributeId: number, index: number) => {
-    const attributeValueId = formData.attributes.find(
+    const attributeValueId = formData.attributes?.find(
       (attr) => attr.attributeId === attributeId
     )?.values[index]?.id;
 
@@ -410,23 +423,23 @@ export default function EditProduct() {
               <div className="mt-4 grid grid-cols-3 gap-4">
                 {previewImages?.length > 0
                   ? previewImages?.map((preview, index) => (
-                    <div key={index} className="size-2/4">
-                      <Image
-                        src={preview}
-                        alt={`Preview ${index}`}
-                        className="object-cover rounded-md"
-                      />
-                    </div>
-                  ))
+                      <div key={index} className="size-2/4">
+                        <Image
+                          src={preview}
+                          alt={`Preview ${index}`}
+                          className="object-cover rounded-md"
+                        />
+                      </div>
+                    ))
                   : productImages && (
-                    <div className="size-2/4">
-                      <Image
-                        src={productImages}
-                        alt="Manufacture Image"
-                        className="object-cover rounded-md"
-                      />
-                    </div>
-                  )}
+                      <div className="size-2/4">
+                        <Image
+                          src={productImages}
+                          alt="Manufacture Image"
+                          className="object-cover rounded-md"
+                        />
+                      </div>
+                    )}
               </div>
             )}
           </div>
@@ -607,7 +620,7 @@ export default function EditProduct() {
           {categoryAttribute &&
             categoryAttribute?.length > 0 &&
             categoryAttribute?.map((categoryAttr) => {
-              const attributeValue = formData.attributes.find(
+              const attributeValue = formData.attributes?.find(
                 (attr) => attr.attributeId === categoryAttr.attributeId
               );
               return (
@@ -637,7 +650,7 @@ export default function EditProduct() {
                     >
                       {/* Kiểm tra nếu attributeId là 4 hoặc 29 */}
                       {categoryAttr.attributeId === 4 ||
-                        categoryAttr.attributeId === 29 ? (
+                      categoryAttr.attributeId === 29 ? (
                         <>
                           {/* Input chọn màu */}
                           <input

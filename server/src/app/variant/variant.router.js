@@ -5,10 +5,28 @@ const { jwtMiddlewareRole, jwtMiddleware } = require("../../middleware");
 
 router.get("/getAllVariant", VariantController.getAllVariant);
 router.get("/getVariantById/:id", VariantController.getVariantById);
-router.get("/getAllVariantByProductId/:id", VariantController.getAllVariantByProductId);
-router.get("/getOneVariantByProductId/:id", VariantController.getOneVariantByProductId);
-router.post("/createVariant", jwtMiddlewareRole, VariantController.createVariant);
-router.patch("/updateVariant/:id", jwtMiddlewareRole, VariantController.updateVariant);
-router.delete("/deleteVariant/:id", jwtMiddlewareRole, VariantController.deleteVariant);
+router.get(
+  "/getAllVariantByProductId/:id",
+  VariantController.getAllVariantByProductId
+);
+router.get(
+  "/getOneVariantByProductId/:id",
+  VariantController.getOneVariantByProductId
+);
+router.post(
+  "/createVariant",
+  jwtMiddlewareRole,
+  VariantController.createVariant
+);
+router.patch(
+  "/updateVariant/:id",
+  jwtMiddlewareRole,
+  VariantController.updateVariant
+);
+router.delete(
+  "/deleteVariant/:id",
+  jwtMiddlewareRole,
+  VariantController.deleteVariant
+);
 
 module.exports = router;
