@@ -115,7 +115,7 @@ function OrderComplete() {
                   <p className="text-gray-700">
                     <strong>Tổng tiền:</strong>{" "}
                     <span className="text-red-600 font-semibold">
-                      {Number(orderReturn?.total).toLocaleString("vi-VN", {
+                      {Number(orderReturn?.total)?.toLocaleString("vi-VN", {
                         style: "currency",
                         currency: "VND",
                       })}
@@ -163,7 +163,7 @@ function OrderComplete() {
                   <p className="text-gray-700">
                     <strong>Tổng tiền:</strong>{" "}
                     <span className="text-red-600 font-semibold">
-                      {Number(orderReturn?.total).toLocaleString("vi-VN", {
+                      {Number(orderReturn?.total)?.toLocaleString("vi-VN", {
                         style: "currency",
                         currency: "VND",
                       })}
@@ -269,7 +269,7 @@ function OrderComplete() {
                 <p className="text-gray-700">
                   <strong>Tổng tiền:</strong>{" "}
                   <span className="text-red-600 font-semibold">
-                    {Number(orderReturn?.total).toLocaleString("vi-VN", {
+                    {Number(orderReturn?.total)?.toLocaleString("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     })}

@@ -393,7 +393,7 @@ function Cart() {
                 <div className="flex justify-between py-2 lg:py-[13px]">
                   <p className="text-sm lg:text-base">Tổng tiền</p>
                   <p className="font-bold text-sm lg:text-base">
-                    {totalOriginalPrice.toLocaleString("vi-VN")}đ
+                    {totalOriginalPrice?.toLocaleString("vi-VN")}đ
                   </p>
                 </div>
               </div>
@@ -402,7 +402,7 @@ function Cart() {
                 <div className="flex justify-between py-2 lg:py-[13px]">
                   <p className="text-sm lg:text-base">Tổng khuyến mãi</p>
                   <p className="font-bold text-sm lg:text-base">
-                    {totalDiscount.toLocaleString("vi-VN")}đ
+                    {totalDiscount?.toLocaleString("vi-VN")}đ
                   </p>
                 </div>
                 <div className="flex justify-between py-2 lg:py-[13px]">
@@ -416,7 +416,7 @@ function Cart() {
                   <p className="text-sm lg:text-base">Cần thanh toán</p>
                   <div className="font-bold">
                     <p className="font-bold text-red-600 text-sm lg:text-base">
-                      {totalDiscountedPrice.toLocaleString("vi-VN")}đ
+                      {totalDiscountedPrice?.toLocaleString("vi-VN")}đ
                     </p>
                   </div>
                 </div>

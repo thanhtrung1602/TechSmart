@@ -249,7 +249,7 @@ function Order() {
                       {new Date(order.createdAt).toLocaleDateString("vi-VN")}
                     </td>
                     <td className="py-3 px-4 border-b">
-                      {order.total.toLocaleString()}
+                      {order.total?.toLocaleString()}
                     </td>
                     <td className="py-3 px-4 border-b text-sm">
                       {order.paymentMethodData.type}

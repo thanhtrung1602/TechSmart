@@ -339,9 +339,9 @@ function ChildCart({
             </p>
           </div>
           <div className="text-right">
-            <p className="font-bold">{totalPrice.toLocaleString("vi-VN")}đ</p>
+            <p className="font-bold">{totalPrice?.toLocaleString("vi-VN")}đ</p>
             <del className="text-[13px]">
-              {originalPrice.toLocaleString("vi-VN")}đ
+              {originalPrice?.toLocaleString("vi-VN")}đ
             </del>
           </div>
           <Button
