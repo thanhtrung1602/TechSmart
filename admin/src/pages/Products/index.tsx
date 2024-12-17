@@ -19,6 +19,7 @@ import DetailProduct from "./detailProduct";
 import useDebounce from "~/hooks/useDebounce";
 import { useSelector } from "react-redux";
 import { RootState } from "~/redux/store";
+
 import { useNavigate } from "react-router-dom";
 import Variants from "~/models/Variants";
 
@@ -192,11 +193,11 @@ function ProductList() {
           </select>
           <select
             className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg focus:outline-none"
-            value={filterStatus || ""}
+            value={filterStatus !== null ? filterStatus.toString() : ""}
             onChange={(e) => {
               const value = e.target.value;
               console.log(value);
-              setFilterStatus(value === "true" ? true : false);
+              setFilterStatus(value === "true" ? true : value === "false" ? false : null);
             }}
           >
             <option value="" disabled hidden>Tất cả</option>

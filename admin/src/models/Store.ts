@@ -11,6 +11,7 @@ interface IStore {
   ward: string;
   street: string;
   phone: number;
+  visible: boolean;
   codeStore: string;
   createdAt: Date;
   updatedAt: Date;
@@ -31,6 +32,7 @@ class Store implements IStore {
   ward: string;
   street: string;
   phone: number;
+  visible: boolean;
   codeStore: string;
   createdAt: Date;
   updatedAt: Date;
@@ -43,6 +45,7 @@ class Store implements IStore {
     street: string,
     phone: number,
     codeStore: string,
+    visible: boolean,
     createdAt: Date,
     updatedAt: Date
   ) {
@@ -52,6 +55,7 @@ class Store implements IStore {
     this.ward = ward;
     this.street = street;
     this.phone = phone;
+    this.visible = visible;
     this.codeStore = codeStore;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;

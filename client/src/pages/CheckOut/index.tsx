@@ -414,7 +414,6 @@ function CheckOut() {
                             <div>
                               <p className="text-red-600 text-base font-semibold">
                                 {currentPrice?.toLocaleString("vi-VN")}đ
-                                {currentPrice?.toLocaleString("vi-VN")}đ
                               </p>
                               <p className="text-sm line-through text-gray-500">
                                 {Math.round(
@@ -481,7 +480,6 @@ function CheckOut() {
               <span className="text-gray-700">Tổng tiền</span>
               <span className="font-semibold">
                 {totalOriginalPrice?.toLocaleString("vi-VN")}đ
-                {totalOriginalPrice?.toLocaleString("vi-VN")}đ
               </span>
             </div>
             <hr className="my-2" />
@@ -489,7 +487,6 @@ function CheckOut() {
             <div className="flex justify-between">
               <span className="text-gray-700">Tổng khuyến mãi</span>
               <span className="font-semibold">
-                {totalDiscount?.toLocaleString("vi-VN")}đ
                 {totalDiscount?.toLocaleString("vi-VN")}đ
               </span>
             </div>
@@ -504,7 +501,6 @@ function CheckOut() {
             <div className="flex justify-between">
               <span className="text-gray-700">Cần thanh toán</span>
               <span className="font-semibold text-red-600 text-lg">
-                {totalDiscountedPrice?.toLocaleString("vi-VN")}đ
                 {totalDiscountedPrice?.toLocaleString("vi-VN")}đ
               </span>
             </div>

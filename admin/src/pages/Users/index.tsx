@@ -1,25 +1,25 @@
 
 import useGet from "~/hooks/useGet";
 import Users from "~/models/Users";
-import { FiRefreshCw } from "react-icons/fi";
-import { MdBlock } from "react-icons/md";
+import { FiRefreshCw, FiPlus } from "react-icons/fi";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { usePatch } from "~/hooks/usePost";
 import Modal from "~/components/Modal/Modal";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 function User() {
   const [isBanning, setIsBanning] = useState<number | null>(null);
   const { mutate: banUser } = usePatch();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-
   const { data: users } = useGet<Users[]>("/users/getAllUser");
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+
+
 
   const handleBanUser = () => {
     if (!isBanning) return;
@@ -37,8 +37,6 @@ function User() {
             toast.success("Cập nhật thành công");
             setOpen(false);
             setIsBanning(null);
-            navigate("/users");
-            window.location.reload();
           }
         },
         onError: (error) => {
@@ -58,8 +56,9 @@ function User() {
       .includes(searchTerm.toLowerCase());
 
     const matchesStatus =
-      (filterStatus === "Bị chặn" && user.ban === true) ||
-      (filterStatus === "" && user.ban === false);
+      filterStatus === "" ||
+      (filterStatus === "true" && user.ban === true) ||
+      (filterStatus === "false" && user.ban === false);
 
     return matchesSearchTerm && matchesStatus;
   });
@@ -76,8 +75,9 @@ function User() {
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
-              <option value="">Không bị chặn</option>
-              <option value="Bị chặn">Bị chặn</option>
+              <option value="" disabled hidden>Tất cả</option>
+              <option value="false">Không bị chặn</option>
+              <option value="true">Bị chặn</option>
             </select>
             {/* Input tìm kiếm */}
             <input
@@ -142,27 +142,33 @@ function User() {
                           setIsBanning(user.id); // Chuyển thành setIsUpdating(category.id) nếu cần
                         }}
                         disabled={isBanning === user.id} // Điều kiện này vẫn giữ nguyên
-                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   
-                        ${user.ban === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
+                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   ${user.ban === false
+                          ? "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300"
+                          : "bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300"
+                          }`}
                       >
-                        {user.ban === false ? (
-                          <p>Chặn</p>
-                        ) : (
-                          <p>Bỏ chặn</p>
-                        )}
+                        {user.ban === false ? <p>Chặn</p> : <p>Bỏ chặn</p>}
                       </button>
 
                       <Modal open={open} onClose={() => setOpen(false)}>
                         <div className="text-center w-auto">
                           {/* Conditional icon rendering */}
                           {user.ban === false ? (
-                            <MdBlock size={56} className="mx-auto text-red-500" />
+                            <MdBlock
+                              size={56}
+                              className="mx-auto text-red-500"
+                            />
                           ) : (
-                            <MdBlock size={56} className="mx-auto text-green-500" />
+                            <MdBlock
+                              size={56}
+                              className="mx-auto text-green-500"
+                            />
                           )}
                           <div className="mx-auto my-4">
                             <h3 className="text-lg font-bold text-gray-800">
-                              {user.ban === true ? "Xác nhận bỏ chặn sản phẩm" : "Xác nhận chặn sản phẩm"}
+                              {user.ban === true
+                                ? "Xác nhận bỏ chặn sản phẩm"
+                                : "Xác nhận chặn sản phẩm"}
                             </h3>
                             <p className="text-sm text-gray-500 my-2">
                               {user.ban === true
@@ -186,7 +192,6 @@ function User() {
                           </div>
                         </div>
                       </Modal>
-
                     </td>
                   </tr>
                 ))

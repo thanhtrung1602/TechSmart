@@ -12,7 +12,8 @@ class ManufacturerController {
     const category = req.query.category || "";
     const manufacturer = req.query.manufacturer || null;
     const search = req.query.search || "";
-    const visible = req.query.visible  === "null" 
+    const visible = req.query.visible || null;
+
 
 
     const limit = size;

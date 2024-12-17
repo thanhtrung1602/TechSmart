@@ -1,5 +1,5 @@
 type ContactData = {
-    fullname: string;
+    fullName: string;
     email: string;
     phone: number;
     text: string;

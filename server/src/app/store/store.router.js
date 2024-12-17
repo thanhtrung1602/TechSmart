@@ -8,5 +8,5 @@ router.get("/findOne/:id", storeController.findOne);
 router.post("/createStore", jwtMiddlewareRole, storeController.createStore);
 router.put("/updateStore/:id", jwtMiddlewareRole, storeController.updateStore);
 router.delete("/delStore/:id", jwtMiddlewareRole, storeController.delStore);
-
+router.patch("/updateStoreByVisible/:id", jwtMiddlewareRole, storeController.updateStoreByVisible);
 module.exports = router;

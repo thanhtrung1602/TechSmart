@@ -8,8 +8,8 @@ import SocketHandler from "./utils/socketHandler.tsx";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Providers>
     <SocketHandler />
-    <div className="flex justify-center items-center">
-      <div className="container mx-auto w-full">
+    <div className="flex justify-center items-center bg-background">
+      <div className="container mx-auto w-full bg-background">
         <App />
       </div>
     </div>

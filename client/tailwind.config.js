@@ -30,6 +30,10 @@ export default {
 
         '2xl': '1536px',
         // => @media (min-width: 1536px) { ... }
+      },
+      backgroundImage: {
+        'background': "url('https://cdn2.cellphones.com.vn/x/media/wysiwyg/BGNoel-1920x1080.jpg')",
+        'footer-texture': "url('/img/footer-texture.png')",
       }
     },
   },

@@ -82,6 +82,8 @@ class UsersController {
       return res.status(500).json({ error: "invalid id" });
     }
     const BanUser = await userService.BanUser(id);
+    const io = socket.getIo();
+    io.emit("updateUser", BanUser.dataValues);
     return res.status(200).json(BanUser);
   });
   //Delete user

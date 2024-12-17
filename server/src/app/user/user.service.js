@@ -197,11 +197,8 @@ class UserService {
   // ban user
   async BanUser(id) {
     try {
-      const checkUser = await db.User.findOne({
-        where: {
-          id,
-        },
-      });
+      const checkUser = await db.User.findOne({ where: { id } });
+
 
       if (!checkUser) {
         return { error: "User không tồn tại" };
@@ -231,7 +228,7 @@ class UserService {
         );
 
         if (updateBanUser[0] > 0) {
-          return { message: "Update ban thành công" };
+          return checkUser;
         } else {
           return { error: "Update ban thất bị" };
         }
@@ -244,10 +241,21 @@ class UserService {
             where: {
               id,
             },
-          }
+            attributes: [
+              "id",
+              "fullname",
+              "phone",
+              "email",
+              "role",
+              "bom",
+              "ban",
+              "createdAt",
+              "updatedAt",
+            ],
+          },
         );
         if (updateBanUser[0] > 0) {
-          return { message: "Update ban thành công" };
+          return checkUser;
         } else {
           return { error: "Update ban thất bị" };
         }
