@@ -1,6 +1,4 @@
 const db = require("../../models/index");
-const userService = require("../user/user.service");
-const productService = require("../product/product.service");
 const { Op } = require("sequelize");
 
 class CommentsService {
@@ -161,6 +159,10 @@ class CommentsService {
           {
             model: db.Product,
             as: "productData",
+            where: {
+              id: productId,
+            },
+            attributes: ["id", "name", "image"],
           },
           {
             model: db.User,
