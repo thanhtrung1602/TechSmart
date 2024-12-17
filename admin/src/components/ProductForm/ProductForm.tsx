@@ -315,6 +315,7 @@ export default function ProductForm() {
                       queryClient.invalidateQueries({
                         queryKey: ["/products/getAllProducts"],
                       });
+                      navigate("/products");
                     }
                   }
                 } catch (error) {
