@@ -106,6 +106,31 @@ class VariantService {
         }
     }
 
+    async updateProductVariant(id, productId, stock, price) {
+        try {
+            const variant = await db.Variant.findOne({
+                where: {
+                    id,
+                    productId
+                }
+            })
+            const update = await variant.update(
+                { stock, price },
+                {
+                    where: {
+                        id,
+                        productId
+                    }
+                }
+            );
+            return update;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+
+
     async updateStock(id, quantity) {
         try {
             const variant = await db.Variant.findOne({

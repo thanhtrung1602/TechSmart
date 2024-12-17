@@ -33,9 +33,8 @@ interface FormData {
 
 export default function ProductForm() {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-
+  const navigate = useNavigate();
   const { data: categories } = useGet<Categories[]>(
     "/categories/getAllCategories/"
   );
@@ -311,10 +310,10 @@ export default function ProductForm() {
                     // Đợi tất cả các attributeValues được tạo cho variant
                     if (attributeValuePromises.length > 0) {
                       await Promise.all(attributeValuePromises);
-                      window.location.href = "/products";
                       queryClient.invalidateQueries({
                         queryKey: ["/products/getAllProducts"],
                       });
+                      navigate("/products");
                     }
                   }
                 } catch (error) {

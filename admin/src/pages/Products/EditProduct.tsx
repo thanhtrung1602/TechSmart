@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import useGet from "~/hooks/useGet";
-import usePost, { usePatch } from "~/hooks/usePost";
+import usePost, { usePatch, useDelete } from "~/hooks/usePost";
 import Categories from "~/models/Categories";
 import CategoryAttribute from "~/models/CategoryAttribute";
 import Manufacturer from "~/models/Manufacturer";
@@ -10,17 +10,19 @@ import ValueAttribute from "~/models/ValueAttribute";
 import Variants from "~/models/Variants";
 import Image from "~/components/Image";
 import { useForm } from "react-hook-form";
-// import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { FiMinusCircle, FiPlusCircle } from "react-icons/fi";
 // import toast from "react-hot-toast";
 
 interface AttributeValueData {
+  id: number;
   productId: number;
   attributeId: number;
   value: string;
 }
 
 interface VariantData {
+  id: number;
   productId: number;
   stock: number;
   price: number;
@@ -44,7 +46,7 @@ type ProductImage = {
 export default function EditProduct() {
   const { id } = useParams();
   const productId = Number(id);
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<{
     id: number;
@@ -76,10 +78,15 @@ export default function EditProduct() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormEvent>();
-  const { mutate } = usePatch();
-  const { mutate: create } = usePost();
-  // const { mutate: deleteAttributeValue } = useDelete();
+    setValue, // Để cập nhật giá trị khi có dữ liệu cũ
+    reset, // Để reset lại form với dữ liệu mặc định
+  } = useForm<FormEvent>({
+    defaultValues: initialFormData || {}, // Giá trị mặc định từ dữ liệu ban đầu
+  });
+
+  const { mutateAsync: update } = usePatch();
+  const { mutateAsync: create } = usePost();
+  const { mutate: del } = useDelete();
   const { data: product } = useGet<Products>(
     `/products/getOneProductById/${productId}`
   );
@@ -102,35 +109,42 @@ export default function EditProduct() {
     `/productimgs/getAllProductImgByProduct/${id}`
   );
 
+  useEffect(() => {
+    if (initialFormData) {
+      reset(initialFormData); // Reset form với dữ liệu ban đầu
+    }
+  }, [initialFormData, reset]);
+
   // Thiết lập dữ liệu ban đầu khi product được tải
   useEffect(() => {
     if (product && categoryAttributes && attributeValues && variants) {
       const initialAttributes = categoryAttributes?.map((catAttr) => ({
+        id: attributeValues?.find((attr) => attr.attributeId === catAttr.attributeData.id)?.id || null,
         attributeId: catAttr.attributeData.id,
         value: attributeValues?.find((attr) => attr.attributeId === catAttr.attributeData.id)?.value || "",
       })) || [];
 
-      console.log("attributeValues:", attributeValues); // Kiểm tra toàn bộ dữ liệu attributeValues
-      console.log("variants:", variants); // Kiểm tra toàn bộ dữ liệu variants
-
-      console.log("Variant Attr: ", variants.map((variant) =>
-        attributeValues?.filter((attr) => attr.variantId === variant.id) || [])
-      );
+      console.log("attributeValues:", attributeValues); // Kiểm tra toàn bộ dữ liệu attributeValues      
 
       const initialVariants = variants?.map((variant) => ({
+        id: variant.id,
+        productId: variant.productId,
         stock: variant.stock,
         price: variant.price,
         attributeValues: attributeValues
           ?.filter((attr) => attr.variantId === variant.id && [4, 29, 6].includes(attr.attributeId))
           .map((va) => ({
+            id: va.id,
             attributeId: va.attributeId,
             productId: va.productId,
-            variantId: va.variatnId,
+            variantId: va.variantId,
             value: va.value,
           })) || [],
       })) || [];
 
       console.log("initialVariants", initialVariants);
+
+      console.log("initialAttributes", initialAttributes);
 
       //Lưu giá trị ban đầu
       setInitialFormData({
@@ -159,29 +173,28 @@ export default function EditProduct() {
     }
   }, [product, attributeValues, categoryAttributes, variants]);
 
-  // Hàm xử lý khi thay đổi giá trị của thuộc tính
-  // const handleAttributeChange = (
-  //   attributeId: number,
-  //   value: string
-  // ) => {
-  //   setFormData((prevFormData) => {
-  //     const updatedAttributes = prevFormData.attributeValues.map((attr) => {
-  //       if (attr.attributeId === attributeId) {
-  //         return { ...attr, values: value };
-  //       }
-  //       return attr;
-  //     });
-  //     return { ...prevFormData, attributeValues: updatedAttributes };
-  //   });
-  // };
-
-
-  const handleVariantChange = (variantIndex: number, field: "stock" | "price", value: string) => {
-    setFormData((prevFormData) => {
-      const newVariants = [...prevFormData.variants];
-      newVariants[variantIndex][field] = Number(value);
-      return { ...prevFormData, variants: newVariants };
-    });
+  const handleVariantChange = (
+    variantIndex: number,
+    field: "stock" | "price",
+    value: string
+  ) => {
+    // Kiểm tra nếu giá trị nhập vào là một số hợp lệ và không dưới 0
+    const parsedValue = Number(value);
+    if (!isNaN(parsedValue) && parsedValue >= 0) {
+      // Nếu giá trị hợp lệ, cập nhật giá trị
+      setFormData((prevFormData) => {
+        const newVariants = [...prevFormData.variants];
+        newVariants[variantIndex][field] = parsedValue;
+        return { ...prevFormData, variants: newVariants };
+      });
+    } else {
+      // Nếu không hợp lệ (không phải số hoặc dưới 0), giữ nguyên giá trị cũ hoặc đặt giá trị về 0
+      setFormData((prevFormData) => {
+        const newVariants = [...prevFormData.variants];
+        newVariants[variantIndex][field] = 0; // Đặt về 0 nếu không hợp lệ
+        return { ...prevFormData, variants: newVariants };
+      });
+    }
   };
 
   // Hàm thêm một giá trị mới cho thuộc tính
@@ -206,8 +219,17 @@ export default function EditProduct() {
     });
   };
 
-  // Hàm xử lý khi xóa một giá trị của thuộc tính
+  // Handle attribute value changes for non-variant attributes
+  const handleNonVariantAttributeChange = (attributeId: number, value: string) => {
+    setFormData((prevFormData) => {
+      const newAttributeValues = prevFormData.attributeValues.map((attrValue) =>
+        attrValue.attributeId === attributeId ? { ...attrValue, value } : attrValue
+      );
+      return { ...prevFormData, attributeValues: newAttributeValues };
+    });
+  };
 
+  // Hàm xử lý khi xóa một giá trị của thuộc tính
   const handleAddVariant = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -222,7 +244,31 @@ export default function EditProduct() {
     }));
   };
 
-  const handleRemoveVariant = (index: number) => {
+  const handleRemoveVariant = async (variantId: number, index: number) => {
+    if (variantId) {
+      try {
+        await del(
+          `/variants/deleteVariant/${variantId}`,
+          {
+            onSuccess: (response) => {
+              queryClient.invalidateQueries(); // Invalidate queries to refresh data if necessary
+              console.log("Variant deleted successfully:", response.data);
+            },
+          }
+        );
+        await del(
+          `/valueAttribute/delValueAttributeByVariant/${variantId}`,
+          {
+            onSuccess: (response) => {
+              queryClient.invalidateQueries(); // Invalidate queries to refresh data if necessary
+              console.log("Value attribute deleted successfully:", response.data);
+            },
+          }
+        )
+      } catch (error) {
+        console.error("Error deleting variant value:", error);
+      }
+    }
     setFormData((prevFormData) => ({
       ...prevFormData,
       variants: prevFormData.variants.filter((_, i) => i !== index),
@@ -240,7 +286,7 @@ export default function EditProduct() {
     }
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     try {
       const form = new FormData();
 
@@ -251,170 +297,166 @@ export default function EditProduct() {
       form.append("discount", formData.discount.toString());
       form.append("visible", formData.visible.toString());
 
-      if (file) {
-        form.append("img", file);
-      }
+      if (file) form.append("img", file);
 
-      mutate(
-        { url: `/products/updateProduct/${product?.id}`, data: form },
-        {
-          onSuccess: async (response) => {
-            if (response.status === 200) {
-              console.log("Product updated successfully:", response.data);
+      // Step 1: Update Product
+      const productResponse = await update({
+        url: `/products/updateProduct/${product?.id}`,
+        data: form,
+      });
 
-              const allAttributes = [
-                ...formData.attributeValues,
-                ...formData.variants.flatMap((variant) => variant.attributeValues),
-              ];
+      if (productResponse.status === 200) {
+        console.log("Product updated successfully:", productResponse.data);
 
-              const variantAttributes = allAttributes.filter(
-                (attrValue) => [4, 29, 6].includes(attrValue.attributeId) && attrValue.value.trim() !== ""
-              );
-              const nonVariantAttributes = allAttributes.filter(
-                (attrValue) => ![4, 29, 6].includes(attrValue.attributeId) && attrValue.value.trim() !== ""
-              );
+        // Separate non-variant attributes
+        const nonVariantAttributes = formData.attributeValues.filter(
+          (attr) => ![4, 29, 6].includes(attr.attributeId) && attr.value.trim() !== ""
+        );
 
-              // Create or update non-variant attributes
-              const nonVariantAttributePromises = nonVariantAttributes.map(async (attrValue) => {
-                const initialAttrValue = initialFormData?.attributeValues.find(
-                  (initialAttr) => initialAttr.attributeId === attrValue.attributeId
-                );
+        // Separate variant attributes
+        const variantAttributes = formData.variants.flatMap((variant) =>
+          variant.attributeValues.filter(
+            (attr) => [4, 29, 6].includes(attr.attributeId) && attr.value.trim() !== ""
+          )
+        );
 
-                if (initialAttrValue && initialAttrValue.value !== attrValue.value) {
-                  // Update existing attribute value
-                  await mutate(
-                    { url: `/valueAttribute/updateProductValueAttribute/${initialAttrValue.productId}`, data: { value: attrValue.value } },
-                    {
-                      onSuccess: (updateResponse) => {
-                        console.log("Attribute value updated successfully:", updateResponse.data);
-                      },
-                      onError: (updateError) => {
-                        console.error("Error updating attribute value:", updateError);
-                      },
-                    }
-                  );
-                } else if (!initialAttrValue) {
-                  // Create new attribute value
-                  await create(
-                    {
-                      url: "/valueAttribute/createValueAttribute",
-                      data: {
-                        attributeId: attrValue.attributeId,
-                        productId: product?.id,
-                        value: attrValue.value,
-                      },
-                    },
-                    {
-                      onSuccess: (createResponse) => {
-                        console.log("Attribute value created successfully:", createResponse.data);
-                      },
-                      onError: (createError) => {
-                        console.error("Error creating attribute value:", createError);
-                      },
-                    }
-                  );
-                }
-              });
+        console.log("Non-variant attributes:", nonVariantAttributes);
+        console.log("Variant attributes:", variantAttributes);
 
-              // Create or update variant attributes
-              const variantAttributePromises = variantAttributes.map(async (attrValue) => {
-                const initialAttrValue = initialFormData?.attributeValues.find(
-                  (initialAttr) => initialAttr.attributeId === attrValue.attributeId
-                );
+        // Step 3: Process non-variant attributes
+        await Promise.all(
+          nonVariantAttributes.map(async (attrValue) => {
+            // Tìm giá trị trong initialFormData
+            const initialAttrValue = initialFormData?.attributeValues.find(
+              (initialAttr) => initialAttr.attributeId === attrValue.attributeId
+            );
 
-                if (initialAttrValue && initialAttrValue.value !== attrValue.value) {
-                  // Update existing attribute value
-                  await mutate(
-                    { url: `/valueAttribute/updateValueAttribute/${initialAttrValue.productId}`, data: { value: attrValue.value } },
-                    {
-                      onSuccess: (updateResponse) => {
-                        console.log("Attribute value updated successfully:", updateResponse.data);
-                      },
-                      onError: (updateError) => {
-                        console.error("Error updating attribute value:", updateError);
-                      },
-                    }
-                  );
-                } else if (!initialAttrValue) {
-                  // Create new attribute value
-                  await create(
-                    {
-                      url: "/valueAttribute/createValueAttribute",
-                      data: {
-                        attributeId: attrValue.attributeId,
-                        productId: product?.id,
-                        value: attrValue.value,
-                      },
-                    },
-                    {
-                      onSuccess: (createResponse) => {
-                        console.log("Attribute value created successfully:", createResponse.data);
-                      },
-                      onError: (createError) => {
-                        console.error("Error creating attribute value:", createError);
-                      },
-                    }
-                  );
-                }
-              });
-
-              await Promise.all([...nonVariantAttributePromises, ...variantAttributePromises]);
-
-              // Handle variants (assuming you have a way to update or create them)
-              for (const variant of formData.variants) {
-                const variantFormData = {
+            // Nếu chưa có attributeValue, tạo mới
+            if (!initialAttrValue.id || initialAttrValue.id === null) {
+              await create({
+                url: "/valueAttribute/createValueAttribute",
+                data: {
+                  attributeId: attrValue.attributeId,
                   productId: product?.id,
-                  stock: variant.stock,
-                  price: variant.price,
-                };
-                // Append other necessary variant details
-
-                const existingVariant = initialFormData?.variants.find(
-                  (initialVariant) =>
-                    initialVariant.attributeValues.every((initialAttr) =>
-                      variant.attributeValues.some(
-                        (attr) => attr.attributeId === initialAttr.attributeId && attr.value === initialAttr.value
-                      )
-                    ) && variant.attributeValues.length === initialVariant.attributeValues.length
-                );
-
-                if (existingVariant) {
-                  await mutate(
-                    { url: `/productVariant/updateProductVariant/${existingVariant.id}`, data: variantFormData },
-                    {
-                      onSuccess: (updateResponse) => {
-                        console.log("Product variant updated successfully:", updateResponse.data);
-                      },
-                      onError: (updateError) => {
-                        console.error("Error updating product variant:", updateError);
-                      },
-                    }
-                  );
-                } else {
-                  await create(
-                    { url: "/productVariant/createProductVariant", data: variantFormData },
-                    {
-                      onSuccess: (createResponse) => {
-                        console.log("Product variant created successfully:", createResponse.data);
-                      },
-                      onError: (createError) => {
-                        console.error("Error creating product variant:", createError);
-                      },
-                    }
-                  );
-                }
-              }
+                  variantId: null,
+                  value: attrValue.value,
+                },
+              });
             }
-          },
-          onError: (error) => {
-            console.error("Error updating product:", error);
-          },
+            // Nếu giá trị đã có nhưng khác với giá trị mới, cập nhật
+            else if (initialAttrValue.value !== attrValue.value) {
+              await update({
+                url: `/valueAttribute/updateProductValueAttribute/${product?.id}`,
+                data: {
+                  attributeId: attrValue.attributeId,
+                  value: attrValue.value,
+                  variantId: null,
+                  id: initialAttrValue.id,
+                },
+              });
+            }
+          })
+        );
+
+        // Step 4: Process variant attributes
+        for (const variant of formData.variants) {
+          // Tìm variant đã tồn tại dựa trên attributeValues
+          const existingVariant = initialFormData?.variants.find((initialVariant) =>
+            initialVariant.attributeValues.every((initialAttr) =>
+              variant.attributeValues.some(
+                (attr) =>
+                  attr.attributeId === initialAttr.attributeId &&
+                  attr.value === initialAttr.value
+              )
+            ) && variant.attributeValues.length === initialVariant.attributeValues.length
+          );
+
+          const variantFormData = {
+            productId: product?.id,
+            stock: variant.stock,
+            price: variant.price,
+          };
+
+          let variantId = null; // Biến lưu variantId chính xác
+
+          if (existingVariant) {
+            // Nếu variant đã tồn tại, cập nhật
+            const variantResponse = await update({
+              url: `/variants/updateProductVariant/${existingVariant.id}`,
+              data: variantFormData,
+            });
+
+            if (variantResponse.status === 200) {
+              console.log("Variant updated successfully:", variantResponse.data);
+              variantId = existingVariant.id; // Lấy id của variant đã tồn tại
+            }
+          } else {
+            // Nếu variant chưa tồn tại, tạo mới
+            const variantResponse = await create({
+              url: "/variants/createVariant",
+              data: variantFormData,
+            });
+
+            if (variantResponse.status === 200) {
+              console.log("Variant created successfully:", variantResponse.data);
+              variantId = variantResponse.data.id; // Lấy id từ variant mới tạo
+            }
+          }
+
+          // Xử lý attribute values sau khi có variantId
+          if (variantId) {
+            await Promise.all(
+              variant.attributeValues.map(async (attrValue) => {
+                const existingAttrValue = initialFormData?.variants
+                  .find((v) => v.id === variantId)
+                  ?.attributeValues.find(
+                    (initialAttr) => initialAttr.attributeId === attrValue.attributeId
+                  );
+
+                // Nếu attributeValue chưa tồn tại => tạo mới
+                if (!existingAttrValue) {
+                  await create({
+                    url: "/valueAttribute/createValueAttribute",
+                    data: {
+                      attributeId: attrValue.attributeId,
+                      productId: product?.id,
+                      variantId: variantId,
+                      value: attrValue.value,
+                    },
+                  });
+                }
+                // Nếu attributeValue đã tồn tại nhưng giá trị thay đổi => cập nhật
+                else if (existingAttrValue.value !== attrValue.value) {
+
+                  console.log("Existing attribute value:", existingAttrValue);
+
+                  await update({
+                    url: `/valueAttribute/updateProductValueAttribute/${product?.id}`,
+                    data: {
+                      attributeId: attrValue.attributeId,
+                      variantId: variantId,
+                      value: attrValue.value,
+                      id: existingAttrValue.id,
+                    },
+                  });
+                }
+              })
+            );
+          }
         }
-      );
+
+
+        // Step 5: Refresh and redirect
+        window.location.href = "/products";
+        queryClient.invalidateQueries({
+          queryKey: ["/products/getAllProducts"],
+        });
+      }
     } catch (error) {
       console.error("Error during form submission:", error);
     }
   };
+
 
   const handleImage = () => {
     if (inputRef.current) {
@@ -443,15 +485,18 @@ export default function EditProduct() {
             <label className="block text-sm font-medium mb-1">
               Tên sản phẩm
             </label>
+
             <input
               type="text"
-              {...register("name", { required: "Vui lòng nhập tên sản phẩm." })}
+              {...register("name", {
+                required: "Vui lòng nhập tên sản phẩm.",
+              })}
               placeholder="Tên sản phẩm..."
               className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
-              value={formData.name || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, name: e.target.value }); // Đồng bộ với `formData`
+                setValue("name", e.target.value); // Đồng bộ với React Hook Form
+              }}
             />
             {errors.name && (
               <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
@@ -500,9 +545,10 @@ export default function EditProduct() {
               {...register("discount", { valueAsNumber: true })}
               className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
               value={formData.discount || 0}
-              onChange={(e) =>
-                setFormData({ ...formData, discount: Number(e.target.value) })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, discount: Number(e.target.value) });
+                setValue("discount", Number(e.target.value))
+              }}
             />
           </div>
 
@@ -524,6 +570,8 @@ export default function EditProduct() {
                   id: findCategory?.id || 0,
                   slug: findCategory?.slug || "",
                 });
+
+                setValue("categoryId", selectedId);
 
                 // Reset selectedManufacturer khi danh mục thay đổi
                 setSelectedManufacturer({ id: 0, slug: "" });
@@ -564,6 +612,7 @@ export default function EditProduct() {
                   id: findManufacturer?.id || 0,
                   slug: findManufacturer?.slug || "",
                 });
+                setValue("manufacturerId", parseInt(e.target.value));
               }}
               className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
               disabled={!selectedCategory.id} // Disable if no category is selected
@@ -684,86 +733,90 @@ export default function EditProduct() {
         </div>
         {/* Variant attributes */}
         {formData.variants.map((variant, variantIndex) => (
-          <div key={variantIndex} className="border rounded-md p-4 my-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Biến thể {variantIndex + 1}</h3>
-              {formData.variants.length > 1 && (
-                <button
-                  type="button"
-                  className="text-red-500"
-                  onClick={() => handleRemoveVariant(variantIndex)}
-                >
-                  <FiMinusCircle />
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Giá</label>
-                <input
-                  type="number"
-                  placeholder="Giá..."
-                  className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
-                  value={variant.price}
-                  onChange={(e) =>
-                    handleVariantChange(variantIndex, "price", e.target.value)
-                  }
-                />
+          <>
+            <div key={variantIndex} className="border rounded-md p-4 my-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Biến thể {variantIndex + 1}</h3>
+                {formData.variants.length > 1 && (
+                  <button
+                    type="button"
+                    className="text-red-500"
+                    onClick={() => handleRemoveVariant(variant.id, variantIndex)}
+                  >
+                    <FiMinusCircle />
+                  </button>
+                )}
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Số lượng</label>
-                <input
-                  type="number"
-                  placeholder="Số lượng..."
-                  className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
-                  value={variant.stock}
-                  onChange={(e) =>
-                    handleVariantChange(variantIndex, "stock", e.target.value)
-                  }
-                />
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Giá</label>
+                  <input
+                    type="number"
+                    placeholder="Giá..."
+                    className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
+                    value={variant.price}
+                    onChange={(e) =>
+                      handleVariantChange(variantIndex, "price", e.target.value)
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Số lượng</label>
+                  <input
+                    type="number"
+                    placeholder="Số lượng..."
+                    className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
+                    value={variant.stock}
+                    onChange={(e) =>
+                      handleVariantChange(variantIndex, "stock", e.target.value)
+                    }
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-3 gap-4 mt-4">
-              {categoryAttributes
-                ?.filter((attr) => [4, 29, 6].includes(attr.attributeId))
-                .map((catAttr) => (
-                  <div key={catAttr.id}>
-                    <label className="block text-sm font-medium mb-1">
-                      {catAttr.attributeData.name}
-                    </label>
-                    <input
-                      type="text"
-                      placeholder={`Nhập ${catAttr.attributeData.name.toLowerCase()}...`}
-                      className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
-                      value={
-                        variant.attributeValues.find(
-                          (av) => av.attributeId === catAttr.attributeData.id
-                        )?.value || ""
-                      }
-                      onChange={(e) =>
-                        handleAttributeValueChange(
-                          variantIndex,
-                          catAttr.attributeData.id,
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                ))}
+              <div className="grid grid-cols-3 gap-4 mt-4">
+                {categoryAttributes
+                  ?.filter((attr) => [4, 29, 6].includes(attr.attributeId))
+                  .map((catAttr) => (
+                    <div key={catAttr.id}>
+                      <label className="block text-sm font-medium mb-1">
+                        {catAttr.attributeData.name}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={`Nhập ${catAttr.attributeData.name.toLowerCase()}...`}
+                        className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
+                        value={
+                          variant.attributeValues.find(
+                            (av) => av.attributeId === catAttr.attributeData.id
+                          )?.value || ""
+                        }
+                        onChange={(e) =>
+                          handleAttributeValueChange(
+                            variantIndex,
+                            catAttr.attributeData.id,
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+                  ))}
+              </div>
             </div>
-          </div>
+          </>
         ))}
-
         <div className="mt-2">
           <button
             type="button"
             className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-            onClick={handleAddVariant}
+            onClick={() => {
+              handleAddVariant();
+            }}
           >
             Thêm biến thể
           </button>
         </div>
+
 
         <div className="mt-4">
           <button
@@ -773,7 +826,7 @@ export default function EditProduct() {
             Cập nhật sản phẩm
           </button>
         </div>
-      </form>
+      </form >
     </div>
   );
 }

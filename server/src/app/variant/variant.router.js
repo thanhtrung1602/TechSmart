@@ -9,6 +9,7 @@ router.get("/getAllVariantByProductId/:id", VariantController.getAllVariantByPro
 router.get("/getOneVariantByProductId/:id", VariantController.getOneVariantByProductId);
 router.post("/createVariant", jwtMiddlewareRole, VariantController.createVariant);
 router.patch("/updateVariant/:id", jwtMiddlewareRole, VariantController.updateVariant);
+router.patch("/updateProductVariant/:id", jwtMiddlewareRole, VariantController.updateProductVariant);
 router.delete("/deleteVariant/:id", jwtMiddlewareRole, VariantController.deleteVariant);
 
 module.exports = router;

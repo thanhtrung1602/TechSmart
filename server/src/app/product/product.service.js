@@ -659,9 +659,7 @@ class ProductService {
     name,
     categoryId,
     manufacturerId,
-    price,
     discount,
-    stock,
     visible,
     file,
     slug
@@ -680,10 +678,8 @@ class ProductService {
         manufacturerId,
         name,
         slug,
-        price,
         discount,
         img: fileImg,
-        stock,
         visible,
       });
       if (updatedProduct) {

@@ -457,9 +457,7 @@ class ProductController {
       name,
       categoryId,
       manufacturerId,
-      price,
       discount,
-      stock,
       visible,
     } = req.body;
 
@@ -474,18 +472,25 @@ class ProductController {
 
     const parseCategoryId = parseInt(categoryId);
     const parseManufacturerId = parseInt(manufacturerId);
-    const parsePrice = parseInt(price);
     const parseDiscount = parseInt(discount);
-    const parseStock = parseInt(stock);
+
+    console.log(
+      id,
+      name,
+      parseCategoryId,
+      parseManufacturerId,
+      parseDiscount,
+      visible,
+      file,
+      hashSlug
+    );
 
     const updatedProduct = await productService.updateProduct(
       id,
       name,
       parseCategoryId,
       parseManufacturerId,
-      parsePrice,
       parseDiscount,
-      parseStock,
       visible,
       file,
       hashSlug

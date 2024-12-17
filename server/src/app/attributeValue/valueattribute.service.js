@@ -97,6 +97,7 @@ class ValueAttributeService {
     id,
   }) {
     try {
+      console.log("Service updated:", productId, attributeId, variantId, value, id);
       // Tìm giá trị thuộc tính theo attributeId
       const getOneValueAttributeById = await db.AttributeValue.findOne({
         where: {
@@ -115,7 +116,9 @@ class ValueAttributeService {
         { productId, variantId, value },
         {
           where: {
+            productId,
             attributeId,
+            variantId,
             id,
           },
         }
@@ -185,6 +188,35 @@ class ValueAttributeService {
       });
 
       if (delValueAttribute) {
+        return { message: "delete successfully!" };
+      }
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async delValueAttributeByVariant(numberId) {
+    try {
+      const getOneValueAttributeById = await db.AttributeValue.findOne({
+        where: {
+          variantId: numberId,
+        },
+      });
+
+      if (!getOneValueAttributeById) {
+        return {
+          error: `Không tìm thấy getOneValueAttributeById by id ${numberId}`,
+        };
+      }
+
+      const delValueAttributeByVariant = await db.AttributeValue.destroy({
+        where: {
+          variantId: numberId,
+        },
+        order: [["id", "DESC"]],
+      });
+
+      if (delValueAttributeByVariant) {
         return { message: "delete successfully!" };
       }
     } catch (error) {
