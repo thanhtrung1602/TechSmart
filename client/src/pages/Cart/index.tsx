@@ -38,6 +38,8 @@ function Cart() {
   );
 
   const cart = useSelector((state: RootState) => state.cart.cartProducts);
+
+  console.log("cart local: ", cart);
   const { mutate } = useDelete();
 
   const navigate = useNavigate();
@@ -88,8 +90,8 @@ function Cart() {
     const items = carts?.rows || cart || [];
     return items.reduce((total, productDetail) => {
       if (selectedItems[productDetail.id]) {
-        const price = Number(productDetail.variantData.price); // Original price
-        const discount = productDetail.variantData.productData.discount || 0; // Discount
+        const price = Number(productDetail?.variantData?.price); // Original price
+        const discount = productDetail?.variantData?.productData?.discount || 0; // Discount
 
         // Calculate original price before the discount
         const originalPrice = Math.round(price / (1 - discount / 100));
@@ -104,7 +106,7 @@ function Cart() {
     const items = carts?.rows || cart || [];
     return items.reduce((total, productDetail) => {
       if (selectedItems[productDetail.id]) {
-        const price = Number(productDetail.variantData.price); // Discounted price
+        const price = Number(productDetail?.variantData?.price); // Discounted price
         return total + price;
       }
       return total;
@@ -334,22 +336,24 @@ function Cart() {
                         handleSelectItem={handleSelectItem}
                       />
                     ))
-                  : cart?.map((productDetail, index) => (
-                      <ChildCart
-                        key={index}
-                        id={productDetail?.variantData?.productData.id}
-                        price={productDetail?.variantData?.price}
-                        discount={
-                          productDetail?.variantData?.productData.discount
-                        }
-                        img={productDetail?.variantData?.productData.img}
-                        name={productDetail?.variantData?.productData.name}
-                        rom={productDetail.rom}
-                        color={productDetail.color}
-                        selectedItems={selectedItems}
-                        handleSelectItem={handleSelectItem}
-                      />
-                    ))}
+                  : cart?.map((productDetail, index) => {
+                      const variantData = productDetail.variantData;
+                      console.log(variantData);
+                      return (
+                        <ChildCart
+                          key={index}
+                          id={variantData?.productData?.id}
+                          price={variantData?.price}
+                          discount={variantData?.productData?.discount}
+                          img={productDetail?.img}
+                          name={productDetail?.name}
+                          rom={productDetail.rom}
+                          color={productDetail.color}
+                          selectedItems={selectedItems}
+                          handleSelectItem={handleSelectItem}
+                        />
+                      );
+                    })}
               </div>
             ) : (
               <div className="flex flex-col justify-center items-center">

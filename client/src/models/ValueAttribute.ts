@@ -1,3 +1,5 @@
+import Variants from "./Variants";
+
 interface IValueAttribute {
   id: number;
   attributeId: number;
@@ -27,14 +29,7 @@ interface IValueAttribute {
     createdAt: Date;
     updatedAt: Date;
   };
-  variantData: {
-    id: number;
-    productId: number;
-    price: number;
-    stock: number;
-    createdAt: Date;
-    updatedAt: Date;
-  };
+  variantData: Variants;
 }
 
 class ValueAttribute implements IValueAttribute {
@@ -66,14 +61,7 @@ class ValueAttribute implements IValueAttribute {
     createdAt: Date;
     updatedAt: Date;
   };
-  variantData: {
-    id: number;
-    productId: number;
-    price: number;
-    stock: number;
-    createdAt: Date;
-    updatedAt: Date;
-  };
+  variantData: Variants;
 
   constructor(
     id: number,
@@ -104,14 +92,7 @@ class ValueAttribute implements IValueAttribute {
       createdAt: Date;
       updatedAt: Date;
     },
-    variantData: {
-      id: number;
-      productId: number;
-      price: number;
-      stock: number;
-      createdAt: Date;
-      updatedAt: Date;
-    }
+    variantData: Variants
   ) {
     this.id = id;
     this.attributeId = attributeId;

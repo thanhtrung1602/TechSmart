@@ -25,6 +25,7 @@ import Blog from "~/models/blog";
 import useBlog from "~/hooks/useBlog";
 import Loading from "~/layouts/components/Loading";
 import { setPrice } from "~/redux/productSlice";
+import Variants from "~/models/Variants";
 
 function Product() {
   const { slugCategory, slugProduct } = useParams();
@@ -164,6 +165,7 @@ function Product() {
     product: Products,
     stockChecked: number,
     variantId: number,
+    variantData: Variants | undefined,
     total: number
   ) => {
     if (userProfile && userProfile.ban === true) {
@@ -248,6 +250,8 @@ function Product() {
           userId: null,
           quantity: 1, // Khởi tạo số lượng cho sản phẩm
           color: selectedColor?.value || null,
+          variantData,
+          variantId,
           rom: selectedRomAsPhoneAndTablet
             ? selectedRomAsPhoneAndTablet?.value
             : selectedRom?.value || null,
@@ -290,6 +294,7 @@ function Product() {
     product: Products,
     stockChecked: number,
     variantId: number,
+    variantData: Variants | undefined,
     total: number
   ) => {
     if (userProfile && userProfile.ban === true) {
@@ -369,6 +374,8 @@ function Product() {
           ...product,
           userId: null,
           quantity: 1, // Khởi tạo số lượng cho sản phẩm
+          variantData,
+          variantId,
           color: selectedColor?.value || null,
           rom: selectedRomAsPhoneAndTablet
             ? selectedRomAsPhoneAndTablet?.value
@@ -491,6 +498,7 @@ function Product() {
                         productDetail,
                         Number(stockChecked?.variantData.stock),
                         Number(variant?.variantId),
+                        variant?.variantData,
                         Number(variant?.variantData.price)
                       );
                     }}
@@ -504,6 +512,7 @@ function Product() {
                         productDetail,
                         Number(stockChecked?.variantData.stock),
                         Number(variant?.variantId),
+                        variant?.variantData,
                         Number(variant?.variantData.price)
                       );
                     }}
