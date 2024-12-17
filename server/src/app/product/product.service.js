@@ -550,27 +550,6 @@ class ProductService {
     }
   }
 
-  //Cập nhật số lướng stock trong database
-
-  async updateStock(id, quantity) {
-    try {
-      const product = await db.Product.findOne({
-        where: { id },
-      });
-
-      if (!product) {
-        return "Không tìm thấy sản phẩm";
-      }
-
-      if (product.stock > 0 || quantity > 0) product.stock -= quantity;
-
-      await product.save();
-      return "Đã giảm số lượng trong kho";
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
   //Thêm số lượng hot
 
   async increaseHot(id, quantity) {

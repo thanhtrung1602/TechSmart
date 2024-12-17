@@ -37,6 +37,8 @@ function Cart() {
     }
   );
 
+  console.log(carts);
+
   const cart = useSelector((state: RootState) => state.cart.cartProducts);
   const { mutate } = useDelete();
 

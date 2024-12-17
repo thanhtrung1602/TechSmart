@@ -12,7 +12,7 @@ router.post(
 
 router.get(
   "/getAllOrderDetails",
-  jwtMiddleware,
+  // jwtMiddleware,
   OrderDetailController.getAllOrderDetails
 );
 

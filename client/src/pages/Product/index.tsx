@@ -63,8 +63,6 @@ function Product() {
     []
   );
 
-  console.log(sortedCapacities);
-
   const { data: attributeValue, isLoading: isLoadPrice } = useGet<
     ValueAttribute[]
   >(`/valueAttribute/getOneValueAttributeById/${productDetail?.id}`);
@@ -91,6 +89,8 @@ function Product() {
   const { data: carts } = useGet<{ count: number; rows: Carts[] }>(
     `/cart/getAllCartByUserId/${userProfile?.id}`
   );
+
+  console.log("Carts: ", carts);
 
   const { data: blogs } = useBlog<Blog[]>("/posts");
   console.log("Blogs: ", blogs);
@@ -179,17 +179,17 @@ function Product() {
     const stockProd = stockChecked || stockChecked - 2;
     const quantityProd = carts
       ? carts?.rows.find(
-          (item) =>
-            item.variantData.productId === product.id &&
-            item.rom === romValue &&
-            item.color === selectedColor?.value
-        )
+        (item) =>
+          item.variantData.productId === product.id &&
+          item.rom === romValue &&
+          item.color === selectedColor?.value
+      )
       : cartProducts.find(
-          (item) =>
-            item.id === product.id &&
-            item.rom === romValue &&
-            item.color === selectedColor?.value
-        );
+        (item) =>
+          item.id === product.id &&
+          item.rom === romValue &&
+          item.color === selectedColor?.value
+      );
 
     if (quantityProd && quantityProd?.quantity + 1 > stockProd) {
       toast.error(`Sản phẩm chỉ còn ${stockProd} trong kho`);
@@ -305,17 +305,19 @@ function Product() {
     const stockProd = stockChecked || stockChecked - 2;
     const quantityProd = carts
       ? carts?.rows.find(
-          (item) =>
+        (item) => {
+          console.log(item),
             item.variantData.productId === product.id &&
             item.rom === romValue &&
             item.color === selectedColor?.value
-        )
+        }
+      )
       : cartProducts.find(
-          (item) =>
-            item.id === product.id &&
-            item.rom === romValue &&
-            item.color === selectedColor?.value
-        );
+        (item) =>
+          item.id === product.id &&
+          item.rom === romValue &&
+          item.color === selectedColor?.value
+      );
 
     if (quantityProd && quantityProd?.quantity + 1 > stockProd) {
       toast.error(`Sản phẩm chỉ còn ${stockProd} trong kho`);

@@ -1,6 +1,6 @@
 const asyncWrapper = require("../../middleware/async");
 const orderdetailService = require("./orderdetail.service");
-const variant = require("../variant/variant.service");
+const variantService = require("../variant/variant.service");
 const socket = require("../../module/socket");
 const orderService = require("../order/order.service");
 const cartService = require("../cart/cart.service");
@@ -24,10 +24,10 @@ class OrderDetailController {
 
     if (newOrderDetail) {
       // Sau khi tạo orderDetail, cập nhật kho cho sản phẩm
-      await variant.updateStock(variantId, quantity);
+      await variantService.updateStock(variantId, quantity);
 
       // Lấy thông tin sản phẩm sau khi cập nhật kho
-      const variant = await variant.getVariantById(variantId);
+      const variant = await variantService.getVariantById(variantId);
 
       // Nếu cần thông báo thay đổi kho qua WebSocket
       const io = socket.getIo();

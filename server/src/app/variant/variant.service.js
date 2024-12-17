@@ -129,8 +129,6 @@ class VariantService {
     }
   }
 
-
-
   async updateStock(id, quantity) {
     try {
       const variant = await db.Variant.findOne({

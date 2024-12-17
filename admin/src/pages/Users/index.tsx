@@ -32,7 +32,6 @@ function User() {
           if (response.status === 200) {
             queryClient.invalidateQueries({
               queryKey: [`/users/getAllUser`],
-              queryKey: [`/users/getAllUser`],
             });
             toast.success("Cập nhật thành công");
             setOpen(false);
@@ -158,15 +157,7 @@ function User() {
                               size={56}
                               className="mx-auto text-red-500"
                             />
-                            <MdBlock
-                              size={56}
-                              className="mx-auto text-red-500"
-                            />
                           ) : (
-                            <MdBlock
-                              size={56}
-                              className="mx-auto text-green-500"
-                            />
                             <MdBlock
                               size={56}
                               className="mx-auto text-green-500"
@@ -174,9 +165,6 @@ function User() {
                           )}
                           <div className="mx-auto my-4">
                             <h3 className="text-lg font-bold text-gray-800">
-                              {user.ban === true
-                                ? "Xác nhận bỏ chặn sản phẩm"
-                                : "Xác nhận chặn sản phẩm"}
                               {user.ban === true
                                 ? "Xác nhận bỏ chặn sản phẩm"
                                 : "Xác nhận chặn sản phẩm"}

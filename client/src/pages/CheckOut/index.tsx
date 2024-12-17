@@ -159,7 +159,7 @@ function CheckOut() {
 
                   const detailOrder = {
                     orderId,
-                    productId: cartItem.variantData.productId,
+                    variantId: cartItem.variantId,
                     quantity: Number(cartItem.quantity),
                     total: cartItem.total,
                     color: cartItem.color,
@@ -372,9 +372,8 @@ function CheckOut() {
               <div className="space-y-4">
                 {productsToDisplay &&
                   productsToDisplay?.map((productDetail, index) => {
-                    const currentPrice = calculatePriceByRom(
+                    const currentPrice = Number(
                       productDetail.variantData.price,
-                      productDetail.rom
                     );
                     return (
                       <div

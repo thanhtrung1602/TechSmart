@@ -29,6 +29,9 @@ class CartService {
         ],
         order: [["createdAt", "DESC"]],
       });
+
+      console.log(count, rows);
+
       return { count, rows };
     } catch (error) {
       console.error("Error in CartService:", error.message);

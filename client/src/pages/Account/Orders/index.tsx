@@ -123,11 +123,10 @@ function Orders() {
       <div className="hidden mb-3 lg:flex flex-wrap gap-2">
         <button
           onClick={() => handleButtonClick("Tất cả", 0)}
-          className={`hidden md:block px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-md border ${
-            selectedStatus === "Tất cả"
+          className={`hidden md:block px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-md border ${selectedStatus === "Tất cả"
               ? "bg-[#eb3e32] text-white"
               : "hover:bg-[#eb3e32] hover:text-white duration-200 ease-in-out"
-          }`}
+            }`}
         >
           Tất cả
         </button>
@@ -135,11 +134,10 @@ function Orders() {
           <button
             key={s.status}
             onClick={() => handleButtonClick(s.status, s.id)}
-            className={`px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-md border ${
-              selectedStatus === s.status
+            className={`px-3 py-2 sm:px-4 sm:py-2.5 md:px-6 md:py-3 rounded-md border ${selectedStatus === s.status
                 ? "bg-[#eb3e32] text-white"
                 : "hover:bg-[#eb3e32] hover:text-white duration-200 ease-in-out"
-            }`}
+              }`}
           >
             {s.status}
           </button>
@@ -192,10 +190,8 @@ function Orders() {
                     {o?.paymentMethods?.type}
                   </td>
                   <td className="px-2 py-2 sm:px-4 sm:py-3 text-center">
-                    <Link to={`/orders/detail/${o.id}`}>
-                      <button className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 rounded-md bg-[#eb3e32] text-white hover:bg-[#c7342b] duration-200">
-                        Chi tiết
-                      </button>
+                    <Link to={`/orders/detail/${o.id}`} className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 rounded-md bg-[#eb3e32] text-white hover:bg-[#c7342b] duration-200">
+                      Chi tiết
                     </Link>
                   </td>
                 </tr>
