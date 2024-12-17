@@ -473,7 +473,7 @@ export default function EditProduct() {
         }
 
         // Step 5: Refresh and redirect
-        // window.location.href = "/products";
+        window.location.href = "/products";
         queryClient.invalidateQueries({
           queryKey: ["/products/getAllProducts"],
         });
