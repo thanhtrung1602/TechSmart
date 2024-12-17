@@ -47,22 +47,22 @@ function RecentOrders() {
               const username = users?.map((user) => user.fullname).join(", ");
               return (
                 <tr className="text-center" key={order.id}>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200 ">
+                  <td className="px-4 py-3 border-b border-gray-200 ">
                   {index + 1}
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200 items-center">
+                  <td className="px-4 py-3 border-b border-gray-200 items-center">
                     <Link to={`/customer/${order.userId}`}>{username}</Link>
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200">
+                  <td className="px-4 py-3 border-b border-gray-200">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200">
+                  <td className="px-4 py-3 border-b border-gray-200">
                     {order.total?.toLocaleString()} VNĐ
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200">
+                  <td className="px-4 py-3 border-b border-gray-200">
                     {order.paymentMethodData.type}
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200">
+                  <td className="px-4 py-3 border-b border-gray-200">
                     {getOrderStatus(order.statusData.status)}
                   </td>
                 </tr>
