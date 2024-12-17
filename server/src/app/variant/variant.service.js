@@ -7,9 +7,9 @@ class VariantService {
         include: [
           {
             model: db.Product,
-            as: "productData",
-          },
-        ],
+            as: "productData"
+          }
+        ]
       });
       return findAll;
     } catch (error) {
@@ -30,14 +30,14 @@ class VariantService {
     try {
       const findOne = await db.Variant.findAll({
         where: {
-          productId: id,
+          productId: id
         },
         include: [
           {
             model: db.Product,
-            as: "productData",
-          },
-        ],
+            as: "productData"
+          }
+        ]
       });
       return findOne;
     } catch (error) {
@@ -49,14 +49,14 @@ class VariantService {
     try {
       const findOne = await db.Variant.findOne({
         where: {
-          productId: id,
+          productId: id
         },
         include: [
           {
             model: db.Product,
-            as: "productData",
-          },
-        ],
+            as: "productData"
+          }
+        ]
       });
       return findOne;
     } catch (error) {
@@ -66,12 +66,10 @@ class VariantService {
 
   async createVariant(productId, stock, price) {
     try {
-      console.log("Service:", productId, stock, price);
-
       const create = await db.Variant.create({
         productId,
         stock,
-        price,
+        price
       });
       return create;
     } catch (error) {
@@ -83,8 +81,8 @@ class VariantService {
     try {
       const del = await db.Variant.destroy({
         where: {
-          id,
-        },
+          id
+        }
       });
       return del;
     } catch (error) {
@@ -98,8 +96,31 @@ class VariantService {
         { productId, stock, price },
         {
           where: {
+            id
+          }
+        }
+      );
+      return update;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async updateProductVariant(id, productId, stock, price) {
+    try {
+      const variant = await db.Variant.findOne({
+        where: {
+          id,
+          productId
+        }
+      })
+      const update = await variant.update(
+        { stock, price },
+        {
+          where: {
             id,
-          },
+            productId
+          }
         }
       );
       return update;

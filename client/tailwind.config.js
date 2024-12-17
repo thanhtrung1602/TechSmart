@@ -10,7 +10,7 @@ export default {
       backgroundColor: {
         main600: '#1B253C',
         main500: '#202C46',
-      },    
+      },
       colors: {
         main600: '#1B253C',
         main500: '#202C46',

@@ -27,7 +27,7 @@ export default function BlogChildren({
 
   const titleHtml = decodeHtml(title);
   return (
-    <div className="relative rounded overflow-hidden select-none">
+    <div className="relative p-4 rounded-lg overflow-hidden select-none bg-white">
       <Link to={`/blog/${slug}`}>
         <div className="mb-5 flex justify-center">
           <img

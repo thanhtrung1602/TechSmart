@@ -37,6 +37,8 @@ function Cart() {
     }
   );
 
+  console.log(carts);
+
   const cart = useSelector((state: RootState) => state.cart.cartProducts);
 
   console.log("cart local: ", cart);
@@ -61,7 +63,6 @@ function Cart() {
       initialQuantities[key] = item.quantity || 1; // Default quantity to 1 if undefined
       initialSelectedItems[item.id] = true; // Default selection state to true
     });
-
     setSelectedItems(initialSelectedItems);
   }, [carts, cart]); // Depend on both carts and cart
 
@@ -91,10 +92,13 @@ function Cart() {
     return items.reduce((total, productDetail) => {
       if (selectedItems[productDetail.id]) {
         const price = Number(productDetail?.variantData?.price); // Original price
-        const discount = productDetail?.variantData?.productData?.discount || 0; // Discount
-
+        const discount =
+          productDetail?.discount ||
+          productDetail?.variantData?.productData?.discount ||
+          0; // Discount
         // Calculate original price before the discount
         const originalPrice = Math.round(price / (1 - discount / 100));
+        console.log("fuck", originalPrice);
         return total + originalPrice;
       }
       return total;
@@ -342,7 +346,7 @@ function Cart() {
                       return (
                         <ChildCart
                           key={index}
-                          id={variantData?.productData?.id}
+                          id={productDetail?.id}
                           price={variantData?.price}
                           discount={variantData?.productData?.discount}
                           img={productDetail?.img}

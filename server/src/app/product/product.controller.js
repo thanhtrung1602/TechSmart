@@ -12,6 +12,9 @@ class ProductController {
   //search enter
   search = asyncWrapper(async (req, res) => {
     const query = req.query.s?.toString().trim().toLowerCase();
+
+    console.log("query: ", query);
+
     if (!query) {
       return res.status(400).json({ message: "Query không được để trống." });
     }
@@ -457,9 +460,7 @@ class ProductController {
       name,
       categoryId,
       manufacturerId,
-      price,
       discount,
-      stock,
       visible,
     } = req.body;
 
@@ -474,18 +475,25 @@ class ProductController {
 
     const parseCategoryId = parseInt(categoryId);
     const parseManufacturerId = parseInt(manufacturerId);
-    const parsePrice = parseInt(price);
     const parseDiscount = parseInt(discount);
-    const parseStock = parseInt(stock);
+
+    console.log(
+      id,
+      name,
+      parseCategoryId,
+      parseManufacturerId,
+      parseDiscount,
+      visible,
+      file,
+      hashSlug
+    );
 
     const updatedProduct = await productService.updateProduct(
       id,
       name,
       parseCategoryId,
       parseManufacturerId,
-      parsePrice,
       parseDiscount,
-      parseStock,
       visible,
       file,
       hashSlug

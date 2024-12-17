@@ -7,7 +7,7 @@ export interface ICarts {
   quantity: number;
   rom: string;
   color: string;
-  imgCart: string;
+  variantId: number;
   variantData: Variants;
   createdAt: Date;
   updatedAt: Date;
@@ -21,7 +21,7 @@ class Carts implements ICarts {
   quantity: number;
   rom: string;
   color: string;
-  imgCart: string;
+  variantId: number;
   variantData: Variants;
   createdAt: Date;
   updatedAt: Date;
@@ -32,7 +32,7 @@ class Carts implements ICarts {
     quantity: number, // add field for cart
     rom: string,
     color: string,
-    imgCart: string,
+    variantId: number,
     variantData: Variants,
     total: number
   ) {
@@ -41,7 +41,7 @@ class Carts implements ICarts {
     this.quantity = quantity;
     this.rom = rom;
     this.color = color;
-    this.imgCart = imgCart;
+    this.variantId = variantId;
     this.variantData = variantData;
     this.createdAt = new Date();
     this.updatedAt = new Date();

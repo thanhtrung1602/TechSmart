@@ -6,7 +6,7 @@ function MainLayout({ children }: ChildrenType) {
   return (
     <>
       <Header />
-      <div className="bg-[#f3f4f6] mt-[114px] w-full">{children}</div>
+      <div className="bg-[#f3f4f6]  mt-[114px] w-full  " >{children}</div>
       <Footer />
     </>
   );

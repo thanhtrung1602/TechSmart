@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { usePatch } from "~/hooks/usePost";
-import { MdBlock } from "react-icons/md";
 import Modal from "~/components/Modal/Modal";
 import { Navigate, useNavigate } from "react-router-dom";
 
@@ -14,13 +13,12 @@ function User() {
   const { mutate: banUser } = usePatch();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-
   const { data: users } = useGet<Users[]>("/users/getAllUser");
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
-  console.log(users);
+
 
   const handleBanUser = () => {
     if (!isBanning) return;
@@ -44,7 +42,7 @@ function User() {
           alert("Error deleting category: " + error.message);
           toast.error("Có lỗi xảy ra ");
           setIsBanning(null);
-          navigate("/manufacturers");
+          navigate("/users");
         },
       }
     );
@@ -57,8 +55,9 @@ function User() {
       .includes(searchTerm.toLowerCase());
 
     const matchesStatus =
-      (filterStatus === "Bị chặn" && user.ban === true) ||
-      (filterStatus === "" && user.ban === false);
+      filterStatus === "" ||
+      (filterStatus === "true" && user.ban === true) ||
+      (filterStatus === "false" && user.ban === false);
 
     return matchesSearchTerm && matchesStatus;
   });
@@ -75,8 +74,9 @@ function User() {
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
-              <option value="">Không bị chặn</option>
-              <option value="Bị chặn">Bị chặn</option>
+              <option value="" disabled hidden>Tất cả</option>
+              <option value="false">Không bị chặn</option>
+              <option value="true">Bị chặn</option>
             </select>
             {/* Input tìm kiếm */}
             <input
@@ -141,11 +141,10 @@ function User() {
                           setIsBanning(user.id); // Chuyển thành setIsUpdating(category.id) nếu cần
                         }}
                         disabled={isBanning === user.id} // Điều kiện này vẫn giữ nguyên
-                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   ${
-                          user.ban === false
-                            ? "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300"
-                            : "bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300"
-                        }`}
+                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   ${user.ban === false
+                          ? "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300"
+                          : "bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300"
+                          }`}
                       >
                         {user.ban === false ? <p>Chặn</p> : <p>Bỏ chặn</p>}
                       </button>

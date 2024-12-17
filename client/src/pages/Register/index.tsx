@@ -76,7 +76,7 @@ function Register() {
             <input
               type="text"
               {...register("email", { required: "Vui lòng nhập email" })}
-              placeholder="email"
+              placeholder="Email"
               className="bg-gray-100 text-black w-full rounded-md px-4 py-2 outline-none focus:ring-1 focus:ring-gray-200"
             />
             {errors.email && (

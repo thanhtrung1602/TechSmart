@@ -15,7 +15,6 @@ import { BiSolidShow } from "react-icons/bi";
 import { usePatch } from "~/hooks/usePost";
 
 function CategoryList() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -27,6 +26,8 @@ function CategoryList() {
   const [filterStatus, setFilterStatus] = useState<boolean | null>(null); // Trạng thái lọc (Ẩn, Hiện)
   const { mutate: UpdateVisible } = usePatch();
   const debounceSearch = useDebounce(searchTerm, 500);
+  const queryClient = useQueryClient();
+
   const urlFiltered = (page: number, size: number) => {
     return `/categories/filteredCategories?page=${page}&size=${size}&search=${debounceSearch}&filter=${selectedCategory}&visible=${filterStatus}`;
   };
@@ -60,8 +61,6 @@ function CategoryList() {
             toast.success("Cập nhật thành công");
             setOpen(false);
             setIsUpdateVisible(null);
-            navigate("/categories");
-            window.location.reload();
           }
         },
         onError: (error) => {
@@ -113,17 +112,18 @@ function CategoryList() {
             </select>
           </div>
           <select
-            className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg focus:outline-none"
-            value={filterStatus === null ? "null" : filterStatus.toString()}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFilterStatus(value === "null" ? null : value === "true");
-            }}
-          >
-            {/* <option value="null">Tất cả</option> */}
-            <option value="null">Đang hiện</option>
-            <option value="false">Đã ẩn</option>
-          </select>
+              className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg focus:outline-none"
+              value={filterStatus !== null ? filterStatus.toString() : ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                console.log(value);
+                setFilterStatus(value === "true" ? true : value === "false" ? false : null);
+              }}
+            >
+              <option value="" disabled hidden>Tất cả</option>
+              <option value="true">Đang hiện</option>
+              <option value="false">Đã ẩn</option>
+            </select>
           <input
             type="text"
             placeholder="Tìm kiếm danh mục..."
@@ -202,9 +202,9 @@ function CategoryList() {
                           setIsUpdateVisible(category.id); // Chuyển thành setIsUpdating(category.id) nếu cần
                         }}
                         disabled={isUpdateVisible === category.id} // Điều kiện này vẫn giữ nguyên
-                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${category.visible === true ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
+                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${category.visible === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
                       >
-                        {category.visible === true ? (
+                        {category.visible === false ? (
                           <BiSolidHide className="size-4" />
                         ) : (
                           <BiSolidShow className="size-4" />

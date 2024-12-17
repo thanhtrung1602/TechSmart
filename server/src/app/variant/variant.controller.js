@@ -23,6 +23,7 @@ class VariantController {
     const parseStock = parseInt(stock);
     const parsePrice = parseInt(price);
 
+
     if (!parseProductId || !parseStock || !parsePrice) {
       return res.status(400).json("Invalid input: variant is required");
     }
@@ -35,7 +36,7 @@ class VariantController {
       parsePrice
     );
 
-    console.log("Response:", variant);
+    console.log("Response:", variant)
 
     res.status(200).json(variant);
   });
@@ -59,6 +60,28 @@ class VariantController {
     );
     res.status(200).json(variant);
   });
+
+  updateProductVariant = asyncWrapper(async (req, res) => {
+    const id = parseInt(req.params.id);
+
+    if (!id) {
+      return res.status(400).json("Invalid input: id is required");
+    }
+
+    const { productId, stock, price } = req.body;
+
+    const parseProductId = parseInt(productId);
+    const parseStock = parseInt(stock);
+    const parsePrice = parseInt(price);
+
+    if (!parseStock || !parsePrice) {
+      return res.status(400).json("Invalid input: variant is required");
+    }
+
+    const variant = await variantService.updateProductVariant(id, parseProductId, parseStock, parsePrice);
+
+    res.status(200).json(variant);
+  })
   deleteVariant = asyncWrapper(async (req, res) => {
     const id = parseInt(req.params.id);
 
@@ -81,8 +104,6 @@ class VariantController {
   });
   getOneVariantByProductId = asyncWrapper(async (req, res) => {
     const productId = parseInt(req.params.id);
-
-    console.log(productId);
 
     if (!productId) {
       return res.status(400).json("Invalid input: id is required");

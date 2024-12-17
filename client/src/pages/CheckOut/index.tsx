@@ -159,7 +159,7 @@ function CheckOut() {
 
                   const detailOrder = {
                     orderId,
-                    productId: cartItem.variantData.productId,
+                    variantId: cartItem.variantId,
                     quantity: Number(cartItem.quantity),
                     total: cartItem.total,
                     color: cartItem.color,
@@ -372,17 +372,15 @@ function CheckOut() {
               <div className="space-y-4">
                 {productsToDisplay &&
                   productsToDisplay?.map((productDetail, index) => {
-                    const currentPrice = calculatePriceByRom(
+                    const currentPrice = Number(
                       productDetail.variantData.price,
-                      productDetail.rom
                     );
                     return (
                       <div
                         key={index}
-                        className={`flex items-center space-x-4 pb-4 ${
-                          productsToDisplay.length - 1 !== index &&
+                        className={`flex items-center space-x-4 pb-4 ${productsToDisplay.length - 1 !== index &&
                           `border-b-[1px]`
-                        }`}
+                          }`}
                       >
                         <Image
                           src={
@@ -419,10 +417,10 @@ function CheckOut() {
                               <p className="text-sm line-through text-gray-500">
                                 {Math.round(
                                   currentPrice /
-                                    (1 -
-                                      productDetail.variantData.productData
-                                        .discount /
-                                        100)
+                                  (1 -
+                                    productDetail.variantData.productData
+                                      .discount /
+                                    100)
                                 )?.toLocaleString("vi-VN")}
                                 đ
                               </p>

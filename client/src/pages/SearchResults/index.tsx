@@ -43,25 +43,34 @@ function SearchResults() {
   }
 
   //Tính số lượng sản phẩm theo category
-  const categoryProductCounts = searchResult?.data.categories.map(
-    (category) => {
-      const productCount = searchResult.data.products.filter(
-        (product) => product.categoryId === category.id
-      ).length;
+  
+// Loại bỏ danh mục trùng lặp
+const uniqueCategories = [
+  ...new Map(
+    searchResult?.data.categories.map((category) => [category.id, category])
+  ).values(),
+];
 
-      return {
-        id: category.id,
-        name: category.name,
-        img: category.img,
-        count: productCount,
-      };
-    }
-  );
+// Tính số lượng sản phẩm theo danh mục và loại bỏ danh mục không có sản phẩm
+const categoryProductCounts = uniqueCategories
+  .map((category) => {
+    const productCount = searchResult?.data.products.filter(
+      (product) => product.categoryId === category.id
+    ).length;
+
+    return {
+      id: category.id,
+      name: category.name,
+      img: category.img,
+      count: productCount,
+    };
+  })
+.filter((category) => category.count !== undefined && category.count > 0); // Chỉ giữ danh mục có sản phẩm
+ // Chỉ hiển thị danh mục có sản phẩm
+  
+
   // Tính tổng số lượng sản phẩm đã search theo từ khoá
-  const totalProducts = categoryProductCounts?.reduce(
-    (total, category) => total + category.count,
-    0
-  );
+  const totalProducts = searchResult?.data.products.length;
 
   // Xử lý phân trang
   const handlePageClick = (
@@ -146,26 +155,26 @@ function SearchResults() {
                   </button>
 
                   {/* Các danh mục khác */}
-                  {categoryProductCounts?.map((category) => (
-                    <button
-                      key={category.id}
-                      className="flex flex-col items-center px-4 py-1 border border-gray-300 rounded-lg hover:border-red-500 transition duration-300"
-                    >
-                      <div className="w-10 h-10 flex items-center justify-center bg-white">
-                        <Image
-                          src={category.img}
-                          alt={category.name}
-                          className="size-8 md:size-12"
-                        />
-                      </div>
-                      <span className="text-sm font-medium mt-1">
-                        {category.name}
-                      </span>
-                      <span className="text-gray-400">
-                        ({category.count || 0})
-                      </span>
-                    </button>
-                  ))}
+{/* Các danh mục khác */}
+{categoryProductCounts.map((category) => (
+  <button
+    key={category.id}
+    className="flex flex-col items-center px-4 py-1 border border-gray-300 rounded-lg hover:border-red-500 transition duration-300"
+  >
+    <div className="w-10 h-10 flex items-center justify-center bg-white">
+      <Image
+        src={category.img}
+        alt={category.name}
+        className="size-8 md:size-12"
+      />
+    </div>
+    <span className="text-sm font-medium mt-1">{category.name}</span>
+    <span className="text-gray-400">({category.count || 0})</span>
+  </button>
+))}
+
+
+
                 </div>
 
                 {/* Lọc nhanh */}
@@ -253,10 +262,10 @@ function SearchResults() {
                             {(
                               Math.round(
                                 product.price /
-                                  (1 - product.discount / 100) /
-                                  1000
+                                (1 - product.discount / 100) /
+                                1000
                               ) *
-                                1000 -
+                              1000 -
                               product.price
                             )?.toLocaleString()}
                             đ

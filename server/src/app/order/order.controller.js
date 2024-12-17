@@ -252,9 +252,10 @@ class OrderController {
     }
 
     const updatedOrder = await orderService.updateOrderStatus(id, statusId);
-
+    console.log(updatedOrder);
     if (statusId === 2 || statusId === 3) {
       try {
+        orderService.sendOrderConfirmationEmail(updatedOrder);
         await portOrderGHTK(orderDetails, userId, id, addressId);
         return res.status(200).json({
           message: "Order successfully updated and GHTK order created.",

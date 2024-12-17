@@ -84,6 +84,57 @@ class StoreService {
       throw new Error(error.message);
     }
   }
+    async updateStoreByVisible(id) {
+      try {
+        // Tìm đối tượng theo ID
+        const checkStore = await db.Store.findOne({
+          where: {
+            id,
+          },
+        });
+  
+        // Kiểm tra nếu đối tượng không tồn tại
+        if (!checkStore) {
+          return { error: "Đối tượng không tồn tại" };
+        }
+  
+        const store = checkStore.dataValues;
+  
+        if (store.visible === false) {
+          const updateStore = await db.Store.update(
+            { visible: true },
+            {
+              where: {
+                id,
+              },
+            }
+          );
+  
+          if (updateStore[0] > 0) {
+            return { message: "Update visible thành công" };
+          } else {
+            return { error: "Update visible thất bại" };
+          }
+        } else if (store.visible === true) {
+          const updateStore = await db.Store.update(
+            { visible: false },
+            {
+              where: {
+                id,
+              },
+            }
+          );
+          if (updateStore[0] > 0) {
+            return { message: "Update visible thành công" };
+          } else {
+            return { error: "Update visible thất bại" };
+          }
+        }
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    }
+  
 }
 
 module.exports = new StoreService();

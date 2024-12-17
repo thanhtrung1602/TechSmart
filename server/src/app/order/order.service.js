@@ -179,7 +179,7 @@ class OrderService {
           address_ward: order.addressData.ward,
           address_province: order.addressData.province.name,
           address_district: order.addressData.district.name,
-          paymentMethod: order.paymentMethods.type,
+          paymentMethod: order.paymentMethodData.type,
           products,
         }
       );
@@ -462,18 +462,48 @@ class OrderService {
 
   async updateOrderStatus(id, statusId) {
     try {
-      const order = await db.Order.findByPk(id);
+      const order = await db.Order.findOne({
+        where: {
+          id,
+        },
+        include: [
+          {
+            model: db.StatusOrder,
+            as: "statusData",
+          },
+          {
+            model: db.PaymentMethod,
+            as: "paymentMethodData",
+          },
+          {
+            model: db.Addresses,
+            as: "addressData",
+          },
+          {
+            model: db.Store,
+            as: "storeData",
+          },
+          {
+            model: db.User,
+            as: "userData",
+          },
+          {
+            model: db.StatusPayment,
+            as: "statusPayData",
+          }
+        ],
+      });
       if (!order) {
         return null;
       }
 
-      const updateOrderStatus = await db.Order.update(
+      const updateOrderStatus = await order.update(
         { statusId },
         {
           where: {
             id,
           },
-        }
+        },
       );
 
       if (updateOrderStatus) {

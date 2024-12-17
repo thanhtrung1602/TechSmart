@@ -10,7 +10,6 @@ class ValueAttributeService {
       throw new Error(error.message);
     }
   }
-
   async getOneValueAttributeById(productId) {
     try {
       const getOneValueAttributeBySlug = await db.AttributeValue.findAll({
@@ -31,7 +30,7 @@ class ValueAttributeService {
             as: "variantData",
           },
         ],
-        order: [["id", "DESC"]],
+        order: [["createdAt", "DESC"]],
       });
 
       if (!getOneValueAttributeBySlug) {
@@ -128,19 +127,18 @@ class ValueAttributeService {
         },
         include: [
           {
-            model: db.Attribute,
-            as: "attributeData",
-          },
-          {
             model: db.Product,
             as: "productData",
+          },
+          {
+            model: db.Attribute,
+            as: "attributeData",
           },
           {
             model: db.Variant,
             as: "variantData",
           },
         ],
-        order: [["id", "DESC"]],
       });
 
       if (!getOneValueAttributeById) {
@@ -201,7 +199,9 @@ class ValueAttributeService {
         { productId, variantId, value },
         {
           where: {
+            productId,
             attributeId,
+            variantId,
             id,
           },
         }
@@ -248,16 +248,6 @@ class ValueAttributeService {
           where: {
             id,
           },
-          include: [
-            {
-              model: db.Product,
-              as: "productData",
-            },
-            {
-              model: db.Attribute,
-              as: "attributeData",
-            },
-          ],
         }
       );
 
@@ -275,16 +265,6 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
-        include: [
-          {
-            model: db.Product,
-            as: "productData",
-          },
-          {
-            model: db.Attribute,
-            as: "attributeData",
-          },
-        ],
       });
 
       if (!getOneValueAttributeById) {
@@ -297,20 +277,39 @@ class ValueAttributeService {
         where: {
           id: numberId,
         },
-        include: [
-          {
-            model: db.Product,
-            as: "productData",
-          },
-          {
-            model: db.Attribute,
-            as: "attributeData",
-          },
-        ],
         order: [["id", "DESC"]],
       });
 
       if (delValueAttribute) {
+        return { message: "delete successfully!" };
+      }
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async delValueAttributeByVariant(numberId) {
+    try {
+      const getOneValueAttributeById = await db.AttributeValue.findOne({
+        where: {
+          variantId: numberId,
+        },
+      });
+
+      if (!getOneValueAttributeById) {
+        return {
+          error: `Không tìm thấy getOneValueAttributeById by id ${numberId}`,
+        };
+      }
+
+      const delValueAttributeByVariant = await db.AttributeValue.destroy({
+        where: {
+          variantId: numberId,
+        },
+        order: [["id", "DESC"]],
+      });
+
+      if (delValueAttributeByVariant) {
         return { message: "delete successfully!" };
       }
     } catch (error) {

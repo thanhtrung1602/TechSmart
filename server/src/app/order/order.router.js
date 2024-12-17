@@ -39,11 +39,7 @@ router.get(
   OrderController.getOrderByIdUser
 );
 
-router.patch(
-  "/updateOrder/:id",
-  jwtMiddlewareRole,
-  OrderController.updateOrder
-);
+router.patch("/updateOrder/:id", jwtMiddleware, OrderController.updateOrder);
 
 router.delete(
   "/deleteOrder/:id",

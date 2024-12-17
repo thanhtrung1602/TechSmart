@@ -60,19 +60,9 @@ function Product() {
     `/products/getOneProduct/${slugProduct}`
   );
 
-  const [sortedCapacities, setSortedCapacities] = useState<ValueAttribute[]>(
-    []
-  );
-
-  console.log(sortedCapacities);
-
   const { data: attributeValue, isLoading: isLoadPrice } = useGet<
     ValueAttribute[]
   >(`/valueAttribute/getOneValueAttributeById/${productDetail?.id}`);
-
-  useEffect(() => {
-    setSortedCapacities([]);
-  }, [productDetail?.id]);
 
   const sorted = [
     ...(attributeValue?.filter((item) => item.attributeId === 6) || []),
@@ -84,7 +74,6 @@ function Product() {
 
   useEffect(() => {
     if (sorted.length > 0 && sorted[0]?.variantData?.price) {
-      setSortedCapacities(sorted);
       dispatch(setPrice(sorted[0].variantData.price.toLocaleString()));
     }
   }, [productDetail?.id, attributeValue, dispatch]);
@@ -92,6 +81,8 @@ function Product() {
   const { data: carts } = useGet<{ count: number; rows: Carts[] }>(
     `/cart/getAllCartByUserId/${userProfile?.id}`
   );
+
+  console.log("Carts: ", carts);
 
   const { data: blogs } = useBlog<Blog[]>("/posts");
   console.log("Blogs: ", blogs);
@@ -309,12 +300,12 @@ function Product() {
 
     const stockProd = stockChecked || stockChecked - 2;
     const quantityProd = carts
-      ? carts?.rows.find(
-          (item) =>
+      ? carts?.rows.find((item) => {
+          console.log(item),
             item.variantData.productId === product.id &&
-            item.rom === romValue &&
-            item.color === selectedColor?.value
-        )
+              item.rom === romValue &&
+              item.color === selectedColor?.value;
+        })
       : cartProducts.find(
           (item) =>
             item.id === product.id &&

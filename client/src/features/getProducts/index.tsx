@@ -110,6 +110,7 @@ function GetProducts({
                   </span>
                 )}
               </div>
+
               {/* Thông tin tồn kho */}
               <div className="text-xs text-gray-600 mt-2">
                 <span className="mr-2">Tồn kho: {variant.stock}</span>

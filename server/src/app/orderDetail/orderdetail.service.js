@@ -58,6 +58,12 @@ class OrderDetailService {
           {
             model: db.Variant,
             as: "variantData",
+            include: [
+              {
+                model: db.Product,
+                as: "productData",
+              },
+            ],
           },
           {
             model: db.Order,

@@ -119,6 +119,8 @@ function ChildCart({
     return cartItem ? cartItem.variantData.stock : 0;
   };
 
+  console.log("id: ", id);
+
   // Handle removing product from cart
   const handleRemoveProduct = (id: number, rom: string, color: string) => {
     if (userProfile) {
@@ -149,6 +151,7 @@ function ChildCart({
         toast.loading("Hiện không có sản phẩm trong giỏ hàng");
       }
     } else {
+      setOpen(false);
       dispatch(removeProduct({ id, rom, color }));
     }
   };
@@ -359,7 +362,7 @@ function ChildCart({
               </div>
               <div className="flex gap-4">
                 <button
-                  onClick={() => handleRemoveProduct(idCart || id, rom, color)}
+                  onClick={() => handleRemoveProduct(id, rom, color)}
                   className="w-full bg-red-500 hover:bg-red-600 rounded-lg shadow text-white"
                 >
                   Xóa

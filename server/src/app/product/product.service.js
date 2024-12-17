@@ -1,71 +1,46 @@
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 const db = require("../../models/index");
 const categoryService = require("../category/category.service");
 const manufacturerService = require("../manufacturer/manufacturer.service");
 class ProductService {
   async searchAll(query) {
     try {
-      // Điều kiện tìm kiếm sản phẩm
       const searchCondition =
         query && query.trim() !== ""
           ? {
-              [Op.or]: [
-                { name: { [Op.iLike]: `%${query}%` } },
-                { slug: { [Op.iLike]: `%${query}%` } },
-              ],
-            }
+            [Op.or]: [
+              { name: { [Op.iLike]: `%${query}%` } },
+              { slug: { [Op.iLike]: `%${query}%` } },
+            ],
+          }
           : null;
 
-      // Tìm kiếm sản phẩm
+      // Tìm kiếm sản phẩm với các liên kết đúng
       const { count, rows } = await db.Product.findAndCountAll({
         where: searchCondition,
         include: [
           {
-            model: db.Category,
-            as: "category",
+            model: db.Categories,
+            as: "categoryData", // Khớp với alias
           },
           {
             model: db.ManuFacturer,
-            as: "manufacturer",
+            as: "manufacturerData", // Khớp với alias
           },
         ],
       });
 
-      // Lấy danh sách categoryId và manufacturerId từ sản phẩm
-      const categoryIds = [
-        ...new Set(rows.map((product) => product.categoryId)),
-      ];
-      const manufacturerIds = [
-        ...new Set(rows.map((product) => product.manufacturerId)),
-      ];
-
-      // Tìm kiếm danh mục
-      const categories =
-        categoryIds.length > 0
-          ? await db.Categories.findAll({
-              where: { id: { [Op.in]: categoryIds } },
-            })
-          : [];
-
-      // Tìm kiếm hãng sản xuất
-      const manufacturers =
-        manufacturerIds.length > 0
-          ? await db.ManuFacturer.findAll({
-              where: { id: { [Op.in]: manufacturerIds } },
-            })
-          : [];
-
-      // Trả về kết quả
       return {
         products: rows,
-        categories,
-        manufacturers,
+        categories: [...new Set(rows.map((product) => product.categoryData))],
+        manufacturers: [...new Set(rows.map((product) => product.manufacturerData))],
       };
     } catch (error) {
       console.error("Error in searchAll:", error);
       throw new Error("Lỗi khi tìm kiếm dữ liệu.");
     }
   }
+
 
   async filteredProducts(
     limit,
@@ -89,11 +64,11 @@ class ProductService {
       const searchCondition =
         search && search.trim() !== "" && search !== "null"
           ? {
-              [Op.or]: [
-                { name: { [Op.iLike]: `%${search}%` } },
-                { slug: { [Op.iLike]: `%${search}%` } },
-              ],
-            }
+            [Op.or]: [
+              { name: { [Op.iLike]: `%${search}%` } },
+              { slug: { [Op.iLike]: `%${search}%` } },
+            ],
+          }
           : null;
       const visibleCondition =
         visible && visible !== "null"
@@ -575,27 +550,6 @@ class ProductService {
     }
   }
 
-  //Cập nhật số lướng stock trong database
-
-  async updateStock(id, quantity) {
-    try {
-      const product = await db.Product.findOne({
-        where: { id },
-      });
-
-      if (!product) {
-        return "Không tìm thấy sản phẩm";
-      }
-
-      if (product.stock > 0 || quantity > 0) product.stock -= quantity;
-
-      await product.save();
-      return "Đã giảm số lượng trong kho";
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
   //Thêm số lượng hot
 
   async increaseHot(id, quantity) {
@@ -625,6 +579,7 @@ class ProductService {
     slug
   ) {
     try {
+
       const categoryNumberId = parseInt(categoryId);
       const manufacturerNumberId = parseInt(manufacturerId);
 
@@ -658,9 +613,7 @@ class ProductService {
     name,
     categoryId,
     manufacturerId,
-    price,
     discount,
-    stock,
     visible,
     file,
     slug
@@ -674,24 +627,15 @@ class ProductService {
 
       const fileImg = file ? file : product.img;
 
-      const updatedProduct = await db.Product.update(
-        {
-          categoryId,
-          manufacturerId,
-          name,
-          slug,
-          price,
-          discount,
-          img: fileImg,
-          stock,
-          visible,
-        },
-        {
-          where: {
-            id,
-          },
-        }
-      );
+      const updatedProduct = await product.update({
+        categoryId,
+        manufacturerId,
+        name,
+        slug,
+        discount,
+        img: fileImg,
+        visible,
+      });
       if (updatedProduct) {
         return updatedProduct;
       }
@@ -805,26 +749,6 @@ class ProductService {
         } else {
           return { error: "Update visible thất bại" };
         }
-      }
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
-  async updateProductStock(id, { stock }) {
-    try {
-      const updatedProduct = await db.Product.update(
-        {
-          stock,
-        },
-        {
-          where: {
-            id,
-          },
-        }
-      );
-      if (updatedProduct) {
-        return updatedProduct;
       }
     } catch (error) {
       throw new Error(error.message);

@@ -43,9 +43,10 @@ class CategoriesService {
           ]
         }
         : null;
-        const visibleCondition = (visible === true || visible === false)
-        ? { visible: visible } // Filter by visible status (true or false)
-        : null;
+        const visibleCondition =
+        visible && visible !== "null"
+          ? { visible: visible } // Filter by visible status (true or false)
+          : null;
 
       // Combine search and filter conditions, removing any null values
       const whereCondition = {
@@ -162,54 +163,6 @@ class CategoriesService {
     }
   }
 
-  async BanUser(id) {
-    try {
-      const checkUser = await db.User.findOne({
-        where: {
-          id,
-        },
-      });
-
-      if (!checkUser) {
-        return { error: "User không tồn tại" };
-      }
-
-      const user = checkUser.dataValues;
-
-      if (user.ban === false) {
-        const updateBanUser = await db.User.update(
-          { ban: true },
-          {
-            where: {
-              id,
-            },
-          }
-        );
-
-        if (updateBanUser[0] > 0) {
-          return { message: "Update ban thành công" };
-        } else {
-          return { error: "Update ban thất bị" };
-        }
-      } else if (user.ban === true) {
-        const updateBanUser = await db.User.update(
-          { ban: false },
-          {
-            where: {
-              id,
-            },
-          }
-        );
-        if (updateBanUser[0] > 0) {
-          return { message: "Update ban thành công" };
-        } else {
-          return { error: "Update ban thất bị" };
-        }
-      }
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
 
   async updateCategoriesByVisible(id) {
     try {

@@ -227,7 +227,7 @@ class AuthService {
 
   //Register Employee
 
-  async registerEmployee({ fullname, password, phone }) {
+  async registerEmployee({ email, password, phone, role }, fullName) {
     try {
       const saltRounds = 10;
       const hashPassword = await hash(password, saltRounds);
@@ -249,7 +249,7 @@ class AuthService {
       }
 
       const employee = await db.User.create({
-        fullname,
+        fullname: fullName,
         email,
         phone,
         password: hashPassword,

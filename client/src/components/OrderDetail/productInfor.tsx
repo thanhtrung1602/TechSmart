@@ -89,15 +89,15 @@ export default function ProductInfor() {
                       style={{ minWidth: "64px" }}
                     >
                       <Image
-                        alt={detail.productData.name}
-                        src={detail.productData.img}
+                        alt={detail.variantData.productData.name}
+                        src={detail.variantData.productData.img}
                         className="w-full h-full object-cover rounded"
                       />
                     </div>
                     {/* Hiển thị thông tin */}
                     <div>
                       <p className="line-clamp-2 text-sm font-medium">
-                        {detail.productData.name}
+                        {detail.variantData.productData.name}
                       </p>
                       <p className="text-xs text-gray-500">
                         Số lượng: {detail.quantity}
@@ -222,8 +222,8 @@ export default function ProductInfor() {
           </div>
         </Modal>
         {orderById?.statusPayId === 1 &&
-        orderById?.paymentMethodId !== 2 &&
-        orderById?.statusId !== 4 ? (
+          orderById?.paymentMethodId !== 2 &&
+          orderById?.statusId !== 4 ? (
           <button
             onClick={handlePayment}
             className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600"

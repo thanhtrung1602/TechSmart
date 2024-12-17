@@ -43,4 +43,10 @@ router.delete(
   ValueAttributeController.delValueAttribute
 );
 
+router.delete(
+  "/delValueAttributeByVariant/:id",
+  jwtMiddlewareRole,
+  ValueAttributeController.delValueAttributeByVariant
+);
+
 module.exports = router;
