@@ -550,14 +550,24 @@ export default function EditProduct() {
           <div>
             <label className="block text-sm font-medium mb-1">Giá giảm</label>
             <input
-              type="number"
+              type="text"
               placeholder="Giá giảm..."
               {...register("discount", { valueAsNumber: true })}
               className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
               value={formData.discount || 0}
               onChange={(e) => {
-                setFormData({ ...formData, discount: Number(e.target.value) });
-                setValue("discount", Number(e.target.value))
+                // Lấy giá trị nhập vào và kiểm tra nếu nó là số hợp lệ
+                const value = e.target.value;
+                const parsedValue = Number(value);
+
+                // Kiểm tra nếu giá trị là một số và không dưới 0
+                if (!isNaN(parsedValue) && parsedValue >= 0) {
+                  setFormData({ ...formData, discount: parsedValue });
+                } else {
+                  // Nếu không phải số hoặc dưới 0, giữ nguyên giá trị cũ
+                  setFormData({ ...formData, discount: 0 });
+                }
+                setValue("discount", parsedValue);
               }}
             />
           </div>
@@ -722,7 +732,7 @@ export default function EditProduct() {
                 <div>
                   <label className="block text-sm font-medium mb-1">Giá</label>
                   <input
-                    type="number"
+                    type="text"
                     placeholder="Giá..."
                     className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
                     value={variant.price}
@@ -734,7 +744,7 @@ export default function EditProduct() {
                 <div>
                   <label className="block text-sm font-medium mb-1">Số lượng</label>
                   <input
-                    type="number"
+                    type="text"
                     placeholder="Số lượng..."
                     className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
                     value={variant.stock}
