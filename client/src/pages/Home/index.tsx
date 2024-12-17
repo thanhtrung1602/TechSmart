@@ -353,7 +353,7 @@ function Home() {
               Blog
             </h2>
           </div>
-          <div className="flex items-center gap-x-2 rounded overflow-hidden">
+          <div className="flex items-center gap-x-1 rounded overflow-hidden">
             <SwiperItem
               items={blogs}
               className="relative group"
@@ -364,11 +364,11 @@ function Home() {
                 },
                 // Tablet
                 768: {
-                  slidesPerView: 2,
+                  slidesPerView: 3,
                 },
                 // Laptop
                 1024: {
-                  slidesPerView: 3,
+                  slidesPerView: 5,
                 },
               }}
               spaceBetween={20}

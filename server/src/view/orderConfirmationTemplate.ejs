@@ -197,7 +197,7 @@
             <%= status %>
           </strong></p>
         <p>Tổng giá trị đơn hàng: <strong>
-            <%= total %>
+          <%= total.toLocaleString('vi-VN') %>
           </strong> VNĐ</p>
         <p>Phương thức thanh toán: <strong>
             <%= paymentMethod %>
@@ -218,7 +218,7 @@
                 </strong></p>
               <p>Số lượng: <%= product.quantity %>
               </p>
-              <p>Giá trị: <%= product.price %> VNĐ</p>
+              <p>Giá trị: <%= product.price %>VNĐ</p>
             </div>
           </div>
           <% }) %>

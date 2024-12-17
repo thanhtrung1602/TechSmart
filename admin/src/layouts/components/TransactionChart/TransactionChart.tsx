@@ -74,7 +74,7 @@ const CustomTooltip = ({ active, payload }: CTooltip) => {
     return (
       <div className="custom-tooltip bg-white shadow-lg rounded-lg p-2">
         <p className="label">{`Ngày: ${date}`}</p>
-        <p className="label text-[#8884d8]">{`Tổng: ${total.toLocaleString()}`}</p>
+        <p className="label text-[#8884d8]">{`Tổng: ${total?.toLocaleString()}`}</p>
       </div>
     );
   }

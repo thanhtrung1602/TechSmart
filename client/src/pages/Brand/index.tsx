@@ -65,7 +65,9 @@ function Brand() {
   return (
     <>
       <div className="container mx-auto px-4 md:px-10 xl:px-40 w-full">
-        <h1 className="pt-4 mb-3 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">{category?.name}</h1>
+        <h1 className="pt-4 mb-3 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
+          {category?.name}
+        </h1>
         {category && <BannerCategory category={category?.id as CategoryType} />}
       </div>
       <div className="container w-full mx-auto px-4 md:px-10 xl:px-40 py-5 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 md:gap-3 xL:gap-4">
@@ -73,7 +75,9 @@ function Brand() {
         <div className="mb-4 md:mb-0 md:sticky top-[92px] h-auto md:h-[85vh] col-span-1 bg-white rounded p-4 shadow-md">
           <div className="flex items-center gap-x-2 py-2 mb-2 border-b-2">
             <IoFilter className="text-lg sm:text-xl md:text-2xl" />
-            <h2 className="text-base sm:text-lg md:text-xl font-semibold">Bộ lọc</h2>
+            <h2 className="text-base sm:text-lg md:text-xl font-semibold">
+              Bộ lọc
+            </h2>
           </div>
           <form className="flex flex-row justify-between md:flex-col md:gap-y-6">
             <div className="w-full">
@@ -93,27 +97,36 @@ function Brand() {
                 <option
                   value="0-999999999999999"
                   className="text-xs xl:text-base"
-                >Tất cả</option>
-                <option
-                  value="1 - 2000000"
-                  className="text-xs xl:text-base"
-                >Dưới 2 triệu</option>
+                >
+                  Tất cả
+                </option>
+                <option value="1 - 2000000" className="text-xs xl:text-base">
+                  Dưới 2 triệu
+                </option>
                 <option
                   value="2000000 - 4000000"
                   className="text-xs xl:text-base"
-                >Từ 2 - 4 triệu</option>
+                >
+                  Từ 2 - 4 triệu
+                </option>
                 <option
                   value="4000000 - 8000000"
                   className="text-xs xl:text-base"
-                >Từ 4 - 8 triệu</option>
+                >
+                  Từ 4 - 8 triệu
+                </option>
                 <option
                   value="8000000 - 10000000"
                   className="text-xs xl:text-base"
-                >Từ 8 - 10 triệu</option>
+                >
+                  Từ 8 - 10 triệu
+                </option>
                 <option
                   value="10000000 - 20000000"
                   className="text-xs xl:text-base"
-                >Từ 10 - 20 triệu</option>
+                >
+                  Từ 10 - 20 triệu
+                </option>
                 <option
                   value="20000000 - 999999999999999"
                   className="text-xs xl:text-base"
@@ -167,7 +180,7 @@ function Brand() {
                       đ đ
                     </span>
                     <span className="font-semibold text-base md:text-lg text-red-600">
-                      {product.price.toLocaleString()}đ
+                      {product.price?.toLocaleString()}đ
                     </span>
                     {product.discount > 0 && (
                       <span className="text-[0.7rem] md:text-xs text-green-600">
@@ -176,9 +189,9 @@ function Brand() {
                           Math.round(
                             product.price / (1 - product.discount / 100) / 1000
                           ) *
-                          1000 -
+                            1000 -
                           product.price
-                        ).toLocaleString()}
+                        )?.toLocaleString()}
                         đ
                       </span>
                     )}
@@ -202,13 +215,13 @@ function Brand() {
           {/* Pagination */}
           {totalProducts
             ? productOfManufacturerCategoryAndPrice && (
-              <PaginationList
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                totalProducts={totalProducts}
-                handlePageClick={handlePageClick}
-              />
-            )
+                <PaginationList
+                  currentPage={currentPage}
+                  itemsPerPage={itemsPerPage}
+                  totalProducts={totalProducts}
+                  handlePageClick={handlePageClick}
+                />
+              )
             : ""}
         </div>
       </div>

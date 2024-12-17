@@ -26,7 +26,7 @@ function RecentOrders() {
           <thead className="bg-gray-100 text-black font-semibold sticky top-0">
             <tr>
               <td className="rounded-l-lg px-3 py-3 text-center text-sm">
-                Mã đơn hàng
+                STT
               </td>
               <td className="px-3 py-3 text-center text-sm">Khách hàng</td>
               <td className="px-3 py-3 text-center text-sm">Ngày đặt</td>
@@ -40,29 +40,29 @@ function RecentOrders() {
             </tr>
           </thead>
           <tbody>
-            {orders?.rows?.map((order) => {
+            {orders?.rows?.map((order, index) => {
               const users = userList?.filter(
                 (user) => user.id === order.userId
               );
               const username = users?.map((user) => user.fullname).join(", ");
               return (
                 <tr className="text-center" key={order.id}>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200 ">
-                    <Link to={`/order/${order.id}`}>#{order.id}</Link>
+                  <td className="px-4 py-3 border-b border-gray-200 ">
+                  {index + 1}
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200 items-center">
+                  <td className="px-4 py-3 border-b border-gray-200 items-center">
                     <Link to={`/customer/${order.userId}`}>{username}</Link>
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200">
+                  <td className="px-4 py-3 border-b border-gray-200">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200">
-                    {order.total.toLocaleString()} VNĐ
+                  <td className="px-4 py-3 border-b border-gray-200">
+                    {order.total?.toLocaleString()} VNĐ
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200">
+                  <td className="px-4 py-3 border-b border-gray-200">
                     {order.paymentMethodData.type}
                   </td>
-                  <td className="px-4 py-3 border-b-[1px] border-gray-200">
+                  <td className="px-4 py-3 border-b border-gray-200">
                     {getOrderStatus(order.statusData.status)}
                   </td>
                 </tr>
