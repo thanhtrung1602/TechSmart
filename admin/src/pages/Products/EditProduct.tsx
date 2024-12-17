@@ -385,31 +385,15 @@ export default function EditProduct() {
             //Nếu variant có tồn tại nhưng không cập nhật hay thêm thì giữ nguyên giá trị
             variantId = existingVariant.id;
 
-            // Tìm giá trị trong initialFormData  
-            const initialAttrValue = initialFormData?.variants.find(
-              (initialVariant) =>
-                initialVariant.id === existingVariant.id &&
-                initialVariant.attributeValues.every((initialAttr) =>
-                  variant.attributeValues.some(
-                    (attr) =>
-                      attr.attributeId === initialAttr.attributeId &&
-                      attr.value === initialAttr.value
-                  )
-                )
-            )
+            // Nếu variant đã tồn tại, cập nhật
+            const variantResponse = await update({
+              url: `/variants/updateProductVariant/${existingVariant.id}`,
+              data: variantFormData,
+            });
 
-            console.log("Initial attribute values:", initialAttrValue);
-            if (initialAttrValue.price !== existingVariant.price || initialAttrValue.stock !== existingVariant.stock) {
-              // Nếu variant đã tồn tại, cập nhật
-              const variantResponse = await update({
-                url: `/variants/updateProductVariant/${existingVariant.id}`,
-                data: variantFormData,
-              });
-
-              if (variantResponse.status === 200) {
-                console.log("Variant updated successfully:", variantResponse.data);
-                variantId = existingVariant.id; // Lấy id của variant đã tồn tại
-              }
+            if (variantResponse.status === 200) {
+              console.log("Variant updated successfully:", variantResponse.data);
+              variantId = existingVariant.id; // Lấy id của variant đã tồn tại
             }
             console.log("Variant ID:", variantId);
           } else {
