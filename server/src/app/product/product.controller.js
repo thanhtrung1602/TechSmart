@@ -12,6 +12,9 @@ class ProductController {
   //search enter
   search = asyncWrapper(async (req, res) => {
     const query = req.query.s?.toString().trim().toLowerCase();
+
+    console.log("query: ", query);
+
     if (!query) {
       return res.status(400).json({ message: "Query không được để trống." });
     }

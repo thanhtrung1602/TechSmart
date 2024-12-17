@@ -48,7 +48,7 @@ function RecentOrders() {
               return (
                 <tr className="text-center" key={order.id}>
                   <td className="px-4 py-3 border-b border-gray-200 ">
-                  {index + 1}
+                    {index + 1}
                   </td>
                   <td className="px-4 py-3 border-b border-gray-200 items-center">
                     <Link to={`/customer/${order.userId}`}>{username}</Link>

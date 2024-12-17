@@ -5,67 +5,42 @@ const manufacturerService = require("../manufacturer/manufacturer.service");
 class ProductService {
   async searchAll(query) {
     try {
-      // Điều kiện tìm kiếm sản phẩm
       const searchCondition =
         query && query.trim() !== ""
           ? {
-            [Op.or]: [
-              { name: { [Op.iLike]: `%${query}%` } },
-              { slug: { [Op.iLike]: `%${query}%` } },
-            ],
-          }
+              [Op.or]: [
+                { name: { [Op.iLike]: `%${query}%` } },
+                { slug: { [Op.iLike]: `%${query}%` } },
+              ],
+            }
           : null;
-
-      // Tìm kiếm sản phẩm
+  
+      // Tìm kiếm sản phẩm với các liên kết đúng
       const { count, rows } = await db.Product.findAndCountAll({
         where: searchCondition,
         include: [
           {
-            model: db.Category,
-            as: "category",
+            model: db.Categories,
+            as: "categoryData", // Khớp với alias
           },
           {
             model: db.ManuFacturer,
-            as: "manufacturer",
+            as: "manufacturerData", // Khớp với alias
           },
-        ]
+        ],
       });
-
-      // Lấy danh sách categoryId và manufacturerId từ sản phẩm
-      const categoryIds = [
-        ...new Set(rows.map((product) => product.categoryId)),
-      ];
-      const manufacturerIds = [
-        ...new Set(rows.map((product) => product.manufacturerId)),
-      ];
-
-      // Tìm kiếm danh mục
-      const categories =
-        categoryIds.length > 0
-          ? await db.Categories.findAll({
-            where: { id: { [Op.in]: categoryIds } },
-          })
-          : [];
-
-      // Tìm kiếm hãng sản xuất
-      const manufacturers =
-        manufacturerIds.length > 0
-          ? await db.ManuFacturer.findAll({
-            where: { id: { [Op.in]: manufacturerIds } },
-          })
-          : [];
-
-      // Trả về kết quả
+  
       return {
         products: rows,
-        categories,
-        manufacturers,
+        categories: [...new Set(rows.map((product) => product.categoryData))],
+        manufacturers: [...new Set(rows.map((product) => product.manufacturerData))],
       };
     } catch (error) {
       console.error("Error in searchAll:", error);
       throw new Error("Lỗi khi tìm kiếm dữ liệu.");
     }
   }
+  
 
   async filteredProducts(
     limit,
