@@ -9,8 +9,6 @@ function MenuTooltip({
   children,
   items = [],
   className,
-  onShow,
-  onHide,
 }: MenuType) {
   const [history] = useState([{ data: items }]);
   const [visible, setVisible] = useState(false);
@@ -24,15 +22,7 @@ function MenuTooltip({
   };
 
   const handleToggle = () => {
-    setVisible((prev) => {
-      const newState = !prev;
-      if (newState) {
-        onShow?.();
-      } else {
-        onHide?.();
-      }
-      return newState;
-    });
+    setVisible((prev) => !prev);
   };
 
   return (
@@ -45,7 +35,6 @@ function MenuTooltip({
       visible={visible} // Hiển thị dựa vào trạng thái visible
       onClickOutside={() => {
         setVisible(false);
-        onHide?.(); // Ẩn và gọi onHide
       }}
       render={(attrs) => (
         <div tabIndex={-1} {...attrs} className="mt-1">

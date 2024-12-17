@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import { FaArrowRightFromBracket, FaUserShield } from 'react-icons/fa6'
-import { HiChevronDown, HiChevronUp } from 'react-icons/hi'
+import { HiChevronDown } from 'react-icons/hi'
 import { useDispatch, useSelector } from 'react-redux'
 import MenuTooltip from '~/components/Popper/MenuTooltip'
 import { removeAdminProfile } from '~/redux/adminProfileSlice'
 import { RootState } from '~/redux/store'
 
 export default function Header() {
-	const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 	const [scrollShadow, setScrollShadow] = useState(false)
 	const adminProfile = useSelector((state: RootState) => state.adminProfile.adminProfile)
 	const dispatch = useDispatch();
@@ -51,8 +50,6 @@ export default function Header() {
 					<MenuTooltip
 						items={LIST_ITEMS}
 						className="flex flex-col gap-2 bg-white text-sm text-neutral-500 font-semibold rounded shadow p-2"
-						onShow={() => setIsTooltipVisible(true)}
-						onHide={() => setIsTooltipVisible(false)}
 					>
 						<div className='flex items-center gap-2 px-8 cursor-pointer'>
 							<div className='text-right'>
@@ -63,7 +60,7 @@ export default function Header() {
 								<FaUserShield className='size-6 text-gray-500' />
 							</div>
 							<div>
-								{isTooltipVisible ? <HiChevronUp /> : <HiChevronDown />}
+								<HiChevronDown />
 							</div>
 						</div>
 					</MenuTooltip>

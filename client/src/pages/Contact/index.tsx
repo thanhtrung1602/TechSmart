@@ -12,7 +12,7 @@ function Contact() {
     handleSubmit,
     formState: { errors },
   } = useForm<ContactData>();
-  const { mutate: contact } = usePatch();
+  const { mutate: contact } = usePost();
   const onSubmit = (data: ContactData) => {
     console.log(data);
     contact(
