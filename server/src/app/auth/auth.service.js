@@ -287,7 +287,7 @@ class AuthService {
       // Tìm kiếm người dùng trong cơ sở dữ liệu theo email
       const user = await db.User.findOne({
         where: {
-          email: email, // Điều kiện tìm kiếm theo email
+          email: email,
         },
       });
 

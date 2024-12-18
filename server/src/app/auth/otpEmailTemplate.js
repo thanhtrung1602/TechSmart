@@ -1,9 +1,4 @@
-// const express = require("express");
-// const app = express();
-// const path = require("path");
 
-// // Cấu hình thư mục tĩnh
-// app.use("/static", express.static(path.join(__dirname, "assets")));
 
 const otpEmailTemplate = (userName, otp) => `
   <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 5px; max-width: 600px; margin: 0 auto;">
