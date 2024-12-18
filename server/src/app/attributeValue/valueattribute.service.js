@@ -37,7 +37,6 @@ class ValueAttributeService {
 
   async createValueAttribute({ attributeId, productId, value }) {
     try {
-      console.log("Service created:", productId, attributeId, value);
       const getOneValueAttributeById = await db.AttributeValue.findOne({
         where: {
           attributeId,
@@ -47,26 +46,11 @@ class ValueAttributeService {
         order: [["id", "DESC"]],
       });
 
-      const getOneValueAttributeBySlug = await db.AttributeValue.findOne({
-        where: {
-          attributeId,
-        },
-        include: [
-          {
-            model: db.Product,
-            as: "productData",
-            where: {
-              slug: productSlug,
-            },
-          },
-        ],
-      });
-
-      if (!getOneValueAttributeBySlug) {
+      if (!getOneValueAttributeById) {
         const createValueAttribute = await db.AttributeValue.create(
           {
             attributeId,
-            productSlug,
+            productId,
             value,
           },
           {
@@ -82,24 +66,11 @@ class ValueAttributeService {
             ],
           }
         );
-      }
-
-      if (!getOneValueAttributeById) {
-        const createValueAttribute = await db.AttributeValue.create({
-          attributeId,
-          productId,
-          value,
-        });
-
         if (createValueAttribute) {
           return createValueAttribute;
         }
-      } else {
-        console.log(
-          "Value attribute already exists:",
-          getOneValueAttributeById
-        );
       }
+
     } catch (error) {
       throw new Error(error.message);
     }

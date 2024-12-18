@@ -348,9 +348,6 @@ export default function EditProduct() {
                   }
                 }
               }
-
-              toast.success("Cập nhật sản phẩm thành công");
-              window.location.href = "/products";
             }
           },
           onError: (error) => {

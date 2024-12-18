@@ -111,9 +111,8 @@ export default function DetailProduct({ id }: { id: number }) {
                     );
                   })
                   ?.map((attr) => (
-                    <div className="divide-y divide-gray-200 border p-1">
+                    <div key={attr.id} className="divide-y divide-gray-200 border p-1">
                       <div
-                        key={attr.id}
                         className="flex justify-between px-4 py-2 hover:bg-gray-50"
                       >
                         <div className="text-sm font-medium text-gray-500">
