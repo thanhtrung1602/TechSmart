@@ -19,7 +19,7 @@ const getSmallestRom = ({
 }) => {
   if (attributeValue && attributeValue?.length > 0) {
     // Tìm các ROM có trong sản phẩm (sử dụng ID phù hợp)
-    const romsForProduct = attributeValue.filter(
+    const romsForProduct = attributeValue?.filter(
       (item) => item.attributeData.id === 6 // Giả sử id của ROM là 6
     );
     if (romsForProduct.length > 0) {

@@ -97,8 +97,8 @@ function CheckOut() {
       const value = await CheckValueReturnTime(productIds, selectIdStore);
 
       const result =
-        value.find((isStock) => isStock.stock === false) ||
-        value.find((isStock) => isStock.stock === true);
+        value?.find((isStock) => isStock.stock === false) ||
+        value?.find((isStock) => isStock.stock === true);
 
       if (selectIdStore !== 0 && result?.stock === false) {
         setDeliveryTime(dayjs(result?.deliveryDate, "DD/MM/YYYY").toDate());
@@ -289,7 +289,7 @@ function CheckOut() {
             <p className="text-sm font-medium text-gray-700">
               Rất tiếc phải xin lỗi quý khách, các sản phẩm sau đây đã hết hàng:
               <ul className="list-disc ml-6 text-red-600 font-semibold">
-                {outOfStockArray.map((name, index) => (
+                {outOfStockArray?.map((name, index) => (
                   <li key={index}>{name}</li>
                 ))}
               </ul>
@@ -444,7 +444,7 @@ function CheckOut() {
               </h2>
               <div className="space-y-4">
                 {paymentMethods &&
-                  paymentMethods.map((paymentMethod) => (
+                  paymentMethods?.map((paymentMethod) => (
                     <label
                       key={paymentMethod.id}
                       className="block cursor-pointer"

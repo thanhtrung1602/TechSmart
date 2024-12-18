@@ -105,7 +105,7 @@ function Store() {
               <option value="">Tỉnh</option>
               {Array.isArray(store) &&
                 [...new Set(store?.map((s) => s.province?.name))]
-                  .filter(Boolean)
+                  ?.filter(Boolean)
                   ?.map((province, index) => (
                     <option key={index} value={province}>
                       {province}
@@ -124,11 +124,11 @@ function Store() {
                 ? [
                   ...new Set(
                     store
-                      .filter((s) => s.province?.name === selectedProvince)
-                      .map((s) => s.district?.name)
+                      ?.filter((s) => s.province?.name === selectedProvince)
+                      ?.map((s) => s.district?.name)
                   ),
                 ]
-                  .filter(Boolean)
+                  ?.filter(Boolean)
                   ?.map((district, index) => (
                     <option key={index} value={district}>
                       {district}

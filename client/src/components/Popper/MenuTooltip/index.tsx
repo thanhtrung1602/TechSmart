@@ -12,7 +12,7 @@ function MenuTooltip({ children, items = [], className }: MenuType) {
   const current = history[history?.length - 1];
 
   const renderItems = () => {
-    return current.data.map((item, index) => (
+    return current.data?.map((item, index) => (
       <MenuItem key={index} data={item} onClick={item.onClick} />
     ));
   };

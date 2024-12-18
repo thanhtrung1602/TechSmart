@@ -67,7 +67,7 @@ function Order() {
   };
 
   // Lọc orders sau khi fetch dữ liệu
-  const filteredOrders = ordersPagination?.rows.filter((order) =>
+  const filteredOrders = ordersPagination?.rows?.filter((order) =>
     matchesDateFilter(order)
   );
 
@@ -225,7 +225,7 @@ function Order() {
           </thead>
           <tbody>
             {filteredOrders && filteredOrders.length > 0 ? (
-              filteredOrders.map((order, index) => {
+              filteredOrders?.map((order, index) => {
                 const user = users?.find((u) => u.id === order.userId);
                 console.log("order: ", order);
                 return (
@@ -317,7 +317,7 @@ function Order() {
                   </tr>
                 </thead>
                 <tbody>
-                  {orderDetails.map((detail) => (
+                  {orderDetails?.map((detail) => (
                     <tr key={detail.productId}>
                       <td className="py-3 px-4 border-b">{detail.orderId}</td>
                       <td className="py-3 px-4 border-b">{detail.productId}</td>

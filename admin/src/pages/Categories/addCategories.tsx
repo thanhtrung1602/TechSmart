@@ -129,7 +129,7 @@ function AddCategories() {
           {/* Display selected image previews */}
           {previewImages?.length > 0 && (
             <div className="mt-4 grid grid-cols-3 gap-4">
-              {previewImages.map((preview, index) => (
+              {previewImages?.map((preview, index) => (
                 <div key={index} className="w-full h-32">
                   <img
                     src={preview}

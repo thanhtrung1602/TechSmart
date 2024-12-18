@@ -18,7 +18,7 @@ export default function TotalUser() {
   const data = users?.reduce((acc, user) => {
     const date = dayjs(user.createdAt).format("DD/MM/YYYY");
     // Tìm xem ngày này đã có trong danh sách chưa
-    const existingEntry = acc.find((entry) => entry.date === date);
+    const existingEntry = acc?.find((entry) => entry.date === date);
     if (existingEntry) {
       existingEntry.total += 1; // Tăng tổng số người dùng cho ngày đó
     } else {

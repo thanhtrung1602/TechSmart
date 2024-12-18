@@ -43,9 +43,9 @@ function SearchResults() {
   }
 
   //Tính số lượng sản phẩm theo category
-  const categoryProductCounts = searchResult?.data.categories.map(
+  const categoryProductCounts = searchResult?.data.categories?.map(
     (category) => {
-      const productCount = searchResult.data.products.filter(
+      const productCount = searchResult.data.products?.filter(
         (product) => product.categoryId === category.id
       ).length;
 
@@ -79,7 +79,7 @@ function SearchResults() {
 
   // Lọc sản phẩm theo giá
   const filteredProducts =
-    searchResult?.data.products.filter(
+    searchResult?.data.products?.filter(
       (product: Products) =>
         product.price >= selectedPrice.minPrice &&
         product.price <= selectedPrice.maxPrice
@@ -176,12 +176,12 @@ function SearchResults() {
                     {/* Lọc các hãng trùng lặp */}
                     {[
                       ...new Map(
-                        searchResult?.data.manufacturers.map((manufacturer) => [
+                        searchResult?.data.manufacturers?.map((manufacturer) => [
                           manufacturer.name,
                           manufacturer,
                         ])
                       ).values(),
-                    ].map((uniqueManufacturer) => (
+                    ]?.map((uniqueManufacturer) => (
                       <option key={uniqueManufacturer.id}>
                         {uniqueManufacturer.name}
                       </option>
@@ -195,7 +195,7 @@ function SearchResults() {
               </h2>
               <div className="grid grid-cols-4 gap-2">
                 {paginatedProducts.length > 0 ? (
-                  paginatedProducts.map((product: Products) => (
+                  paginatedProducts?.map((product: Products) => (
                     <div
                       key={product.id}
                       className="flex flex-col justify-between relative p-4 rounded-lg bg-white shadow hover:shadow-md duration-300 overflow-hidden select-none "

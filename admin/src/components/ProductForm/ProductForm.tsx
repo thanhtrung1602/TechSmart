@@ -87,8 +87,8 @@ export default function ProductForm() {
       setFormData((prevFormData) => ({
         ...prevFormData,
         attributeValues: categoryAttributes
-          .filter((attr) => ![4, 29, 6].includes(attr.attributeData.id))
-          .map((attr) => ({
+          ?.filter((attr) => ![4, 29, 6].includes(attr.attributeData.id))
+          ?.map((attr) => ({
             attributeId: attr.attributeData.id,
             value: "",
           })),
@@ -131,7 +131,7 @@ export default function ProductForm() {
       const newVariants = [...prevFormData.variants];
       const newVariant = { ...newVariants[variantIndex] };
 
-      const existingAttributeIndex = newVariant.attributeValues.findIndex(
+      const existingAttributeIndex = newVariant.attributeValues?.findIndex(
         (attrValue) => attrValue.attributeId === attributeId
       );
 
@@ -152,7 +152,7 @@ export default function ProductForm() {
   // Handle attribute value changes for non-variant attributes
   const handleNonVariantAttributeChange = (attributeId: number, value: string) => {
     setFormData((prevFormData) => {
-      const newAttributeValues = prevFormData.attributeValues.map((attrValue) =>
+      const newAttributeValues = prevFormData.attributeValues?.map((attrValue) =>
         attrValue.attributeId === attributeId ? { ...attrValue, value } : attrValue
       );
       return { ...prevFormData, attributeValues: newAttributeValues };
@@ -176,7 +176,7 @@ export default function ProductForm() {
   const handleRemoveVariant = (index: number) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
-      variants: prevFormData.variants.filter((_, i) => i !== index),
+      variants: prevFormData.variants?.filter((_, i) => i !== index),
     }));
   };
 
@@ -184,7 +184,7 @@ export default function ProductForm() {
     const files = event.target.files;
     if (files) {
       const selectedFiles = Array.from(files);
-      const imagePreviews = selectedFiles.map((file) =>
+      const imagePreviews = selectedFiles?.map((file) =>
         URL.createObjectURL(file)
       );
       setFile(selectedFiles[0]);
@@ -221,10 +221,10 @@ export default function ProductForm() {
               ]
 
               // Tách attributeValues thành 2 nhóm: cần tạo variant và không cần
-              const variantAttributes = allAttributes.filter(
+              const variantAttributes = allAttributes?.filter(
                 (attrValue) => (attrValue.attributeId === 4 || attrValue.attributeId === 29 || attrValue.attributeId === 6) && attrValue.value.trim() !== ""
               );
-              const nonVariantAttributes = allAttributes.filter(
+              const nonVariantAttributes = allAttributes?.filter(
                 (attrValue) => (attrValue.attributeId !== 4 && attrValue.attributeId !== 29 && attrValue.attributeId !== 6) && attrValue.value.trim() !== ""
               );
 
@@ -232,7 +232,7 @@ export default function ProductForm() {
               console.log("Non-variant attributes:", nonVariantAttributes);
 
               // Xử lý các attributeValue không cần tạo variant
-              const nonVariantAttributePromises = nonVariantAttributes.map(
+              const nonVariantAttributePromises = nonVariantAttributes?.map(
                 (attrValue) => {
                   const attributeValueFormData = {
                     attributeId: attrValue.attributeId,
@@ -267,7 +267,7 @@ export default function ProductForm() {
               );
 
               // Xử lý các variants và attributeValue cần tạo variant
-              const variantPromises = formData.variants.map(async (variantData) => {
+              const variantPromises = formData.variants?.map(async (variantData) => {
                 const variantFormData = {
                   productId: productId,
                   stock: variantData.stock,
@@ -293,7 +293,7 @@ export default function ProductForm() {
                     console.log("Variant ID:", variantId);
 
                     // Lọc các attributeValues cho variant này (color, ROM)
-                    const attributeValuePromises = variantData.attributeValues.map((attrValue) => {
+                    const attributeValuePromises = variantData.attributeValues?.map((attrValue) => {
                       const attributeValueFormData = {
                         attributeId: attrValue.attributeId,
                         variantId: variantId,  // Gán variantId cho attribute value này
@@ -407,7 +407,7 @@ export default function ProductForm() {
             />
             {previewImages?.length > 0 && (
               <div className="mt-4 grid grid-cols-3 gap-4">
-                {previewImages.map((preview, index) => (
+                {previewImages?.map((preview, index) => (
                   <div key={index} className="w-full h-32">
                     <Image
                       src={preview}
@@ -538,7 +538,7 @@ export default function ProductForm() {
           <div className="grid grid-cols-3 gap-4">
             {categoryAttributes
               ?.filter((attr) => ![4, 29, 6].includes(attr.attributeData.id))
-              .map((catAttr) => (
+              ?.map((catAttr) => (
                 <div key={catAttr.attributeData.id}>
                   <label className="block text-sm font-medium mb-1">
                     {catAttr.attributeData.name}
@@ -548,7 +548,7 @@ export default function ProductForm() {
                     placeholder={`Nhập ${catAttr.attributeData.name.toLowerCase()}...`}
                     className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
                     value={
-                      formData.attributeValues.find(
+                      formData.attributeValues?.find(
                         (av) => av.attributeId === catAttr.attributeData.id
                       )?.value || ""
                     }
@@ -564,7 +564,7 @@ export default function ProductForm() {
           </div>
         </div>
         {/* Variant attributes */}
-        {formData.variants.map((variant, variantIndex) => (
+        {formData.variants?.map((variant, variantIndex) => (
           <div key={variantIndex} className="border rounded-md p-4 my-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Biến thể {variantIndex + 1}</h3>
@@ -608,7 +608,7 @@ export default function ProductForm() {
             <div className="grid grid-cols-3 gap-4 mt-4">
               {categoryAttributes
                 ?.filter((attr) => [4, 29, 6].includes(attr.attributeData.id))
-                .map((catAttr) => (
+                ?.map((catAttr) => (
                   <div key={catAttr.attributeData.id}>
                     <label className="block text-sm font-medium mb-1">
                       {catAttr.attributeData.name}
@@ -618,7 +618,7 @@ export default function ProductForm() {
                       placeholder={`Nhập ${catAttr.attributeData.name.toLowerCase()}...`}
                       className="w-full px-4 py-2 border focus:outline-none rounded-md bg-white"
                       value={
-                        variant.attributeValues.find(
+                        variant.attributeValues?.find(
                           (av) => av.attributeId === catAttr.attributeData.id
                         )?.value || ""
                       }

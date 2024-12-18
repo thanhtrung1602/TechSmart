@@ -97,7 +97,7 @@ function Orders() {
 
   const filterStatusOrder = (
     orderCreated ? order : orderPagination.rows
-  ).filter((status) => {
+  )?.filter((status) => {
     const matches = status.statusId === selectedStatusId;
     if (selectedStatusId === 0) {
       return status;

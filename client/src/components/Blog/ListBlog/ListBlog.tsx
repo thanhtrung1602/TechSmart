@@ -12,7 +12,8 @@ export default function ListBlog() {
   const total = blogs?.length;
 
   // Handle page change from PaginationList
-  const handlePageClick = (_: any, page: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handlePageClick = (_, page: number) => {
     setCurrentPage(page);
   };
 
@@ -20,7 +21,7 @@ export default function ListBlog() {
     <div className="bg-white p-2 rounded-lg shadow-md gap-4 flex flex-col">
       {blogs &&
         blogs.length > 0 &&
-        blogs.map((blog) => (
+        blogs?.map((blog) => (
           <MediumBlog
             key={blog.id}
             title={blog.title.rendered}

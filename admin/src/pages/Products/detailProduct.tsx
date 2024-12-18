@@ -94,7 +94,7 @@ export default function DetailProduct({ id }: { id: number }) {
             <div className="grid grid-cols-1 md:grid-cols-2">
               {attributeValue &&
                 attributeValue
-                  .filter((valueAttribute) => {
+                  ?.filter((valueAttribute) => {
                     if (
                       productDetail.categoryId === 2 ||
                       productDetail.categoryId === 3
