@@ -8,7 +8,6 @@ class ProductImgController {
     if (!files) {
       return res.status(500).json({ error: "invalid files" });
     }
-    console.log("imgssss", files);
     const productImgs = await ProductImgService.createProductImg(
       req.body,
       files

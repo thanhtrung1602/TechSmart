@@ -2,7 +2,6 @@ const { client } = require("../db/init.elastic");
 
 async function saveProductsToElasticsearch(product) {
   const { id, name, slug, img, price } = product;
-  console.log("holy fuck: ", product);
   await client.index({
     index: "products",
     id: id.toString(),

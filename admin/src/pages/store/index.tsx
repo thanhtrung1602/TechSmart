@@ -2,10 +2,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { FiPlus, FiRefreshCw } from "react-icons/fi";
-import { HiOutlinePencilAlt, HiOutlineTrash } from "react-icons/hi";
+import { HiOutlinePencilAlt } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import Modal from "~/components/Modal/Modal";
-import useDelete from "~/hooks/useDelete";
 import useGet from "~/hooks/useGet";
 import InterStore from "~/models/Store";
 import { usePatch } from "~/hooks/usePost";
@@ -25,7 +24,7 @@ function Store() {
   // Trạng thái xoá và lựa chọn tỉnh/thành phố
   const [selectedProvince, setSelectedProvince] = useState<string>("");
   const [SelectedDistrict, setSelectedDistrict] = useState<string>("");
-  const [SelectedVisible, setSelectedVisible] =  useState("");
+  const [SelectedVisible, setSelectedVisible] = useState("");
 
   const handleUpdateVisible = () => {
     if (!isUpdateVisible) return;
@@ -35,7 +34,6 @@ function Store() {
       },
       {
         onSuccess: (response) => {
-          console.log(response);
           if (response.status === 200) {
             queryClient.invalidateQueries({
               queryKey: ["/store/findAll"],
@@ -68,7 +66,12 @@ function Store() {
   const filteredStores = store?.filter((s) => {
     const lowerCaseSearchTerm = searchTerm?.trim().toLowerCase() || "";
 
-    if (lowerCaseSearchTerm === "" && !selectedProvince && !SelectedDistrict && !SelectedVisible) {
+    if (
+      lowerCaseSearchTerm === "" &&
+      !selectedProvince &&
+      !SelectedDistrict &&
+      !SelectedVisible
+    ) {
       return true; // Không áp dụng lọc nếu không có điều kiện
     }
 
@@ -77,8 +80,8 @@ function Store() {
     const matchesDistrict =
       !SelectedDistrict || s.district?.name === SelectedDistrict;
 
-      const matchesStatus =
-      SelectedVisible === ""||
+    const matchesStatus =
+      SelectedVisible === "" ||
       (SelectedVisible === "true" && s.visible === true) ||
       (SelectedVisible === "false" && s.visible === false);
 
@@ -92,9 +95,11 @@ function Store() {
         false) ||
       (s.codeStore?.toLowerCase().includes(lowerCaseSearchTerm) ?? false) ||
       (String(s.phone)?.toLowerCase().includes(lowerCaseSearchTerm) ?? false);
-    (
-      s.visible?.toString().includes(lowerCaseSearchTerm) ?? false)
-    return matchesProvince && matchesSearchTerm && matchesDistrict && matchesStatus;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    s?.visible?.toString()?.includes(lowerCaseSearchTerm) ?? false;
+    return (
+      matchesProvince && matchesSearchTerm && matchesDistrict && matchesStatus
+    );
   });
 
   const handleClearFilters = () => {
@@ -135,18 +140,18 @@ function Store() {
               <option value="">Quận/Huyện</option>
               {Array.isArray(store) && selectedProvince
                 ? [
-                  ...new Set(
-                    store
-                      .filter((s) => s.province?.name === selectedProvince)
-                      .map((s) => s.district?.name)
-                  ),
-                ]
-                  .filter(Boolean)
-                  ?.map((district, index) => (
-                    <option key={index} value={district}>
-                      {district}
-                    </option>
-                  ))
+                    ...new Set(
+                      store
+                        .filter((s) => s.province?.name === selectedProvince)
+                        .map((s) => s.district?.name)
+                    ),
+                  ]
+                    .filter(Boolean)
+                    ?.map((district, index) => (
+                      <option key={index} value={district}>
+                        {district}
+                      </option>
+                    ))
                 : null}
             </select>
             <select
@@ -154,7 +159,9 @@ function Store() {
               value={SelectedVisible}
               onChange={(e) => setSelectedVisible(e.target.value)}
             >
-              <option value="" disabled hidden>Tất cả</option>
+              <option value="" disabled hidden>
+                Tất cả
+              </option>
               <option value="true">Hiện</option>
               <option value="false">Ẩn</option>
             </select>
@@ -255,7 +262,11 @@ function Store() {
                             setIsUpdateVisible(store.id); // Chuyển thành setIsUpdating(store.id) nếu cần
                           }}
                           disabled={isUpdateVisible === store.id} // Điều kiện này vẫn giữ nguyên
-                          className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${store.visible === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
+                          className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${
+                            store.visible === false
+                              ? "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300"
+                              : "bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300"
+                          }`}
                         >
                           {store.visible === false ? (
                             <BiSolidHide className="size-4" />
@@ -264,21 +275,35 @@ function Store() {
                           )}
                         </button>
 
-
-                        <Modal open={open} onClose={() => { setOpen(false); }}>
+                        <Modal
+                          open={open}
+                          onClose={() => {
+                            setOpen(false);
+                          }}
+                        >
                           <div className="text-center w-auto">
                             {/* Conditional icon rendering */}
                             {store.visible == true ? (
-                              <BiSolidHide size={56} className="mx-auto text-red-500" />
+                              <BiSolidHide
+                                size={56}
+                                className="mx-auto text-red-500"
+                              />
                             ) : (
-                              <BiSolidShow size={56} className="mx-auto  text-green-500" />
+                              <BiSolidShow
+                                size={56}
+                                className="mx-auto  text-green-500"
+                              />
                             )}
                             <div className="mx-auto my-4">
                               <h3 className="text-lg font-bold text-gray-800">
-                                {store.visible == true ? "Xác nhận ẩn sản phẩm" : "Xác nhận hiện sản phẩm"}
+                                {store.visible == true
+                                  ? "Xác nhận ẩn sản phẩm"
+                                  : "Xác nhận hiện sản phẩm"}
                               </h3>
                               <p className="text-sm text-gray-500 my-2">
-                                {store.visible == true ? "Bạn có muốn ẩn sản phẩm này không?" : "Bạn có muốn hiện sản phẩm này không?"}
+                                {store.visible == true
+                                  ? "Bạn có muốn ẩn sản phẩm này không?"
+                                  : "Bạn có muốn hiện sản phẩm này không?"}
                               </p>
                             </div>
                             <div className="flex gap-4">

@@ -7,9 +7,6 @@ class CategoriesController {
     const file = req.file.path;
     const { name } = req.body;
 
-    console.log("file: ", file);
-
-
     if (!name || !file) {
       return res.status(400).json("Invalid input: Name and img are required");
     }
@@ -25,7 +22,6 @@ class CategoriesController {
     );
     return res.status(200).json(createCategories);
   });
-
 
   filteredCategories = asyncWrapper(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -73,7 +69,7 @@ class CategoriesController {
   updateCategories = asyncWrapper(async (req, res) => {
     const id = parseInt(req.params.id);
     const file = req.file ? req.file.path : null;
-    const { name,visible } = req.body;
+    const { name, visible } = req.body;
     const hashSlug = removeVietnameseTones(name)
       .toLowerCase()
       .replace(/\s+/g, "-");
@@ -103,7 +99,8 @@ class CategoriesController {
     if (!id) {
       return res.status(500).json({ error: "invalid id" });
     }
-    const updateCategoriesByVisible = await categoriesService.updateCategoriesByVisible(id);
+    const updateCategoriesByVisible =
+      await categoriesService.updateCategoriesByVisible(id);
     return res.status(200).json(updateCategoriesByVisible);
   });
 }

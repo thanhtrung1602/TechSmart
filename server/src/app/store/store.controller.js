@@ -13,17 +13,9 @@ class StoreController {
   });
 
   createStore = asyncWrapper(async (req, res) => {
-    console.log(req.body);
     const { province, district, ward, street, phone, codeStore } = req.body;
 
-    if (
-      !street ||
-      !ward ||
-      !district ||
-      !province ||
-      !phone ||
-      !codeStore
-    ) {
+    if (!street || !ward || !district || !province || !phone || !codeStore) {
       return res.status(400).json("Thiếu giá trị");
     }
 

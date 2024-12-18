@@ -59,7 +59,6 @@ class CommentsService {
   }
 
   async updateComment(id, { comment, userId }) {
-    console.log(id, comment, userId);
     try {
       const existingComment = await db.Comment.findOne({
         where: { id },

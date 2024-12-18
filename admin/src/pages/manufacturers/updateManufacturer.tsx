@@ -72,8 +72,6 @@ function UpdateManufacture() {
   };
 
   const onSubmit = (data: FieldValues) => {
-    console.log("Submit Form: ", data);
-
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("categoryId", selectedCategory.id.toString());
@@ -91,14 +89,16 @@ function UpdateManufacture() {
       },
       {
         onSuccess: async (response) => {
-          console.log("manufacture updated successfully", response.data);
+          if (response.status === 200) {
+            queryClient.invalidateQueries({
+              queryKey: [
+                `/manufacturer/getOneManufacturerById/${manufactureId}`,
+              ],
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: [`/manufacturer/getOneManufacturerById/${manufactureId}`],
-          });
-
-          toast.success("Sản phẩm đã được cập nhật thành công");
-          navigate("/manufacturers");
+            toast.success("Sản phẩm đã được cập nhật thành công");
+            navigate("/manufacturers");
+          }
         },
         onError: (error) => {
           console.error("Error updating manufacture:", error);
@@ -183,23 +183,23 @@ function UpdateManufacture() {
             <div className="mt-4 grid grid-cols-3 gap-4">
               {previewImages?.length > 0
                 ? previewImages?.map((preview, index) => (
-                  <div key={index} className="size-2/4">
-                    <Image
-                      src={preview}
-                      alt={`Preview ${index}`}
-                      className="object-cover rounded-md"
-                    />
-                  </div>
-                ))
+                    <div key={index} className="size-2/4">
+                      <Image
+                        src={preview}
+                        alt={`Preview ${index}`}
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                  ))
                 : manufactureImage && (
-                  <div className="size-2/4">
-                    <Image
-                      src={manufactureImage}
-                      alt="Manufacture Image"
-                      className="object-cover rounded-md"
-                    />
-                  </div>
-                )}
+                    <div className="size-2/4">
+                      <Image
+                        src={manufactureImage}
+                        alt="Manufacture Image"
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                  )}
             </div>
           )}
 

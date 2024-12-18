@@ -117,7 +117,6 @@ class ValueAttributeService {
 
   async createValueAttribute({ attributeId, productId, variantId, value }) {
     try {
-      console.log("Service created:", productId, attributeId, variantId, value);
       const getOneValueAttributeById = await db.AttributeValue.findOne({
         where: {
           attributeId,
@@ -152,11 +151,6 @@ class ValueAttributeService {
         if (createValueAttribute) {
           return createValueAttribute;
         }
-      } else {
-        console.log(
-          "Value attribute already exists:",
-          getOneValueAttributeById
-        );
       }
     } catch (error) {
       throw new Error(error.message);

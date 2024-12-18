@@ -30,8 +30,6 @@ class CartService {
         order: [["createdAt", "DESC"]],
       });
 
-      console.log(count, rows);
-
       return { count, rows };
     } catch (error) {
       console.error("Error in CartService:", error.message);
@@ -63,8 +61,6 @@ class CartService {
       });
 
       if (existingCartItem) {
-        console.log(existingCartItem);
-
         // If the product already exists, increase the quantity
         existingCartItem.quantity += parseInt(quantity);
         existingCartItem.total += total;
@@ -81,8 +77,6 @@ class CartService {
           total,
         });
 
-        console.log(newCartItem);
-
         return { cart: newCartItem, message: "Cart item created" };
       }
     } catch (error) {
@@ -93,8 +87,6 @@ class CartService {
 
   // Update cart item quantity
   async updateQuantityCart(id, { quantity, color, rom }) {
-    console.log(id, quantity, color, rom);
-
     try {
       // Find the cart item for the given user and product
       const cartItem = await db.Cart.findOne({
@@ -120,7 +112,6 @@ class CartService {
       if (!cartItem) {
         return { error: "Cart item not found" };
       }
-      console.log(variant);
       // Cập nhật quantity và tổng giá
       cartItem.quantity = quantity;
       cartItem.total = Math.round(variant.dataValues.price * quantity);

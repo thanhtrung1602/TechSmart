@@ -40,7 +40,6 @@ function CategoryList() {
     "/categories/getAllCategories"
   );
   useEffect(() => {
-
     if (categoryPagination) {
       setTotalItems(categoryPagination.count);
     }
@@ -53,7 +52,6 @@ function CategoryList() {
       },
       {
         onSuccess: (response) => {
-          console.log(response);
           if (response.status === 200) {
             queryClient.invalidateQueries({
               queryKey: ["/categories/getAllCategories"],
@@ -112,18 +110,21 @@ function CategoryList() {
             </select>
           </div>
           <select
-              className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg focus:outline-none"
-              value={filterStatus !== null ? filterStatus.toString() : ""}
-              onChange={(e) => {
-                const value = e.target.value;
-                console.log(value);
-                setFilterStatus(value === "true" ? true : value === "false" ? false : null);
-              }}
-            >
-              <option value="" disabled hidden>Tất cả</option>
-              <option value="true">Đang hiện</option>
-              <option value="false">Đã ẩn</option>
-            </select>
+            className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg focus:outline-none"
+            value={filterStatus !== null ? filterStatus.toString() : ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilterStatus(
+                value === "true" ? true : value === "false" ? false : null
+              );
+            }}
+          >
+            <option value="" disabled hidden>
+              Tất cả
+            </option>
+            <option value="true">Đang hiện</option>
+            <option value="false">Đã ẩn</option>
+          </select>
           <input
             type="text"
             placeholder="Tìm kiếm danh mục..."
@@ -131,7 +132,6 @@ function CategoryList() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg focus:outline-none"
           />
-
         </div>
         <div className="flex space-x-2">
           <button
@@ -175,7 +175,6 @@ function CategoryList() {
           <tbody>
             {categoryPagination && categoryPagination.count > 0 ? (
               categoryPagination.rows?.map((category, index) => (
-
                 <tr className="border-b" key={category.id}>
                   <td className="py-3 px-4 text-center">{index + 1}</td>
                   <td className="py-3 px-4 text-center">
@@ -202,7 +201,11 @@ function CategoryList() {
                           setIsUpdateVisible(category.id); // Chuyển thành setIsUpdating(category.id) nếu cần
                         }}
                         disabled={isUpdateVisible === category.id} // Điều kiện này vẫn giữ nguyên
-                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${category.visible === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
+                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${
+                          category.visible === false
+                            ? "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300"
+                            : "bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300"
+                        }`}
                       >
                         {category.visible === false ? (
                           <BiSolidHide className="size-4" />
@@ -211,21 +214,35 @@ function CategoryList() {
                         )}
                       </button>
 
-
-                      <Modal open={open} onClose={() => { setOpen(false); }}>
+                      <Modal
+                        open={open}
+                        onClose={() => {
+                          setOpen(false);
+                        }}
+                      >
                         <div className="text-center w-auto">
                           {/* Conditional icon rendering */}
                           {category.visible == true ? (
-                            <BiSolidHide size={56} className="mx-auto text-red-500" />
+                            <BiSolidHide
+                              size={56}
+                              className="mx-auto text-red-500"
+                            />
                           ) : (
-                            <BiSolidShow size={56} className="mx-auto  text-green-500" />
+                            <BiSolidShow
+                              size={56}
+                              className="mx-auto  text-green-500"
+                            />
                           )}
                           <div className="mx-auto my-4">
                             <h3 className="text-lg font-bold text-gray-800">
-                              {category.visible == true ? "Xác nhận ẩn sản phẩm" : "Xác nhận hiện sản phẩm"}
+                              {category.visible == true
+                                ? "Xác nhận ẩn sản phẩm"
+                                : "Xác nhận hiện sản phẩm"}
                             </h3>
                             <p className="text-sm text-gray-500 my-2">
-                              {category.visible == true ? "Bạn có muốn ẩn sản phẩm này không?" : "Bạn có muốn hiện sản phẩm này không?"}
+                              {category.visible == true
+                                ? "Bạn có muốn ẩn sản phẩm này không?"
+                                : "Bạn có muốn hiện sản phẩm này không?"}
                             </p>
                           </div>
                           <div className="flex gap-4">
@@ -244,7 +261,6 @@ function CategoryList() {
                           </div>
                         </div>
                       </Modal>
-
                     </span>
                   </td>
                 </tr>

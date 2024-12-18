@@ -149,10 +149,15 @@ export default function ProductForm() {
   };
 
   // Handle attribute value changes for non-variant attributes
-  const handleNonVariantAttributeChange = (attributeId: number, value: string) => {
+  const handleNonVariantAttributeChange = (
+    attributeId: number,
+    value: string
+  ) => {
     setFormData((prevFormData) => {
       const newAttributeValues = prevFormData.attributeValues.map((attrValue) =>
-        attrValue.attributeId === attributeId ? { ...attrValue, value } : attrValue
+        attrValue.attributeId === attributeId
+          ? { ...attrValue, value }
+          : attrValue
       );
       return { ...prevFormData, attributeValues: newAttributeValues };
     });
@@ -209,26 +214,31 @@ export default function ProductForm() {
         {
           onSuccess: async (productResponse) => {
             if (productResponse.status === 200) {
-              console.log("Product created:", productResponse.data);
-
               const productId = productResponse.data.id;
               if (!productId) return;
 
               const allAttributes = [
                 ...formData.attributeValues,
-                ...formData.variants.flatMap((variant) => variant.attributeValues),
-              ]
+                ...formData.variants.flatMap(
+                  (variant) => variant.attributeValues
+                ),
+              ];
 
               // Tách attributeValues thành 2 nhóm: cần tạo variant và không cần
-              const variantAttributes = allAttributes.filter(
-                (attrValue) => (attrValue.attributeId === 4 || attrValue.attributeId === 29 || attrValue.attributeId === 6) && attrValue.value.trim() !== ""
-              );
+              // const variantAttributes = allAttributes.filter(
+              //   (attrValue) =>
+              //     (attrValue.attributeId === 4 ||
+              //       attrValue.attributeId === 29 ||
+              //       attrValue.attributeId === 6) &&
+              //     attrValue.value.trim() !== ""
+              // );
               const nonVariantAttributes = allAttributes.filter(
-                (attrValue) => (attrValue.attributeId !== 4 && attrValue.attributeId !== 29 && attrValue.attributeId !== 6) && attrValue.value.trim() !== ""
+                (attrValue) =>
+                  attrValue.attributeId !== 4 &&
+                  attrValue.attributeId !== 29 &&
+                  attrValue.attributeId !== 6 &&
+                  attrValue.value.trim() !== ""
               );
-
-              console.log("Variant attributes:", variantAttributes);
-              console.log("Non-variant attributes:", nonVariantAttributes);
 
               // Xử lý các attributeValue không cần tạo variant
               const nonVariantAttributePromises = nonVariantAttributes.map(
@@ -240,91 +250,81 @@ export default function ProductForm() {
                     value: attrValue.value.trim(),
                   };
 
-                  console.log(
-                    "Creating attribute value not variant:",
-                    attributeValueFormData
+                  return createAttributeValue(
+                    {
+                      url: `/valueAttribute/createValueAttribute`,
+                      data: attributeValueFormData,
+                    },
+                    {
+                      onError: (error) => {
+                        console.error(
+                          "Error creating attribute value not variant:",
+                          error
+                        );
+                      },
+                    }
                   );
-
-                  return createAttributeValue({
-                    url: `/valueAttribute/createValueAttribute`,
-                    data: attributeValueFormData,
-                  }, {
-                    onSuccess: (response) => {
-                      console.log(
-                        "Attribute value created successfully not variant",
-                        response.data
-                      );
-                    },
-                    onError: (error) => {
-                      console.error(
-                        "Error creating attribute value not variant:",
-                        error
-                      );
-                    },
-                  });
                 }
               );
 
               // Xử lý các variants và attributeValue cần tạo variant
-              const variantPromises = formData.variants.map(async (variantData) => {
-                const variantFormData = {
-                  productId: productId,
-                  stock: variantData.stock,
-                  price: variantData.price,
-                };
+              const variantPromises = formData.variants.map(
+                async (variantData) => {
+                  const variantFormData = {
+                    productId: productId,
+                    stock: variantData.stock,
+                    price: variantData.price,
+                  };
 
-                console.log("Variant form data:", variantFormData);
-
-                try {
-                  // Đợi tạo variant
-                  const variantResponse = await createVariant({
-                    url: "/variants/createVariant",
-                    data: variantFormData,
-                  });
-
-                  console.log("Variant response:", variantResponse);
-                  if (variantResponse.status === 200) {
-                    console.log("Variant created successfully", variantResponse.data);
-
-                    const variantId = variantResponse.data.id;
-                    if (!variantId) return;
-
-                    console.log("Variant ID:", variantId);
-
-                    // Lọc các attributeValues cho variant này (color, ROM)
-                    const attributeValuePromises = variantData.attributeValues.map((attrValue) => {
-                      const attributeValueFormData = {
-                        attributeId: attrValue.attributeId,
-                        variantId: variantId,  // Gán variantId cho attribute value này
-                        productId: productId,
-                        value: attrValue.value.trim(), // Lấy giá trị từ attribute
-                      };
-                      console.log("Attribute value form data:", attributeValueFormData);
-                      // Tạo attribute value cho variant
-                      return createAttributeValue({
-                        url: `/valueAttribute/createValueAttribute`,
-                        data: attributeValueFormData,
-                      });
+                  try {
+                    // Đợi tạo variant
+                    const variantResponse = await createVariant({
+                      url: "/variants/createVariant",
+                      data: variantFormData,
                     });
 
-                    // Đợi tất cả các attributeValues được tạo cho variant
-                    if (attributeValuePromises.length > 0) {
-                      await Promise.all(attributeValuePromises);
-                      queryClient.invalidateQueries({
-                        queryKey: ["/products/getAllProducts"],
-                      });
-                      navigate("/products");
+                    if (variantResponse.status === 200) {
+                      const variantId = variantResponse.data.id;
+                      if (!variantId) return;
+
+                      // Lọc các attributeValues cho variant này (color, ROM)
+                      const attributeValuePromises =
+                        variantData.attributeValues.map((attrValue) => {
+                          const attributeValueFormData = {
+                            attributeId: attrValue.attributeId,
+                            variantId: variantId, // Gán variantId cho attribute value này
+                            productId: productId,
+                            value: attrValue.value.trim(), // Lấy giá trị từ attribute
+                          };
+                          // Tạo attribute value cho variant
+                          return createAttributeValue({
+                            url: `/valueAttribute/createValueAttribute`,
+                            data: attributeValueFormData,
+                          });
+                        });
+
+                      // Đợi tất cả các attributeValues được tạo cho variant
+                      if (attributeValuePromises.length > 0) {
+                        await Promise.all(attributeValuePromises);
+                        queryClient.invalidateQueries({
+                          queryKey: ["/products/getAllProducts"],
+                        });
+                        navigate("/products");
+                      }
                     }
+                  } catch (error) {
+                    console.error(
+                      "Error during variant creation or attribute value creation:",
+                      error
+                    );
                   }
-                } catch (error) {
-                  console.error("Error during variant creation or attribute value creation:", error);
                 }
-              });
+              );
 
               // Chờ tất cả các promise hoàn tất
               await Promise.all([nonVariantAttributePromises, variantPromises]);
 
-              // Reset form và các xử lý khác              
+              // Reset form và các xử lý khác
               setFormData({
                 name: "",
                 discount: 0,
@@ -333,10 +333,11 @@ export default function ProductForm() {
                   {
                     stock: 0,
                     price: 0,
-                    attributeValues: categoryAttributes?.map((attr) => ({
-                      attributeId: attr.attributeData.id,
-                      value: "",
-                    })) || [],
+                    attributeValues:
+                      categoryAttributes?.map((attr) => ({
+                        attributeId: attr.attributeData.id,
+                        value: "",
+                      })) || [],
                   },
                 ],
                 attributeValues: [], // reset attributeValues
@@ -565,7 +566,9 @@ export default function ProductForm() {
         {formData.variants.map((variant, variantIndex) => (
           <div key={variantIndex} className="border rounded-md p-4 my-4">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Biến thể {variantIndex + 1}</h3>
+              <h3 className="text-lg font-semibold">
+                Biến thể {variantIndex + 1}
+              </h3>
               {formData.variants.length > 1 && (
                 <button
                   type="button"
@@ -590,7 +593,9 @@ export default function ProductForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Số lượng</label>
+                <label className="block text-sm font-medium mb-1">
+                  Số lượng
+                </label>
                 <input
                   type="text"
                   placeholder="Số lượng..."

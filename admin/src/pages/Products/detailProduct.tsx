@@ -175,8 +175,6 @@ const ProductVariant = ({
     `/valueAttribute/getAttributeValueByVariant/${id}`
   );
 
-  console.log("product: ", attributeValue);
-
   const colorAttributes = attributeValue?.filter(
     (attr) => attr.attributeData.name === "Màu sắc"
   );

@@ -39,9 +39,6 @@ const jwtMiddlewareRole = async (req, res, next) => {
       where: { id: userId },
     });
 
-    console.log("Decoded user:", user);
-    console.log("Fetched role from DB:", userRole?.dataValues?.role);
-
     if (!userRole) {
       return res.status(404).json({ error: "User not found" });
     }

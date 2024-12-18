@@ -17,10 +17,10 @@ class OrderDetailController {
     const roundedTotal = Math.round(total);
 
     const order = await orderService.getOrderById(orderId);
-
-    console.log(req.body);
-
-    const newOrderDetail = await orderdetailService.createOrderDetail(req.body, roundedTotal);
+    const newOrderDetail = await orderdetailService.createOrderDetail(
+      req.body,
+      roundedTotal
+    );
 
     if (newOrderDetail) {
       // Sau khi tạo orderDetail, cập nhật kho cho sản phẩm
@@ -31,15 +31,13 @@ class OrderDetailController {
 
       // Nếu cần thông báo thay đổi kho qua WebSocket
       const io = socket.getIo();
-      io.emit('stockUpdate', { variantId: variantId, newStock: variant.stock });
+      io.emit("stockUpdate", { variantId: variantId, newStock: variant.stock });
 
       // Xóa sản phẩm khỏi giỏ hàng dựa trên thông tin OrderDetail
       const cartItems = await cartService.getAllCartByUserId(order.userId);
 
       if (cartItems && cartItems.rows) {
         for (const cartItem of cartItems.rows) {
-          console.log(cartItem);
-          // So sánh các thuộc tính variantId, color, size
           if (
             cartItem.variantId === variantId &&
             cartItem.color === color &&

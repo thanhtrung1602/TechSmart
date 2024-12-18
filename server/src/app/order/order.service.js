@@ -191,7 +191,6 @@ class OrderService {
 
       // Send the email using the transporter
       await transporter.sendMail(mailOptions);
-      console.log("Order confirmation email sent successfully!");
     } catch (error) {
       console.error("Error sending confirmation email:", error);
     }

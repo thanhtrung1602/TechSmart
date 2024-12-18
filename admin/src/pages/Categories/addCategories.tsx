@@ -20,7 +20,6 @@ function AddCategories() {
   const [form, setForm] = useState({
     visible: false, // Giá trị mặc định của "Ẩn hiện"
   });
-  console.log(form.visible);
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
@@ -38,11 +37,9 @@ function AddCategories() {
   };
 
   const onSubmit = (data: DataCategory) => {
-    console.log("Submit Form: ", data);
-
     const formData = new FormData();
     formData.append("name", data.name); // Append the name to FormData
-    formData.append("visible", form.visible.toString())
+    formData.append("visible", form.visible.toString());
     if (file) {
       formData.append("img", file); // Only append the file if it's not null
     } else {
@@ -59,7 +56,6 @@ function AddCategories() {
             queryClient.invalidateQueries({
               queryKey: ["/categories/getAllCategories"],
             });
-            console.log("Category added successfully", response.data);
             // Additional success handling
             toast.success("Sản phẩm đã được thêm thành công");
             navigate("/categories");

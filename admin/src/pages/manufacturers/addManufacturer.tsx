@@ -24,11 +24,9 @@ function AddManufacturer() {
   const [form, setForm] = useState({
     visible: false, // Giá trị mặc định của "Ẩn hiện"
   });
-  console.log("nè", form.visible);
   const { data: categories } = useGet<Categories[]>(
     "/categories/getAllCategories"
   );
-  console.log("errors", errors);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -43,7 +41,6 @@ function AddManufacturer() {
   };
 
   const onSubmit = (data: DataManufacturer) => {
-    console.log("Submit Form: ", data);
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("categoryId", selectedCategory.id.toString());
@@ -61,17 +58,17 @@ function AddManufacturer() {
       },
       {
         onSuccess: (response) => {
-          console.log("Manufacturer added successfully", response.data);
+          if (response.status === 200) {
+            navigate("/manufacturers");
 
-          navigate("/manufacturers");
+            queryClient.invalidateQueries({
+              queryKey: ["/manufacturer/getAllManufacturer"],
+            });
 
-          queryClient.invalidateQueries({
-            queryKey: ["/manufacturer/getAllManufacturer"],
-          });
-
-          toast.success("Sản phẩm đã được thêm thành công");
-          setSelectedCategory({ id: 0, slug: "" });
-          window.location.reload();
+            toast.success("Sản phẩm đã được thêm thành công");
+            setSelectedCategory({ id: 0, slug: "" });
+            window.location.reload();
+          }
         },
         onError: (error) => {
           console.error("Error adding Manufacturer:", error);

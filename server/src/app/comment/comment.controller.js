@@ -19,24 +19,28 @@ class CommentsController {
     });
   });
 
-
   getOneCommentByProductId = asyncWrapper(async (req, res) => {
     const productId = parseInt(req.params.id);
     const page = parseInt(req.query.page) || 1;
     const size = parseInt(req.query.size) || 10;
-  
+
     const limit = size;
     const offset = (page - 1) * size;
-    
-    const commentData = await CommentService.getOneCommentByProductId(productId, limit, offset);
-  
+
+    const commentData = await CommentService.getOneCommentByProductId(
+      productId,
+      limit,
+      offset
+    );
+
     if (!commentData.comments) {
-      return res.status(400).json({ message: "Không tìm thấy bình luận cho sản phẩm này" });
+      return res
+        .status(400)
+        .json({ message: "Không tìm thấy bình luận cho sản phẩm này" });
     }
-  
+
     return res.status(200).json(commentData);
   });
-  
 
   createComment = asyncWrapper(async (req, res) => {
     const { userId, comment } = req.body;
@@ -54,8 +58,6 @@ class CommentsController {
   updateComment = asyncWrapper(async (req, res) => {
     const id = parseInt(req.params.id);
     const { comment, userId } = req.body;
-
-    console.log(id, req.body);
 
     if (!comment || !userId) {
       return res.status(400).json("invalid value");

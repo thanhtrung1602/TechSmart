@@ -13,8 +13,6 @@ class ProductController {
   search = asyncWrapper(async (req, res) => {
     const query = req.query.s?.toString().trim().toLowerCase();
 
-    console.log("query: ", query);
-
     if (!query) {
       return res.status(400).json({ message: "Query không được để trống." });
     }
@@ -46,7 +44,6 @@ class ProductController {
 
   searchProduct = asyncWrapper(async (req, res) => {
     const { q } = req.query;
-    console.log("query: ", q);
     const products = await client.search({
       index: "products",
       size: 3,
@@ -72,8 +69,6 @@ class ProductController {
     const manufacturer = req.query.manufacturer || null;
     const search = req.query.search || "";
     const visible = req.query.visible || null;
-
-    console.log("Visible: ", visible);
 
     const limit = size;
     const offSet = (page - 1) * size;
@@ -232,8 +227,6 @@ class ProductController {
     const categorySlug = req.params.categorySlug;
 
     const manufacturerSlug = req.params.manufacturerSlug;
-
-    console.log(categorySlug, manufacturerSlug);
 
     const { count, rows } =
       await productService.getProductOfManufacturerCategoryAndPrice(
@@ -426,8 +419,6 @@ class ProductController {
       visible,
     } = req.body;
 
-    console.log(req.body);
-
     if (!file || !manufacturerId || !name || !categoryId) {
       return res.status(400).json("invalid value");
     }
@@ -456,13 +447,7 @@ class ProductController {
     const id = parseInt(req.params.id);
     const file = req.file ? req.file.path : null;
 
-    const {
-      name,
-      categoryId,
-      manufacturerId,
-      discount,
-      visible,
-    } = req.body;
+    const { name, categoryId, manufacturerId, discount, visible } = req.body;
 
     if (isNaN(id)) {
       return res.status(400).json({ message: "Không phải là số ", id });
@@ -476,17 +461,6 @@ class ProductController {
     const parseCategoryId = parseInt(categoryId);
     const parseManufacturerId = parseInt(manufacturerId);
     const parseDiscount = parseInt(discount);
-
-    console.log(
-      id,
-      name,
-      parseCategoryId,
-      parseManufacturerId,
-      parseDiscount,
-      visible,
-      file,
-      hashSlug
-    );
 
     const updatedProduct = await productService.updateProduct(
       id,

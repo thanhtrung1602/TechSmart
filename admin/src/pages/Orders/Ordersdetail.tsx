@@ -18,8 +18,6 @@ function OrderDetail() {
     `/orderdetails/getAllOrderDetailByOrderId/${orderIdNumber}`
   );
 
-  console.log("data: ", orderDetails);
-
   const { data: statusOrder } = useGet<statusOrder>(
     `/orders/getStatusOrderByGHTK/${orderDetails?.[0]?.orderData.tracking_order}`
   );

@@ -52,9 +52,9 @@ function UpdateStore() {
   const storeId = Number(id);
   const navigate = useNavigate();
 
-  const { data: store, error } = useGet<InterStore>(`/store/findOne/${storeId}`);
-  console.log(store);
-
+  const { data: store, error } = useGet<InterStore>(
+    `/store/findOne/${storeId}`
+  );
   useEffect(() => {
     if (store) {
       setValue("street", store.street);
@@ -88,10 +88,11 @@ function UpdateStore() {
       },
       {
         onSuccess: async (response) => {
-          console.log("store updated successfully", response.data);
-          toast.success(" cập nhật thành công");
-          navigate("/store");
-          window.location.reload();
+          if (response.status === 200) {
+            toast.success(" cập nhật thành công");
+            navigate("/store");
+            window.location.reload();
+          }
         },
         onError: (error) => {
           console.error("Error updating manufacture:", error);

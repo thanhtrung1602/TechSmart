@@ -49,7 +49,11 @@ const CommentList = () => {
   }>(urlPagination(currentPage, itemsPerPage));
 
   useEffect(() => {
-    if (commentsPagination && commentsPagination?.rows && commentsPagination?.total) {
+    if (
+      commentsPagination &&
+      commentsPagination?.rows &&
+      commentsPagination?.total
+    ) {
       setComments(commentsPagination?.rows);
       setTotalComments(commentsPagination?.total);
     } else {
@@ -63,7 +67,10 @@ const CommentList = () => {
     }
   }, [newComment]);
 
-  const handlePageClick = (_event: React.ChangeEvent<unknown>, page: number) => {
+  const handlePageClick = (
+    _event: React.ChangeEvent<unknown>,
+    page: number
+  ) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -106,8 +113,6 @@ const CommentList = () => {
       },
       {
         onSuccess: (response) => {
-          console.log(response);
-
           if (response.status === 200) {
             queryClient.invalidateQueries({
               queryKey: [
@@ -209,7 +214,8 @@ const CommentList = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-1">
                         <h3 className="font-semibold text-gray-900">
-                          {comment?.userData?.fullname} | {comment?.userData?.phone}
+                          {comment?.userData?.fullname} |{" "}
+                          {comment?.userData?.phone}
                         </h3>
                         <StatusBadge status={comment?.status} />
                       </div>

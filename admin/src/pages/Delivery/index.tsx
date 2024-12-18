@@ -145,17 +145,18 @@ export default function Delivery() {
       },
       {
         onSuccess: (response) => {
-          console.log("Order status updated successfully", response.data);
-          queryClient.invalidateQueries({
-            queryKey: [urlPagination(currentPage, itemsPerPage)],
-          });
-          toast.success("Cập nhật trạng thái đơn hàng thành công");
+          if (response.status === 200) {
+            queryClient.invalidateQueries({
+              queryKey: [urlPagination(currentPage, itemsPerPage)],
+            });
+            toast.success("Cập nhật trạng thái đơn hàng thành công");
 
-          // Đóng modal sau khi cập nhật
-          setDelivery(false);
-          setDone(false);
-          setSelectedOrderId(null);
-          setNextStatusId(null);
+            // Đóng modal sau khi cập nhật
+            setDelivery(false);
+            setDone(false);
+            setSelectedOrderId(null);
+            setNextStatusId(null);
+          }
         },
         onError: (error) => {
           console.error("Error updating order status:", error);

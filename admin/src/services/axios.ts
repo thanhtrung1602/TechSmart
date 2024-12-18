@@ -39,7 +39,7 @@ instance.interceptors.response.use(
         originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
         return instance(originalRequest);
       } catch (refreshError) {
-        console.log(refreshError);
+        console.error(refreshError);
       }
     }
 

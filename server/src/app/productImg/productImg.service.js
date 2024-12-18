@@ -40,7 +40,6 @@ class ProductImgService {
 
   //Created
   async createProductImg({ productId }, files) {
-    console.log(files);
     try {
       if (files && files.length > 0) {
         const productImgs = await Promise.all(
@@ -48,8 +47,6 @@ class ProductImgService {
             if (!file.path) {
               throw new Error("File path is missing!");
             }
-
-            console.log("Saving file: ", file.path);
 
             const productImg = await db.ProductImg.create({
               productId,
@@ -59,7 +56,6 @@ class ProductImgService {
             return productImg;
           })
         );
-        console.log("ahsjdhajshdjahsdjhasd: ", productImgs);
         return productImgs;
       }
     } catch (error) {

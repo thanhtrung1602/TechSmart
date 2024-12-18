@@ -62,15 +62,11 @@ function UpdateCategories() {
   };
 
   const onSubmit = (data: FormData) => {
-    console.log("Submit Form: ", data);
-
     const formData = new FormData();
     formData.append("name", data.name); // Append name vào FormData
 
     if (file) {
       formData.append("img", file); // Chỉ thêm file nếu có
-    } else {
-      console.log("No new file selected, keeping existing image");
     }
 
     mutateCategories(
@@ -84,7 +80,6 @@ function UpdateCategories() {
             queryClient.refetchQueries({
               queryKey: ["/categories/getAllCategories"],
             });
-            console.log("Category updated successfully", response.data);
             toast.success("Sản phẩm đã được cập nhật thành công");
             window.location.href = "/categories";
           }
@@ -144,23 +139,23 @@ function UpdateCategories() {
             <div className="mt-4 grid grid-cols-3 gap-4">
               {previewImages?.length > 0
                 ? previewImages?.map((preview, index) => (
-                  <div key={index} className="size-2/4">
-                    <Image
-                      src={preview}
-                      alt={`Preview ${index}`}
-                      className="object-cover rounded-md"
-                    />
-                  </div>
-                ))
+                    <div key={index} className="size-2/4">
+                      <Image
+                        src={preview}
+                        alt={`Preview ${index}`}
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                  ))
                 : categoryImage && (
-                  <div className="size-2/4">
-                    <Image
-                      src={categoryImage}
-                      alt="Manufacture Image"
-                      className="object-cover rounded-md"
-                    />
-                  </div>
-                )}
+                    <div className="size-2/4">
+                      <Image
+                        src={categoryImage}
+                        alt="Manufacture Image"
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                  )}
             </div>
           )}
           <button

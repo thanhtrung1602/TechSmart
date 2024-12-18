@@ -12,8 +12,6 @@ function RecentOrders() {
     rows: Orders[];
   }>("/orders/getAllOrder");
 
-  console.log(orders);
-
   if (isLoadingUsers || isLoadingOrders) {
     return <div>Loading...</div>;
   }

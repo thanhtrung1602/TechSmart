@@ -17,10 +17,8 @@ const registerVal = async (req, res, next) => {
 
   try {
     await userSchema.validateAsync(req.body, { abortEarly: false });
-    console.log({ message: "validator successfully!" });
     next();
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       errors: new Error(error).message,
     });
@@ -47,10 +45,8 @@ const loginVal = async (req, res, next) => {
 
   try {
     await userSchema.validateAsync(req.body, { abortEarly: false });
-    console.log({ message: "validator successfully!" });
     next();
   } catch (error) {
-    console.log(error);
     res.status(400).json({
       errors: new Error(error).message,
     });
@@ -72,10 +68,8 @@ const changePassVal = async (req, res, next) => {
   });
   try {
     await userSchema.validateAsync(req.body, { abortEarly: false });
-    console.log({ message: "validator successfully!" });
     next();
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       errors: new Error(error).message,
     });

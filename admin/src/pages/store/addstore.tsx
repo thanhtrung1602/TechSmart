@@ -23,17 +23,17 @@ function AddStore() {
   // 4. Khởi tạo state cho các giá trị province, district, ward
   const [province, setProvince] = useState<
     | {
-      code: string | undefined;
-      name: string | undefined;
-    }
+        code: string | undefined;
+        name: string | undefined;
+      }
     | undefined
   >(undefined);
 
   const [district, setDistrict] = useState<
     | {
-      code: string | undefined;
-      name: string | undefined;
-    }
+        code: string | undefined;
+        name: string | undefined;
+      }
     | undefined
   >(undefined);
 
@@ -105,10 +105,11 @@ function AddStore() {
       {
         // 12. Xử lý khi gửi thành công
         onSuccess: (response) => {
-          console.log("Store added successfully", response.data);
-          toast.success("Sản phẩm đã được thêm thành công");
-          navigate("/store");
-          window.location.reload();
+          if (response.status === 200) {
+            toast.success("Sản phẩm đã được thêm thành công");
+            navigate("/store");
+            window.location.reload();
+          }
         },
         // 13. Xử lý khi có lỗi khi gửi dữ liệu
         onError: (error) => {

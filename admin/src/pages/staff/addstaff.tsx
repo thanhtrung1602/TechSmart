@@ -6,7 +6,11 @@ import DataStaff from "~/types/dataStaff";
 
 function AddStaff() {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm<DataStaff>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<DataStaff>();
   const { mutate: mutateStaff } = usePost();
 
   const onSubmit = (data: DataStaff) => {
@@ -29,10 +33,11 @@ function AddStaff() {
       },
       {
         onSuccess: (response) => {
-          console.log("Staff added successfully", response.data);
-          toast.success("Nhân viên đã được thêm thành công");
-          navigate("/staff", { replace: true });
-          setTimeout(() => navigate(0), 500); // Refresh lại trang sau 500ms
+          if (response.status === 200) {
+            toast.success("Nhân viên đã được thêm thành công");
+            navigate("/staff", { replace: true });
+            setTimeout(() => navigate(0), 500); // Refresh lại trang sau 500ms
+          }
         },
         onError: (error) => {
           console.error("Error adding staff:", error);
@@ -102,8 +107,9 @@ function AddStaff() {
               <label className="block text-gray-700 mb-2">Giới tính</label>
               <select
                 {...register("gender", { required: true })}
-                className={`w-full p-2 border rounded bg-white ${errors.gender ? "border-red-500" : "border-gray-300"
-                  }`}
+                className={`w-full p-2 border rounded bg-white ${
+                  errors.gender ? "border-red-500" : "border-gray-300"
+                }`}
               >
                 <option value="">Chọn giới tính</option>
                 <option value="Nam">Nam</option>

@@ -153,8 +153,6 @@ class AuthService {
         return res.status(401).json({ error: "Invalid refresh token" });
       }
 
-      console.log("đây là của token", decoded);
-
       const tokenRecord = await db.RefreshToken.findOne({
         where: { token: refreshToken },
       });
@@ -167,8 +165,6 @@ class AuthService {
       if (new Date(expiresIn) <= new Date()) {
         return res.status(401).json({ error: "Refresh token has expired" });
       }
-
-      console.log("teabshgdjasdghjasgdhjhgs: ", tokenRecord);
 
       const newPayload = {
         userId: tokenRecord.dataValues.userId,

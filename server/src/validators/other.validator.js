@@ -9,10 +9,8 @@ const postCategoryVal = async (req, res, next) => {
     .options({ abortEarly: false });
   try {
     await categorySchema.validateAsync(req.body, { abortEarly: false });
-    console.log({ message: "validator successfully!" });
     next();
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       errors: new Error(error).message,
     });
@@ -29,10 +27,8 @@ const brandVal = async (req, res, next) => {
 
   try {
     await brandSchema.validateAsync(req.body);
-    console.log({ message: "validate successfully!" });
     next();
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       errors: new Error(error).message,
     });
@@ -44,9 +40,7 @@ const orderVal = async (req, res, next) => {
     userId: Joi.number().min(1).required(),
     total: Joi.number().min(1).required(),
     phone: Joi.string()
-      .pattern(
-        new RegExp(/^\d{10}$/)
-      )
+      .pattern(new RegExp(/^\d{10}$/))
       .required(),
     statusId: Joi.number().min(1).required(),
     paymentMethodId: Joi.number().min(1).required(),
@@ -57,10 +51,8 @@ const orderVal = async (req, res, next) => {
 
   try {
     await orderSchema.validateAsync(req.body);
-    console.log({ message: "validator successfully!" });
     next();
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       errors: new Error(error).message,
     });
@@ -75,10 +67,8 @@ const attributeVal = async (req, res, next) => {
     .options({ abortEarly: false });
   try {
     await attributeSchema.validateAsync(req.body);
-    console.log({ message: "validator successfully!" });
     next();
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       errors: new Error(error).message,
     });
@@ -96,10 +86,8 @@ const valueAttributeVal = async (req, res, next) => {
 
   try {
     await valueAttributeSchema.validateAsync(req.body);
-    console.log({ message: "validator successfully!" });
     next();
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       errors: new Error(error).message,
     });
@@ -121,10 +109,8 @@ const productVal = async (req, res, next) => {
 
   try {
     await productSchema.validateAsync(req.body);
-    console.log({ message: "validator successfully!" });
     next();
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       errors: new Error(error).message,
     });

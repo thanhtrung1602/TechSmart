@@ -3,9 +3,6 @@ module.exports = {
   async portOrder(userId, name, phone, address, quantity, price, product) {
     const post_url = process.env.GHN_URL;
     const accessToken = process.env.API_TOKEN_GHN;
-    console.log("Post URL: ", post_url);
-    console.log("Access Token: ", accessToken);
-
     const data = {
       payment_type_id: 1,
       note: "Tintest 123",
@@ -61,7 +58,6 @@ module.exports = {
           Token: `${accessToken}`,
         },
       });
-      console.log("Response ghtk_______:", response.data);
     } catch (error) {
       console.error(
         "Error:",

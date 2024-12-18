@@ -44,8 +44,6 @@ class OrderController {
 
     const vnpUrl = payment(id, bankSelect, contentPayment, total);
 
-    console.log("vnpUrl", vnpUrl);
-
     return res.status(200).json({ url: vnpUrl });
   });
 
@@ -66,7 +64,6 @@ class OrderController {
 
     // Làm tròn total để đảm bảo nó là số nguyên
     const roundedTotal = Math.round(total);
-    console.log("rest: ", rest);
     const newOrder = await orderService.createOrder({
       ...rest,
       total: roundedTotal,
@@ -252,7 +249,6 @@ class OrderController {
     }
 
     const updatedOrder = await orderService.updateOrderStatus(id, statusId);
-    console.log(updatedOrder);
     if (statusId === 2 || statusId === 3) {
       try {
         orderService.sendOrderConfirmationEmail(updatedOrder);

@@ -16,12 +16,10 @@ export default function SocketHandler() {
 
   useEffect(() => {
     function onConnect() {
-      console.log("Connected to socket server");
       setIsConnected(true);
     }
 
     function onDisconnect() {
-      console.log("Disconnected from socket server");
       setIsConnected(false);
     }
 
@@ -32,21 +30,17 @@ export default function SocketHandler() {
 
     //Khi tạo order đồng bộ stock product
     function onUpdateStockOrder(data: { productId: number; newStock: number }) {
-      console.log("Received stock update:", data);
-      // Cập nhật stock trong Redux store
       dispatch(
         updateOrderStock({ productId: data.productId, newStock: data.newStock })
       );
     }
 
     function onUpdateUser(data: { data: Users }) {
-      console.log("Received users update:", data);
       dispatch(updateProfileUser(data));
     }
     //Đồng bộ comment
     function onNewComment(newComment: Comments) {
-      console.log("Received new comment:", newComment);
-      dispatch(addNewComment(newComment)); // Thêm comment mới vào Redux store
+      dispatch(addNewComment(newComment));
     }
 
     socket.on("connect", onConnect);

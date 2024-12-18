@@ -79,7 +79,6 @@ export default function FormComment({ id }: { id: number }) {
   const paragraphs: string[] | undefined = comment?.comment
     ? comment?.comment.split("\n")
     : undefined;
-  console.log(comment);
   return (
     <div>
       {comment ? (

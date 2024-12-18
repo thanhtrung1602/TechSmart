@@ -13,7 +13,6 @@ module.exports = {
 
     const username = await userService.getOneUserById(userId);
     const address = await AddressService.getAddressById(addressId);
-    console.log("abccccccc: ", address);
     const products = allProductData.map((item, ind) => {
       const detail = orderDetails[ind];
       return {
@@ -59,7 +58,6 @@ module.exports = {
           Token: `${accessToken}`,
         },
       });
-      console.log("Response post ghtk_______:", response, response.data.order);
       const orderId = response.data.order.partner_id;
       const tracking_order = response.data.order.tracking_id;
       await orderService.updateOrder(orderId, { tracking_order });
@@ -81,7 +79,6 @@ module.exports = {
           Token: `${accessToken}`,
         },
       });
-      console.log("Response get ghtk_______:", response.data);
       return response.data;
     } catch (error) {
       console.error(
@@ -106,7 +103,6 @@ module.exports = {
           },
         }
       );
-      console.log("Huy ghtk_______:", response.data);
       return response.data;
     } catch (error) {
       console.error(
@@ -126,7 +122,6 @@ module.exports = {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log("Response get package ghtk_______:", response.data);
       return response.data;
     } catch (error) {
       console.error(

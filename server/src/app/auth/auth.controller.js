@@ -116,8 +116,6 @@ class AuthController {
   verifyCation = asyncWrapper(async (req, res) => {
     const { token } = req.query;
 
-    console.log("Received token:", token);
-
     if (!token) {
       return res.status(400).json({ message: "Token không được cung cấp!" });
     }
