@@ -16,7 +16,7 @@ export default function FormComment({ id }: { id: number }) {
     (state: RootState) => state.adminProfile.adminProfile
   );
   const { mutate } = usePost();
-
+console.log(comment);
   const COMMENT_STATUS = {
     PENDING: "pending",
     IN_PROGRESS: "inProgress",
@@ -48,6 +48,7 @@ export default function FormComment({ id }: { id: number }) {
       </span>
     );
   };
+  console.log(COMMENT_STATUS.PENDING);
 
   const handleSendComment = () => {
     const data = {
@@ -79,7 +80,6 @@ export default function FormComment({ id }: { id: number }) {
   const paragraphs: string[] | undefined = comment?.comment
     ? comment?.comment.split("\n")
     : undefined;
-  console.log(comment);
   return (
     <div>
       {comment ? (

@@ -90,6 +90,7 @@ class CommentsService {
           {
             model: db.User,
             as: "userData",
+
           },
           {
             model: db.Comment,
@@ -104,12 +105,39 @@ class CommentsService {
         offset: offset,
       });
 
-      return comment;
+      return {
+        total: comment.count,
+        comments: comment.rows,
+        totalPages: Math.ceil(comment.count / limit),
+        currentPage: Math.floor(offset / limit) + 1,
+      };
     } catch (error) {
       console.error("Detailed error:", error);
       throw new Error("Error fetching comments");
     }
   }
+
+async getComment () {
+  try {
+    const comment = await db.Comment.findAll({
+      include: [
+        {
+          model: db.Product,
+          as: "productData",
+        },
+        {
+          model: db.User,
+          as: "userData",
+          
+        },
+      ],
+    });
+    return comment;
+  } catch (error) {
+    console.error("Detailed error:", error);
+    throw new Error("Error fetching comments");
+  }
+}
 
   async getOneCommentByProductId(productId, limit, offset) {
     try {
@@ -151,7 +179,7 @@ class CommentsService {
     }
   }
 
-  async findOne(id) {
+  async findOne(id,limit, offset) {
     try {
       const comment = await db.Comment.findOne({
         where: { id },
@@ -159,23 +187,27 @@ class CommentsService {
           {
             model: db.Product,
             as: "productData",
-            where: {
-              id: productId,
-            },
-            attributes: ["id", "name", "image"],
+
           },
           {
-            model: db.User,
+            model: db.User, 
             as: "userData",
             attributes: ["id", "fullname", "phone"],
           },
         ],
+        limit: limit,
+        offset: offset,
       });
 
       if (!comment) {
         return { message: "Comment not found", id };
       }
-      return comment;
+      return {
+        total: comment.count,
+        comments: comment.rows,
+        totalPages: Math.ceil(comment.count / limit),
+        currentPage: Math.floor(offset / limit) + 1,
+      };
     } catch (error) {
       throw new Error(error.message);
     }

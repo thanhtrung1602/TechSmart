@@ -25,7 +25,7 @@ function Store() {
   // Trạng thái xoá và lựa chọn tỉnh/thành phố
   const [selectedProvince, setSelectedProvince] = useState<string>("");
   const [SelectedDistrict, setSelectedDistrict] = useState<string>("");
-  const [SelectedVisible, setSelectedVisible] =  useState("");
+  const [SelectedVisible, setSelectedVisible] = useState("");
 
   const handleUpdateVisible = () => {
     if (!isUpdateVisible) return;
@@ -77,8 +77,8 @@ function Store() {
     const matchesDistrict =
       !SelectedDistrict || s.district?.name === SelectedDistrict;
 
-      const matchesStatus =
-      SelectedVisible === ""||
+    const matchesStatus =
+      SelectedVisible === "" ||
       (SelectedVisible === "true" && s.visible === true) ||
       (SelectedVisible === "false" && s.visible === false);
 
@@ -92,8 +92,7 @@ function Store() {
         false) ||
       (s.codeStore?.toLowerCase().includes(lowerCaseSearchTerm) ?? false) ||
       (String(s.phone)?.toLowerCase().includes(lowerCaseSearchTerm) ?? false);
-    (
-      s.visible?.toString().includes(lowerCaseSearchTerm) ?? false)
+    (s.visible?.toString().includes(lowerCaseSearchTerm) ?? false)
     return matchesProvince && matchesSearchTerm && matchesDistrict && matchesStatus;
   });
 

@@ -8,15 +8,13 @@ class CommentsController {
 
     const limit = size;
     const offSet = (page - 1) * size;
-    const { count, rows } = await CommentService.getAllComment(limit, offSet);
-    if (!rows) {
+    const commentData = await CommentService.getAllComment(limit, offSet);
+    if (!commentData) {
       return res.status(400).json({ message: "Khong tim thay san pham" });
     }
 
-    return res.status(200).json({
-      total: count,
-      rows: rows,
-    });
+    return res.status(200).json(commentData);
+
   });
 
 
@@ -73,8 +71,16 @@ class CommentsController {
 
   findOne = asyncWrapper(async (req, res) => {
     const id = req.params.id;
-    const comment = await CommentService.findOne(id);
-    return res.status(200).json(comment);
+    const page = parseInt(req.query.page) || 1;
+    const size = parseInt(req.query.size) || 10;
+  
+    const limit = size;
+    const offset = (page - 1) * size;
+    const commentData = await CommentService.findOne(id, limit, offset);
+    if (!commentData.comments) {
+      return res.status(400).json({ message: "Không tìm thấy bình luận cho sản phẩm này" });
+    }
+    return res.status(200).json(commentData);
   });
   getCommentsByProduct = asyncWrapper(async (req, res) => {
     const productId = req.params.productId;
@@ -82,6 +88,10 @@ class CommentsController {
       return res.status(400).json({ error: "Invalid productId" });
     }
     const comment = await CommentService.getCommentsByProduct(productId);
+    return res.status(200).json(comment);
+  });
+  getComment = asyncWrapper(async (req, res) => {
+    const comment = await CommentService.getComment();
     return res.status(200).json(comment);
   });
 }

@@ -4,6 +4,8 @@ const commentsController = require("./comment.controller");
 const { jwtMiddleware } = require("../../middleware");
 
 router.get("/getAllComment", commentsController.getAllComment);
+router.get("/getComment", commentsController.getComment);
+
 router.get(
   "/getOneCommentByProductId/:id",
   commentsController.getOneCommentByProductId
@@ -20,5 +22,6 @@ router.patch(
   jwtMiddleware,
   commentsController.updateComment
 );
+
 
 module.exports = router;
