@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ChildrenType } from "~/types/childrenType";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -9,7 +9,6 @@ import { RootState } from "~/redux/store";
 import { useSelector } from "react-redux";
 
 function AccountLayout({ children }: ChildrenType) {
-  const navigate = useNavigate();
   const userProfile = useSelector(
     (state: RootState) => state.userProfile.userProfile
   );
@@ -17,12 +16,6 @@ function AccountLayout({ children }: ChildrenType) {
   const [menuAccount, setMenuAccount] = useState(() => {
     return sessionStorage.getItem("menuAccount") || "account";
   });
-
-  useEffect(() => {
-    if (!userProfile) {
-      navigate("/login");
-    }
-  }, [userProfile, navigate]);
 
   useEffect(() => {
     sessionStorage.setItem("menuAccount", menuAccount);
@@ -41,10 +34,11 @@ function AccountLayout({ children }: ChildrenType) {
   };
 
   const getClassName = (id: string) => {
-    return `py-2 px-2 my-1 cursor-pointer rounded-lg transition-colors duration-200 ${menuAccount === id
-      ? "bg-[#eb3e32] text-white"
-      : "text-black bg-white hover:bg-[#eb3e32] hover:text-white"
-      }`;
+    return `py-2 px-2 my-1 cursor-pointer rounded-lg transition-colors duration-200 ${
+      menuAccount === id
+        ? "bg-[#eb3e32] text-white"
+        : "text-black bg-white hover:bg-[#eb3e32] hover:text-white"
+    }`;
   };
 
   return (

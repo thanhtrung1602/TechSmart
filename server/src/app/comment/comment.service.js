@@ -102,35 +102,7 @@ class CommentsService {
         offset: offset,
       });
 
-      // Lấy danh sách các ID liên quan
-      const userIds = [...new Set(comments?.map((c) => c.userId))];
-      const productIds = [...new Set(comments?.map((c) => c.productId))];
-      const commentIds = [...new Set(comments?.map((c) => c.id))];
-
-      // Lấy thông tin liên quan song song
-      const [users, products, replies] = await Promise.all([
-        db.User.findAll({
-          where: { id: userIds },
-          attributes: ["id", "fullname", "phone"],
-        }),
-        db.Product.findAll({
-          where: { id: productIds },
-          attributes: ["id", "name"],
-        }),
-        db.Comment.findAll({ where: { id: commentIds } }),
-      ]);
-
-      // Kết hợp dữ liệu
-      const rows = comments.map((comment) => ({
-        userData: users.find((user) => user.id === comment.userId) || null,
-        productData:
-          products.find((product) => product.id === comment.productId) || null,
-        replies: replies.filter(
-          (reply) => reply.commentId === comment.id && reply.isAdmin === true
-        ),
-      }));
-
-      return { count, rows };
+      return comment;
     } catch (error) {
       console.error("Detailed error:", error);
       throw new Error("Error fetching comments");
@@ -139,71 +111,44 @@ class CommentsService {
 
   async getOneCommentByProductId(productId, limit, offset) {
     try {
+      // Lấy danh sách các comment chính kèm thông tin liên quan
       const comments = await db.Comment.findAndCountAll({
-        where: { productId, commentId: null },
-        order: [["createdAt", "DESC"]],
-        limit: limit,
-        offset: offset,
-      });
-
-      const comment = await db.Comment.findAll({
+        where: { productId },
         include: [
           {
             model: db.Product,
             as: "productData",
-            where: {
-              id: productId,
-            },
+            attributes: ["id", "name", "price"], // Chỉ lấy trường cần thiết
           },
           {
             model: db.User,
             as: "userData",
+            attributes: ["id", "fullname", "phone"], // Chỉ lấy trường cần thiết
+          },
+          {
+            model: db.Comment, // Include replies
+            as: "replies",
+            required: false, // Không bắt buộc phải có replies
+            where: { isAdmin: true }, // Lọc replies chỉ của admin
+            attributes: ["id", "userId", "commentId"],
+            include: [
+              {
+                model: db.User,
+                as: "userData",
+                attributes: ["id", "fullname", "phone"], // Gắn thông tin user của replies
+              },
+            ],
           },
         ],
-        attributes: ["id", "fullname", "phone"],
+        attributes: ["id", "userId", "productId", "content", "createdAt"], // Chỉ lấy trường cần thiết từ comment
+        limit,
+        offset,
       });
 
-      const commentIds = [...new Set(comments.rows.map((c) => c.id))];
-      const userIds = [...new Set(comments.rows.map((c) => c.userId))];
-      const productIds = [...new Set(comments.rows.map((c) => c.productId))];
-
-      const replies = await db.Comment.findAll({
-        where: {
-          commentId: { [Op.in]: commentIds }, // Chỉ lấy reply của comment chính
-          isAdmin: true,
-        },
-      });
-
-      // Lấy thêm userId từ replies
-      const replyUserIds = [...new Set(replies.map((reply) => reply.userId))];
-      const allUserIds = [...new Set([...userIds, ...replyUserIds])]; // Loại bỏ trùng lặp
-
-      // Truy vấn đồng thời các dữ liệu liên quan
-      const [users, products] = await Promise.all([
-        db.User.findAll({ where: { id: allUserIds } }),
-        db.Product.findAll({ where: { id: productIds } }),
-      ]);
-
-      const result = comments.rows.map((comment) => {
-        return {
-          userData: users.find((user) => user.id === comment.userId) || null,
-          productData:
-            products.find((product) => product.id === comment.productId) ||
-            null,
-          replies: replies
-            .filter(
-              (reply) =>
-                reply.commentId === comment.id && reply.isAdmin === true
-            )
-            .map((reply) => ({
-              userData: users.find((user) => user.id === reply.userId) || null, // Gắn userData vào reply
-            })),
-        };
-      });
-
+      // Trả về kết quả
       return {
         total: comments.count,
-        comments: result,
+        comments: comments.rows,
         totalPages: Math.ceil(comments.count / limit),
         currentPage: Math.floor(offset / limit) + 1,
       };
@@ -211,6 +156,7 @@ class CommentsService {
       throw new Error(error.message);
     }
   }
+
 
   async findOne(id) {
     try {
@@ -230,13 +176,6 @@ class CommentsService {
         ],
         attributes: ["id", "fullname", "phone"],
       });
-      const user = await userService.getOneUserById(comment.userId);
-      const product = await productService.getProductById(comment.productId);
-
-      const result = {
-        userData: user,
-        productData: product,
-      };
       if (!comment) {
         return { message: "Comment not found", id };
       }

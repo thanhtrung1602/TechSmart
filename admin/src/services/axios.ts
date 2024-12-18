@@ -10,6 +10,11 @@ let accessToken: string;
 export const setAccessToken = (token: string) => {
   accessToken = token;
 };
+let refreshToken: string;
+
+export const setRefreshToken = (token: string) => {
+  refreshToken = token;
+};
 
 instance.interceptors.request.use(
   (config) => {
@@ -33,11 +38,14 @@ instance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        instance.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${accessToken}`;
-        originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
-        return instance(originalRequest);
+        const newAccessToken = await handleRefreshToken(refreshToken);
+        if (newAccessToken) {
+          instance.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${newAccessToken}`;
+          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          return instance(originalRequest);
+        }
       } catch (refreshError) {
         console.log(refreshError);
       }
@@ -46,5 +54,17 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+const handleRefreshToken = async (refreshToken: string) => {
+  console.log("test lấy refresh: ", refreshToken);
+  const { data } = await instance.post("/auth/refresh", {
+    refreshToken: refreshToken,
+  });
+
+  if (data) {
+    setAccessToken(data.accessToken);
+    return data.accessToken;
+  }
+};
 
 export default instance;

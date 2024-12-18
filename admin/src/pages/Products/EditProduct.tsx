@@ -11,6 +11,7 @@ import Image from "~/components/Image";
 import { useQueryClient } from "@tanstack/react-query";
 import { FiMinusCircle, FiPlusCircle } from "react-icons/fi";
 import toast from "react-hot-toast";
+import Loading from "~/layouts/components/Loading";
 
 interface Value {
   id: number | null; // Allow null or number to handle new values
@@ -42,6 +43,7 @@ export default function EditProduct() {
   const productId = Number(id);
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<{
     id: number;
     slug: string;
@@ -215,6 +217,7 @@ export default function EditProduct() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const form = new FormData();
 
@@ -310,7 +313,7 @@ export default function EditProduct() {
 
                     //Kiểm tra xem giá trị cũ vs giá trị mới có j thay đổi
                     if (initialValue && initialValue.value !== value.value) {
-                      await mutate(
+                      return mutate(
                         {
                           url: `/valueAttribute/updateProductValueAttribute/${product?.id}`,
                           data: {
@@ -357,6 +360,8 @@ export default function EditProduct() {
       );
     } catch (error) {
       console.error("Error updating product:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -368,6 +373,7 @@ export default function EditProduct() {
 
   return (
     <div className="min-h-screen">
+      {isLoading && <Loading />}
       <h1 className="text-3xl font-bold mb-4">Cập nhật sản phẩm</h1>
 
       <form

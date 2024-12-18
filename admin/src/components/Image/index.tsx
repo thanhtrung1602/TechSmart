@@ -28,14 +28,14 @@ function Image({ alt, src, className, fallbackSrc, onClick }: ImageProps) {
     <LazyLoadImage
       alt={alt}
       src={imgSrc}
+      placeholderSrc={fallbackSrc}
       effect="blur" // Hiệu ứng mờ khi đang tải
       onLoad={handleAfterLoad} // Sự kiện sau khi tải
       onError={handleError} // Sự kiện khi lỗi
-      className={`${className} transition-opacity duration-700 ease-in-out m-0 p-0 block ${
+      className={`${className} transition-opacity duration-700 ease-in-out m-0 p-0 ${
         isLoaded ? "opacity-100" : "opacity-0 blur-md"
       }`}
       onClick={onClick}
-      loading="lazy"
     />
   );
 }

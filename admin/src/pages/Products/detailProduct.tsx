@@ -46,7 +46,7 @@ export default function DetailProduct({ id }: { id: number }) {
             </h2>
             <div className="">
               <span className="inline-block px-2 py-1 text-red-600 rounded-md text-base font-semibold">
-                {productDetail.price.toLocaleString("vi-VN")}₫
+                {productDetail.price?.toLocaleString("vi-VN")}₫
               </span>
               <span className="inline-block px-2 py-1 text-gray-400 rounded-md text-sm font-medium line-through">
                 {currencyFormat({

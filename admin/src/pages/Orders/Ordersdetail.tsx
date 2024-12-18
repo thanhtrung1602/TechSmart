@@ -97,10 +97,10 @@ function OrderDetail() {
                 <div>{detail.productData?.name || "Sản phẩm"}</div>
                 <div className="text-center">{detail.quantity}</div>
                 <div className="text-center">
-                  {unitPrice.toLocaleString("vi-VN")} đ
+                  {unitPrice?.toLocaleString("vi-VN")} đ
                 </div>
                 <div className="text-center">
-                  {detail.total.toLocaleString("vi-VN")} đ
+                  {detail.total?.toLocaleString("vi-VN")} đ
                 </div>
               </div>
             );
@@ -114,7 +114,7 @@ function OrderDetail() {
           </div>
           <div className="flex justify-between mt-2">
             <span>Tổng tiền hàng:</span>
-            <span>{totalAmount.toLocaleString("vi-VN")} đ</span>
+            <span>{totalAmount?.toLocaleString("vi-VN")} đ</span>
           </div>
           <div className="flex justify-between mt-2">
             <span>Phí giao hàng:</span>
@@ -130,7 +130,7 @@ function OrderDetail() {
           </div>
           <div className="flex justify-between font-bold mt-2">
             <span>Tổng thanh toán:</span>
-            <span>{totalAmount.toLocaleString("vi-VN")} đ</span>
+            <span>{totalAmount?.toLocaleString("vi-VN")} đ</span>
           </div>
           <p className="text-right mt-2 italic">
             (

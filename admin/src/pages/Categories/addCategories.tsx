@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import DataCategory from "~/types/dataCategory";
+import Loading from "~/layouts/components/Loading";
 function AddCategories() {
   const queryClient = useQueryClient();
   const {
@@ -13,8 +14,8 @@ function AddCategories() {
     formState: { errors },
   } = useForm<DataCategory>();
   const { mutate: mutateCategories } = usePost();
-
   const [file, setFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [previewImages, setPreviewImages] = useState<string[]>([]); // Manage preview images
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -38,44 +39,49 @@ function AddCategories() {
   };
 
   const onSubmit = (data: DataCategory) => {
-    console.log("Submit Form: ", data);
-
-    const formData = new FormData();
-    formData.append("name", data.name); // Append the name to FormData
-    formData.append("visible", form.visible.toString())
-    if (file) {
-      formData.append("img", file); // Only append the file if it's not null
-    } else {
-      console.error("No file selected");
-    }
-    mutateCategories(
-      {
-        url: "/categories/createCategories", // The endpoint for your POST request
-        data: formData, // The FormData object is passed here
-      },
-      {
-        onSuccess: (response) => {
-          if (response.status === 200) {
-            queryClient.invalidateQueries({
-              queryKey: ["/categories/getAllCategories"],
-            });
-            console.log("Category added successfully", response.data);
-            // Additional success handling
-            toast.success("Sản phẩm đã được thêm thành công");
-            navigate("/categories");
-          }
-        },
-        onError: (error) => {
-          console.error("Error adding category:", error);
-          toast.error("Có lỗi xảy ra khi thêm sản phẩm");
-        },
+    try {
+      const formData = new FormData();
+      formData.append("name", data.name); // Append the name to FormData
+      formData.append("visible", form.visible.toString())
+      if (file) {
+        formData.append("img", file); // Only append the file if it's not null
+      } else {
+        console.error("No file selected");
       }
-    );
+      mutateCategories(
+        {
+          url: "/categories/createCategories", // The endpoint for your POST request
+          data: formData, // The FormData object is passed here
+        },
+        {
+          onSuccess: (response) => {
+            if (response.status === 200) {
+              queryClient.invalidateQueries({
+                queryKey: ["/categories/getAllCategories"],
+              });
+              console.log("Category added successfully", response.data);
+              // Additional success handling
+              toast.success("Sản phẩm đã được thêm thành công");
+              navigate("/categories");
+            }
+          },
+          onError: (error) => {
+            console.error("Error adding category:", error);
+            toast.error("Có lỗi xảy ra khi thêm sản phẩm");
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error adding category:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div>
       <div className="min-h-screen">
+        {isLoading && <Loading />}
         <h1 className="text-2xl font-bold mb-6">Thêm danh mục</h1>
         <form
           onSubmit={handleSubmit(onSubmit)}

@@ -16,6 +16,8 @@ class ProductController {
       return res.status(400).json({ message: "Query không được để trống." });
     }
 
+    console.log("query: ", query);
+
     try {
       // Gọi service để lấy dữ liệu
       const results = await productService.searchAll(query);

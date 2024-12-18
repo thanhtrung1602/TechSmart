@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import usePost from "~/hooks/usePost";
 import useProvince from "~/hooks/useProvince";
+import Loading from "~/layouts/components/Loading";
 import District from "~/models/District";
 import Province from "~/models/Province";
 import Ward from "~/models/Ward";
@@ -19,6 +20,8 @@ function AddStore() {
 
   // 3. Khởi tạo hook usePost để gửi dữ liệu API
   const { mutate: mutateStore } = usePost();
+
+  const [isLoading, setLoading] = useState(false);
 
   // 4. Khởi tạo state cho các giá trị province, district, ward
   const [province, setProvince] = useState<
@@ -90,38 +93,46 @@ function AddStore() {
 
   // 11. Hàm xử lý gửi biểu mẫu
   const onSubmit = (data: DataAddress) => {
-    mutateStore(
-      {
-        url: "/store/createStore",
-        data: {
-          province: province,
-          district: district,
-          ward: ward,
-          street: data.street,
-          phone: data.phone,
-          codeStore: data.codeStore,
+    setLoading(true);
+    try {
+      mutateStore(
+        {
+          url: "/store/createStore",
+          data: {
+            province: province,
+            district: district,
+            ward: ward,
+            street: data.street,
+            phone: data.phone,
+            codeStore: data.codeStore,
+          },
         },
-      },
-      {
-        // 12. Xử lý khi gửi thành công
-        onSuccess: (response) => {
-          console.log("Store added successfully", response.data);
-          toast.success("Sản phẩm đã được thêm thành công");
-          navigate("/store");
-          window.location.reload();
-        },
-        // 13. Xử lý khi có lỗi khi gửi dữ liệu
-        onError: (error) => {
-          console.error("Error adding store:", error);
-          toast.error("Có lỗi xảy ra khi thêm sản phẩm");
-        },
-      }
-    );
+        {
+          // 12. Xử lý khi gửi thành công
+          onSuccess: (response) => {
+            console.log("Store added successfully", response.data);
+            toast.success("Sản phẩm đã được thêm thành công");
+            navigate("/store");
+            window.location.reload();
+          },
+          // 13. Xử lý khi có lỗi khi gửi dữ liệu
+          onError: (error) => {
+            console.error("Error adding store:", error);
+            toast.error("Có lỗi xảy ra khi thêm sản phẩm");
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error adding store:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div>
       <div className="min-h-screen">
+        {isLoading && <Loading />}
         <h1 className="text-2xl font-bold mb-6">Thêm sản phẩm</h1>
         {/* 14. Form thêm cửa hàng */}
         <form

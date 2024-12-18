@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Image from "~/components/Image";
 import useGet from "~/hooks/useGet";
 import { usePatch } from "~/hooks/usePost";
+import Loading from "~/layouts/components/Loading";
 import Categories from "~/models/Categories";
 import Manufacturer from "~/models/Manufacturer";
 import DataManufacturer from "~/types/dataManufacturer";
@@ -14,7 +15,7 @@ function UpdateManufacture() {
   const queryClient = useQueryClient();
   const { id } = useParams(); // Lấy id dưới dạng chuỗi từ URL
   const manufactureId = Number(id);
-
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -72,45 +73,50 @@ function UpdateManufacture() {
   };
 
   const onSubmit = (data: FieldValues) => {
-    console.log("Submit Form: ", data);
+    try {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("categoryId", selectedCategory.id.toString());
 
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("categoryId", selectedCategory.id.toString());
-
-    if (file) {
-      formData.append("img", file);
-    } else {
-      console.error("No file selected");
-    }
-
-    mutateManufacturer(
-      {
-        url: `/manufacturer/updateManufacturer/${id}`, // Sử dụng ID từ URL
-        data: formData, // Truyền FormData object
-      },
-      {
-        onSuccess: async (response) => {
-          console.log("manufacture updated successfully", response.data);
-
-          queryClient.invalidateQueries({
-            queryKey: [`/manufacturer/getOneManufacturerById/${manufactureId}`],
-          });
-
-          toast.success("Sản phẩm đã được cập nhật thành công");
-          navigate("/manufacturers");
-        },
-        onError: (error) => {
-          console.error("Error updating manufacture:", error);
-          toast.error("Có lỗi xảy ra khi cập nhật sản phẩm");
-        },
+      if (file) {
+        formData.append("img", file);
+      } else {
+        console.error("No file selected");
       }
-    );
+
+      mutateManufacturer(
+        {
+          url: `/manufacturer/updateManufacturer/${id}`, // Sử dụng ID từ URL
+          data: formData, // Truyền FormData object
+        },
+        {
+          onSuccess: async (response) => {
+            console.log("manufacture updated successfully", response.data);
+
+            queryClient.invalidateQueries({
+              queryKey: [`/manufacturer/getOneManufacturerById/${manufactureId}`],
+            });
+
+            toast.success("Sản phẩm đã được cập nhật thành công");
+            navigate("/manufacturers");
+          },
+          onError: (error) => {
+            console.error("Error updating manufacture:", error);
+            toast.error("Có lỗi xảy ra khi cập nhật sản phẩm");
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div>
       <div className="min-h-screen">
+        {isLoading && <Loading />}
         <h1 className="text-2xl font-bold mb-6">Sửa nhà sản xuất</h1>
         <form
           onSubmit={handleSubmit(onSubmit)}

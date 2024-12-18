@@ -202,12 +202,13 @@ function CategoryList() {
                           setIsUpdateVisible(category.id); // Chuyển thành setIsUpdating(category.id) nếu cần
                         }}
                         disabled={isUpdateVisible === category.id} // Điều kiện này vẫn giữ nguyên
-                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${category.visible === true ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
+                        className="w-[100%] flex items-center justify-center py-2 px-4  bg-red-100 rounded-tr-md rounded-br-md duration-500
+                         hover:text-red-600 hover:bg-red-300"
                       >
                         {category.visible === true ? (
-                          <BiSolidHide className="size-4" />
+                          <BiSolidHide className="text-lg flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-300" />
                         ) : (
-                          <BiSolidShow className="size-4" />
+                          <BiSolidShow className="text-lg flex items-center justify-center text-green-500" />
                         )}
                       </button>
 

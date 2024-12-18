@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Image from "~/components/Image";
 import useGet from "~/hooks/useGet";
 import usePost from "~/hooks/usePost";
+import Loading from "~/layouts/components/Loading";
 import Categories from "~/models/Categories";
 import DataManufacturer from "~/types/dataManufacturer";
 
@@ -21,14 +22,13 @@ function AddManufacturer() {
   const [file, setFile] = useState<File | null>(null);
   const [previewImages, setPreviewImages] = useState<string[]>([]); // Manage preview images
   const [selectedCategory, setSelectedCategory] = useState({ id: 0, slug: "" });
+  const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
     visible: false, // Giá trị mặc định của "Ẩn hiện"
   });
-  console.log("nè", form.visible);
   const { data: categories } = useGet<Categories[]>(
     "/categories/getAllCategories"
   );
-  console.log("errors", errors);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -43,47 +43,53 @@ function AddManufacturer() {
   };
 
   const onSubmit = (data: DataManufacturer) => {
-    console.log("Submit Form: ", data);
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("categoryId", selectedCategory.id.toString());
-    formData.append("visible", form.visible.toString());
-    if (file) {
-      formData.append("img", file);
-    } else {
-      console.error("No file selected");
-    }
-
-    mutateManufacturer(
-      {
-        url: "/manufacturer/createManufacturer",
-        data: formData,
-      },
-      {
-        onSuccess: (response) => {
-          console.log("Manufacturer added successfully", response.data);
-
-          navigate("/manufacturers");
-
-          queryClient.invalidateQueries({
-            queryKey: ["/manufacturer/getAllManufacturer"],
-          });
-
-          toast.success("Sản phẩm đã được thêm thành công");
-          setSelectedCategory({ id: 0, slug: "" });
-          window.location.reload();
-        },
-        onError: (error) => {
-          console.error("Error adding Manufacturer:", error);
-          toast.error("Có lỗi xảy ra khi thêm sản phẩm");
-        },
+    try {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("categoryId", selectedCategory.id.toString());
+      formData.append("visible", form.visible.toString());
+      if (file) {
+        formData.append("img", file);
+      } else {
+        console.error("No file selected");
       }
-    );
+
+      mutateManufacturer(
+        {
+          url: "/manufacturer/createManufacturer",
+          data: formData,
+        },
+        {
+          onSuccess: (response) => {
+            console.log("Manufacturer added successfully", response.data);
+
+            navigate("/manufacturers");
+
+            queryClient.invalidateQueries({
+              queryKey: ["/manufacturer/getAllManufacturer"],
+            });
+
+            toast.success("Sản phẩm đã được thêm thành công");
+            setSelectedCategory({ id: 0, slug: "" });
+            window.location.reload();
+          },
+          onError: (error) => {
+            console.error("Error adding Manufacturer:", error);
+            toast.error("Có lỗi xảy ra khi thêm sản phẩm");
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error adding Manufacturer:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div>
       <div className="min-h-screen">
+        {isLoading && <Loading />}
         <h1 className="text-2xl  font-bold mb-6">Thêm hãng theo danh mục</h1>
 
         <form

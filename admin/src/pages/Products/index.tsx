@@ -37,7 +37,9 @@ function ProductList() {
   const [selectedManufacturer, setSelectedManufacturer] = useState<
     number | null
   >(null);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null
+  );
   const [filterStatus, setFilterStatus] = useState<boolean | null>(null); // Trạng thái lọc (Ẩn, Hiện)
 
   const debounceSearch = useDebounce(searchTerm, 500);
@@ -50,15 +52,16 @@ function ProductList() {
   const { data: categories } = useGet<Categories[]>(
     "/categories/getAllCategories/"
   );
-  const { data: manufacturers } = useGet<
-    Manufacturer[]
-  >(`/manufacturer/getManufacturerByCategory/${selectedCategory}`, {
-    enabled: false,
-  });
-  const {
-    data: productsPagination,
-    refetch,
-  } = useGet<{ total: number; rows: Products[] }>(
+  const { data: manufacturers } = useGet<Manufacturer[]>(
+    `/manufacturer/getManufacturerByCategory/${selectedCategory}`,
+    {
+      enabled: false,
+    }
+  );
+  const { data: productsPagination, refetch } = useGet<{
+    total: number;
+    rows: Products[];
+  }>(
     `/products/filteredProducts?page=${currentPage}&size=${itemsPerPage}&category=${selectedCategory}&manufacturer=${selectedManufacturer}&search=${debounceSearch}&visible=${filterStatus}`,
     { enabled: false }
   );
@@ -278,11 +281,11 @@ function ProductList() {
                     {calculateDiscountedPrice(
                       product.price,
                       product.discount
-                    ).toLocaleString("vi")}
+                    )?.toLocaleString("vi")}
                     đ
                   </td>
                   <td className="py-3 px-4 w-2/12 text-center ">
-                    {product.price.toLocaleString("vi")}đ
+                    {product.price?.toLocaleString("vi")}đ
                   </td>
                   <td className="py-3 px-4 w-3/12 text-center">
                     {product.discount}%
@@ -314,30 +317,44 @@ function ProductList() {
                           setIsUpdateVisible(product.id); // Chuyển thành setIsUpdating(category.id) nếu cần
                         }}
                         disabled={isUpdateVisible === product.id} // Điều kiện này vẫn giữ nguyên
-                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${product.visible === true ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
+                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md rounded-br-md duration-500 ${product.visible === false ? 'bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300' : 'bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300'}`}
                       >
-                        {product.visible === true ? (
+                        {product.visible === false ? (
                           <BiSolidHide className="size-4" />
                         ) : (
                           <BiSolidShow className="size-4" />
                         )}
                       </button>
 
-
-                      <Modal open={open} onClose={() => { setOpen(false); }}>
+                      <Modal
+                        open={open}
+                        onClose={() => {
+                          setOpen(false);
+                        }}
+                      >
                         <div className="text-center w-auto">
                           {/* Conditional icon rendering */}
                           {product.visible == true ? (
-                            <BiSolidHide size={56} className="mx-auto text-red-500" />
+                            <BiSolidHide
+                              size={56}
+                              className="mx-auto text-red-500"
+                            />
                           ) : (
-                            <BiSolidShow size={56} className="mx-auto  text-green-500" />
+                            <BiSolidShow
+                              size={56}
+                              className="mx-auto  text-green-500"
+                            />
                           )}
                           <div className="mx-auto my-4">
                             <h3 className="text-lg font-bold text-gray-800">
-                              {product.visible == true ? "Xác nhận ẩn sản phẩm" : "Xác nhận hiện sản phẩm"}
+                              {product.visible == true
+                                ? "Xác nhận ẩn sản phẩm"
+                                : "Xác nhận hiện sản phẩm"}
                             </h3>
                             <p className="text-sm text-gray-500 my-2">
-                              {product.visible == true ? "Bạn có muốn ẩn sản phẩm này không?" : "Bạn có muốn hiện sản phẩm này không?"}
+                              {product.visible == true
+                                ? "Bạn có muốn ẩn sản phẩm này không?"
+                                : "Bạn có muốn hiện sản phẩm này không?"}
                             </p>
                           </div>
                           <div className="flex gap-4">

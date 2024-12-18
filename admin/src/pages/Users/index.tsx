@@ -1,71 +1,56 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import useGet from "~/hooks/useGet";
 import Users from "~/models/Users";
 import { FiRefreshCw } from "react-icons/fi";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { usePatch } from "~/hooks/usePost";
 import { MdBlock } from "react-icons/md";
 import Modal from "~/components/Modal/Modal";
-import { useSelector } from "react-redux";
-import { RootState } from "~/redux/store";
+import { useNavigate } from "react-router-dom";
 
 function User() {
   const [isBanning, setIsBanning] = useState<number | null>(null);
   const { mutate: banUser } = usePatch();
   const queryClient = useQueryClient();
-  const { data: getUsers } = useGet<Users[] | undefined>("/users/getAllUser");
-  const [users, setUsers] = useState<Users[] | undefined>(getUsers);
+  const navigate = useNavigate();
+
+  const { data: users } = useGet<Users[]>("/users/getAllUser");
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-  const user = useSelector((state: RootState) => state.socket.user);
+  const [filterStatus, setFilterStatus] = useState(""); // Trạng thái lọc (Bỏ chặn, Chặn)
 
-  useEffect(() => {
-    setUsers((prev) => prev?.map((u) => (u?.id === user?.id ? user : u)));
-  }, [user]);
+  console.log(users);
 
-  const handleBanUser = (userId: number, isBanned: boolean) => {
-    setIsBanning(userId);
-
+  const handleBanUser = () => {
+    if (!isBanning) return;
     banUser(
-      { url: `/users/BanUser/${userId}`, data: { isBanned } },
       {
-        onSuccess: (res) => {
-          if (res.status === 200) {
-            // Cập nhật trực tiếp danh sách người dùng
-            setUsers((prev) =>
-              prev?.map((user) =>
-                user.id === userId ? { ...user, ban: res.data.newBanStatus } : user
-              )
-            );
-
-            // Hiển thị thông báo
-            toast.success(
-              isBanned ? "Người dùng đã bị chặn" : "Người dùng đã được bỏ chặn"
-            );
-          } else {
-            toast.error("Có lỗi xảy ra khi cập nhật trạng thái");
+        url: `/users/BanUser/${isBanning}`,
+      },
+      {
+        onSuccess: (response) => {
+          console.log(response);
+          if (response.status === 200) {
+            queryClient.invalidateQueries({
+              queryKey: [`/manufacturer/getAllManufacturer`],
+            });
+            toast.success("Cập nhật thành công");
+            setOpen(false);
+            setIsBanning(null);
+            navigate("/users");
+            window.location.reload();
           }
-          setIsBanning(null);
         },
         onError: (error) => {
-          toast.error(`Không thể cập nhật trạng thái: ${error.message}`);
+          alert("Error deleting category: " + error.message);
+          toast.error("Có lỗi xảy ra ");
           setIsBanning(null);
+          navigate("/manufacturers");
         },
       }
     );
-  };
-
-  const handleOpenModal = (userId: number) => {
-    setSelectedUserId(userId);
-    setOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedUserId(null);
-    setOpen(false);
   };
 
   // Hàm lọc và tìm kiếm danh sách người dùng
@@ -75,9 +60,8 @@ function User() {
       .includes(searchTerm.toLowerCase());
 
     const matchesStatus =
-      filterStatus === "" ||
       (filterStatus === "Bị chặn" && user.ban === true) ||
-      (filterStatus === "Không bị chặn" && user.ban === false);
+      (filterStatus === "" && user.ban === false);
 
     return matchesSearchTerm && matchesStatus;
   });
@@ -88,19 +72,19 @@ function User() {
         <h1 className="text-[32px] font-bold mb-4">Danh sách khách hàng</h1>
         <div className="mb-6 flex items-center justify-between bg-white p-4 rounded-lg shadow">
           <div className="flex space-x-4">
+            {/* Dropdown lọc trạng thái */}
             <select
               className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg"
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
-              <option value="">Trạng thái</option>
+              <option value="">Không bị chặn</option>
               <option value="Bị chặn">Bị chặn</option>
-              <option value="Không bị chặn">Không bị chặn</option>
             </select>
-
+            {/* Input tìm kiếm */}
             <input
               type="text"
-              placeholder="Tìm kiếm theo tên hoặc số điện thoại..."
+              placeholder="Tìm kiếm..."
               className="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -120,17 +104,28 @@ function User() {
             </button>
           </div>
         </div>
-
         <div className="overflow-x-auto rounded-lg">
           <table className="min-w-full bg-white border border-gray-200">
             <thead className="bg-gray-300">
               <tr className="text-center">
-                <th className="py-3 px-4 font-semibold text-[#202224] border-b">ID</th>
-                <th className="py-3 px-4 font-semibold text-[#202224] border-b">Tên Tài Khoản</th>
-                <th className="py-3 px-4 font-semibold text-[#202224] border-b">Gmail</th>
-                <th className="py-3 px-4 font-semibold text-[#202224] border-b">Số điện thoại</th>
-                <th className="py-3 px-4 font-semibold text-[#202224] border-b">Bom</th>
-                <th className="py-3 px-4 font-semibold text-[#202224] border-b">Chặn</th>
+                <th className="py-3 px-4 font-semibold text-[#202224] border-b">
+                  ID
+                </th>
+                <th className="py-3 px-4 font-semibold text-[#202224] border-b">
+                  Tên Tài Khoản
+                </th>
+                <th className="py-3 px-4 font-semibold text-[#202224] border-b">
+                  Gmail
+                </th>
+                <th className="py-3 px-4 font-semibold text-[#202224] border-b">
+                  Số điện thoại
+                </th>
+                <th className="py-3 px-4 font-semibold text-[#202224] border-b">
+                  Bom
+                </th>
+                <th className="py-3 px-4 font-semibold text-[#202224] border-b">
+                  Chặn
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -144,14 +139,62 @@ function User() {
                     <td className="py-3 px-4 border-b">{user.bom}</td>
                     <td className="py-3 px-4 border-b">
                       <button
-                        className={`w-full rounded-lg py-2 shadow-md transition-colors ${user.ban
-                          ? "bg-green-500 hover:bg-green-600 text-white"
-                          : "bg-red-500 hover:bg-red-600 text-white"
-                          }`}
-                        onClick={() => handleOpenModal(user.id)}
+                        onClick={() => {
+                          setOpen(true);
+                          setIsBanning(user.id); // Chuyển thành setIsUpdating(category.id) nếu cần
+                        }}
+                        disabled={isBanning === user.id} // Điều kiện này vẫn giữ nguyên
+                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   ${
+                          user.ban === false
+                            ? "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300"
+                            : "bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300"
+                        }`}
                       >
-                        {user.ban ? "Đã chặn" : "Chặn"}
+                        {user.ban === false ? <p>Chặn</p> : <p>Bỏ chặn</p>}
                       </button>
+
+                      <Modal open={open} onClose={() => setOpen(false)}>
+                        <div className="text-center w-auto">
+                          {/* Conditional icon rendering */}
+                          {user.ban === false ? (
+                            <MdBlock
+                              size={56}
+                              className="mx-auto text-red-500"
+                            />
+                          ) : (
+                            <MdBlock
+                              size={56}
+                              className="mx-auto text-green-500"
+                            />
+                          )}
+                          <div className="mx-auto my-4">
+                            <h3 className="text-lg font-bold text-gray-800">
+                              {user.ban === true
+                                ? "Xác nhận bỏ chặn sản phẩm"
+                                : "Xác nhận chặn sản phẩm"}
+                            </h3>
+                            <p className="text-sm text-gray-500 my-2">
+                              {user.ban === true
+                                ? "Bạn có muốn bỏ chặn sản phẩm này không?"
+                                : "Bạn có muốn chặn sản phẩm này không?"}
+                            </p>
+                          </div>
+                          <div className="flex gap-4">
+                            <button
+                              onClick={() => handleBanUser()}
+                              className="w-full bg-red-500 hover:bg-red-600 rounded-lg shadow text-white"
+                            >
+                              {user.ban === true ? "Bỏ chặn" : "Chặn"}
+                            </button>
+                            <button
+                              className="w-full py-2 bg-white hover:bg-gray-100 rounded-lg shadow text-gray-500"
+                              onClick={() => setOpen(false)}
+                            >
+                              Hủy
+                            </button>
+                          </div>
+                        </div>
+                      </Modal>
                     </td>
                   </tr>
                 ))
@@ -166,46 +209,7 @@ function User() {
           </table>
         </div>
       </div>
-
-      {/* Modal xác nhận */}
-      <Modal open={open} onClose={handleCloseModal}>
-        <div className="p-6 text-center">
-          <MdBlock size={56} className="mx-auto text-red-500" />
-          <div className="my-4">
-            <h3 className="text-lg font-semibold text-gray-800">
-              {users?.find((user) => user.id === selectedUserId)?.ban
-                ? "Xác nhận bỏ chặn người dùng"
-                : "Xác nhận chặn người dùng"}
-            </h3>
-            <p className="text-sm text-gray-500">
-              {users?.find((user) => user.id === selectedUserId)?.ban
-                ? "Bạn muốn bỏ chặn người dùng này?"
-                : "Bạn muốn chặn người dùng này?"}
-            </p>
-          </div>
-          <div className="flex gap-4">
-            <button
-              className="w-full bg-red-500 hover:bg-red-600 rounded-lg shadow text-white"
-              onClick={() => {
-                handleBanUser(
-                  selectedUserId!,
-                  !(users?.find((user) => user.id === selectedUserId)?.ban ?? false)
-                );
-                handleCloseModal();
-              }}
-            >
-              {users?.find((user) => user.id === selectedUserId)?.ban ? "Bỏ chặn" : "Chặn"}
-            </button>
-            <button
-              onClick={handleCloseModal}
-              className="w-full bg-white hover:bg-gray-100 text-gray-600 rounded-lg py-2 shadow-md transition-colors"
-            >
-              Hủy
-            </button>
-          </div>
-        </div>
-      </Modal>
-
+      {/* Modal for Ban/Unban */}
     </>
   );
 }

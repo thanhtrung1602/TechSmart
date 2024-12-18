@@ -1,6 +1,5 @@
 import Products from "~/models/Products";
 import ValueAttribute from "~/models/ValueAttribute";
-import Image from "~/components/Image";
 
 function AttributeColorRom({
   attributeValue,
@@ -67,7 +66,6 @@ export default AttributeColorRom;
 
 function ColorProduct({
   attributeValue,
-  productDetail,
 }: {
   attributeValue: ValueAttribute[];
   productDetail: Products;
@@ -84,15 +82,12 @@ function ColorProduct({
             return (
               <button
                 key={item.id}
-                className={`overflow-hidden flex items-center gap-x-3 p-2 border-[0.5px] border-[#8e8d8d] rounded`}
+                className={`relative overflow-hidden flex items-center gap-x-3 p-1 border-[#ff3737] bg-[#ff373722] border-[2px] rounded-full`}
               >
-                <Image
-                  src={productDetail.img}
-                  fallbackSrc=""
-                  alt=""
-                  className="size-8 rounded"
-                />
-                <span className="text-sm font-medium">{item.value}</span>
+                <span
+                  className="size-8 text- rounded-full font-medium"
+                  style={{ backgroundColor: item.value }}
+                ></span>
               </button>
             );
           }

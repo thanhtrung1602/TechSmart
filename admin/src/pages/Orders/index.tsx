@@ -225,34 +225,34 @@ function Order() {
           </thead>
           <tbody>
             {filteredOrders && filteredOrders.length > 0 ? (
-              filteredOrders.map((order, index) => {
+              filteredOrders?.map((order, index) => {
                 const user = users?.find((u) => u.id === order.userId);
                 console.log("order: ", order);
                 return (
-                  <tr key={order.id} className="text-center">
+                  <tr key={order?.id} className="text-center">
                     <td className="py-3 px-4 border-b">{index + 1}</td>
                     <td className="py-3 px-4 border-b">
-                      {user ? user.fullname : "Unknown User"}
+                      {user ? user?.fullname : "Unknown User"}
                     </td>
-                    <td className="py-3 px-4 border-b">{order.phone}</td>
-                    {order.delivery_method === "Nhận tại cửa hàng" && (
+                    <td className="py-3 px-4 border-b">{order?.phone}</td>
+                    {order?.delivery_method === "Nhận tại cửa hàng" && (
                       <td className="py-3 px-4 border-b">
                         {`${order?.storeData?.province.name}, ${order?.storeData?.district.name}, ${order?.storeData?.ward}, ${order?.storeData?.street}`}
                       </td>
                     )}
-                    {order.delivery_method === "Giao hàng" && (
+                    {order?.delivery_method === "Giao hàng" && (
                       <td className="py-3 px-4 border-b">
                         {`${order?.addressData?.province.name}, ${order?.addressData?.district.name}, ${order?.addressData?.ward}, ${order?.addressData?.street}`}
                       </td>
                     )}
                     <td className="py-3 px-4 border-b">
-                      {new Date(order.createdAt).toLocaleDateString("vi-VN")}
+                      {new Date(order?.createdAt).toLocaleDateString("vi-VN")}
                     </td>
                     <td className="py-3 px-4 border-b">
-                      {order.total.toLocaleString()}
+                      {order?.total?.toLocaleString()}
                     </td>
                     <td className="py-3 px-4 border-b text-sm">
-                      {order.paymentMethods.type}
+                      {order?.paymentMethodData.type}
                     </td>
                     <td
                       className={`py-3 px-4 border-b text-sm ${getStatusColor(
@@ -267,7 +267,7 @@ function Order() {
                     <td className="py-3 px-4 border-b text-center">
                       <Link to={`/orderdetails/${order.id}`}>
                         <button
-                          onClick={() => {}}
+                          onClick={() => { }}
                           className="w-[100%] flex items-center py-2 px-2 text-[#3271ab] bg-blue-100 rounded-lg duration-300 hover:text-blue-600 hover:bg-blue-300"
                         >
                           <span className="text-center text-xs font-semibold">

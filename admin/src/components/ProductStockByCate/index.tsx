@@ -54,7 +54,7 @@ export default function ProductStockByCate() {
               outerRadius={80}
               label
             >
-              {color?.map((entry, index) => (
+              {color?.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={color[index]} />
               ))}
             </Pie>

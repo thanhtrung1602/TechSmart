@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "~/components/Image";
 import { usePatch } from "~/hooks/usePost";
+import Loading from "~/layouts/components/Loading";
 interface FormData {
   name: string;
   file: File | null;
@@ -23,7 +24,7 @@ function UpdateCategories() {
     formState: { errors },
   } = useForm<FormData>();
   const { mutate: mutateCategories } = usePatch();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [previewImages, setPreviewImages] = useState<string[]>([]); // Quản lý ảnh xem trước
   const [categoryImage, setCategoryImage] = useState<string | null>(null);
@@ -62,44 +63,50 @@ function UpdateCategories() {
   };
 
   const onSubmit = (data: FormData) => {
-    console.log("Submit Form: ", data);
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("name", data.name); // Append name vào FormData
 
-    const formData = new FormData();
-    formData.append("name", data.name); // Append name vào FormData
-
-    if (file) {
-      formData.append("img", file); // Chỉ thêm file nếu có
-    } else {
-      console.log("No new file selected, keeping existing image");
-    }
-
-    mutateCategories(
-      {
-        url: `/categories/updateCategories/${id}`, // Sử dụng ID từ URL
-        data: formData, // Truyền FormData object
-      },
-      {
-        onSuccess: async (response) => {
-          if (response.status === 200) {
-            queryClient.refetchQueries({
-              queryKey: ["/categories/getAllCategories"],
-            });
-            console.log("Category updated successfully", response.data);
-            toast.success("Sản phẩm đã được cập nhật thành công");
-            window.location.href = "/categories";
-          }
-        },
-        onError: (error) => {
-          console.error("Error updating category:", error);
-          toast.error("Có lỗi xảy ra khi cập nhật sản phẩm");
-        },
+      if (file) {
+        formData.append("img", file); // Chỉ thêm file nếu có
+      } else {
+        console.log("No new file selected, keeping existing image");
       }
-    );
+
+      mutateCategories(
+        {
+          url: `/categories/updateCategories/${id}`, // Sử dụng ID từ URL
+          data: formData, // Truyền FormData object
+        },
+        {
+          onSuccess: async (response) => {
+            if (response.status === 200) {
+              queryClient.refetchQueries({
+                queryKey: ["/categories/getAllCategories"],
+              });
+              console.log("Category updated successfully", response.data);
+              toast.success("Sản phẩm đã được cập nhật thành công");
+              window.location.href = "/categories";
+            }
+          },
+          onError: (error) => {
+            console.error("Error updating category:", error);
+            toast.error("Có lỗi xảy ra khi cập nhật sản phẩm");
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error updating category:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div>
       <div className="min-h-screen">
+        {isLoading && <Loading />}
         <h1 className="text-2xl font-bold mb-6">Sửa danh mục</h1>
         <form
           onSubmit={handleSubmit(onSubmit)}

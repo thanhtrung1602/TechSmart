@@ -22,44 +22,19 @@ class ProductService {
         include: [
           {
             model: db.Category,
-            as: "category",
+            as: "categoryData",
           },
           {
             model: db.ManuFacturer,
-            as: "manufacturer",
+            as: "manufacturerData",
           },
         ]
       });
 
-      // Lấy danh sách categoryId và manufacturerId từ sản phẩm
-      const categoryIds = [
-        ...new Set(rows.map((product) => product.categoryId)),
-      ];
-      const manufacturerIds = [
-        ...new Set(rows.map((product) => product.manufacturerId)),
-      ];
-
-      // Tìm kiếm danh mục
-      const categories =
-        categoryIds.length > 0
-          ? await db.Categories.findAll({
-            where: { id: { [Op.in]: categoryIds } },
-          })
-          : [];
-
-      // Tìm kiếm hãng sản xuất
-      const manufacturers =
-        manufacturerIds.length > 0
-          ? await db.ManuFacturer.findAll({
-            where: { id: { [Op.in]: manufacturerIds } },
-          })
-          : [];
-
-      // Trả về kết quả
       return {
         products: rows,
-        categories,
-        manufacturers,
+        categories: [...new Set(rows.map((product) => product.categoryData))],
+        manufacturers: [...new Set(rows.map((product) => product.manufacturerData))],
       };
     } catch (error) {
       console.error("Error in searchAll:", error);
@@ -79,11 +54,6 @@ class ProductService {
       const categorySlug =
         category && category !== "null"
           ? await categoryService.getCategorySlug(category)
-          : null;
-
-      const manufacturerData =
-        manufacturer && manufacturer !== "null"
-          ? await manufacturerService.getOneManufacturerById(manufacturer)
           : null;
 
       const searchCondition =

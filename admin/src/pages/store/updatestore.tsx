@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import useGet from "~/hooks/useGet";
 import useProvince from "~/hooks/useProvince";
 import usePut from "~/hooks/usePut";
+import Loading from "~/layouts/components/Loading";
 import District from "~/models/District";
 import Province from "~/models/Province";
 import InterStore from "~/models/Store";
@@ -34,7 +35,7 @@ function UpdateStore() {
   } = useForm<FormData>();
   const { mutate: mutateStore } = usePut();
   const { id } = useParams(); // Lấy id dưới dạng chuỗi từ URL
-
+  const [isLoading, setLoading] = useState(false);
   const [province, setProvince] = useState<
     { id: string | undefined; name: string | undefined } | undefined
   >(undefined);
@@ -74,31 +75,38 @@ function UpdateStore() {
   }, [store, error, setValue]);
 
   const onSubmit = (data: FieldValues) => {
-    mutateStore(
-      {
-        url: `/store/updateStore/${id}`, // Sử dụng ID từ URL
-        data: {
-          street: data.street,
-          ward,
-          district: district,
-          province: province,
-          phone: data.phone,
-          codeStore: data.codeStore,
-        }, // Truyền FormData object
-      },
-      {
-        onSuccess: async (response) => {
-          console.log("store updated successfully", response.data);
-          toast.success(" cập nhật thành công");
-          navigate("/store");
-          window.location.reload();
+    setLoading(true);
+    try {
+      mutateStore(
+        {
+          url: `/store/updateStore/${id}`, // Sử dụng ID từ URL
+          data: {
+            street: data.street,
+            ward,
+            district: district,
+            province: province,
+            phone: data.phone,
+            codeStore: data.codeStore,
+          }, // Truyền FormData object
         },
-        onError: (error) => {
-          console.error("Error updating manufacture:", error);
-          toast.error("Có lỗi xảy ra khi cập nhật ");
-        },
-      }
-    );
+        {
+          onSuccess: async (response) => {
+            console.log("store updated successfully", response.data);
+            toast.success(" cập nhật thành công");
+            navigate("/store");
+            window.location.reload();
+          },
+          onError: (error) => {
+            console.error("Error updating manufacture:", error);
+            toast.error("Có lỗi xảy ra khi cập nhật ");
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error updating store:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -131,6 +139,7 @@ function UpdateStore() {
   return (
     <div>
       <div className="min-h-screen">
+        {isLoading && <Loading />}
         <h1 className="text-2xl font-bold mb-6">Thêm cửa hàng</h1>
         <form
           onSubmit={handleSubmit(onSubmit)}

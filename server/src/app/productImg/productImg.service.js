@@ -59,7 +59,6 @@ class ProductImgService {
             return productImg;
           })
         );
-        console.log("ahsjdhajshdjahsdjhasd: ", productImgs);
         return productImgs;
       }
     } catch (error) {

@@ -21,18 +21,15 @@ function Account() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!users) {
-      navigate("/login");
-    }
-  }, [users, navigate]);
-
-  useEffect(() => {
     if (users) {
       setFullName(users.fullname || "");
       setPhone(String(users.phone) || "");
       setEmail(users.email || "");
     }
-  }, [users]);
+    if (!users) {
+      navigate("/login");
+    }
+  }, [users, navigate]);
 
   const handleUpdateProfile = (e: FormEvent) => {
     e.preventDefault();

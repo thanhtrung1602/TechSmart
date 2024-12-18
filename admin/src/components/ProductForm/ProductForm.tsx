@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Categories from "~/models/Categories";
 import Manufacturer from "~/models/Manufacturer";
 import useGet from "~/hooks/useGet";
@@ -11,6 +11,7 @@ import { FiMinusCircle, FiPlusCircle } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import Loading from "~/layouts/components/Loading";
 
 interface Attribute {
   attributeId: number; // The ID of the attribute
@@ -23,7 +24,9 @@ interface FormData {
   discount: number;
   stock: number;
   visible: boolean;
-  // image: File | string | null;
+  categoryId: number;
+  manufacturerId: number;
+  file: File | string | null;
   attributes: Attribute[];
 }
 
@@ -31,13 +34,14 @@ export default function ProductForm() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { mutate: addProduct } = usePost();
   const { mutate: addAttributeValue } = usePost();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormEvent>();
+  } = useForm<FormData>();
   const [file, setFile] = useState<File | null>(null);
   const [previewImages, setPreviewImages] = useState<string[]>([]); // Manage preview images
   const [formData, setFormData] = useState<FormData>({
@@ -46,6 +50,9 @@ export default function ProductForm() {
     discount: 0,
     stock: 0,
     visible: false,
+    categoryId: 0,
+    manufacturerId: 0,
+    file: null as File | string | null,
     attributes: [],
   });
   const { data: categories } = useGet<Categories[]>(
@@ -145,6 +152,7 @@ export default function ProductForm() {
   };
 
   const OnSubmit = async () => {
+    setIsLoading(true);
     try {
       const form = new FormData();
 
@@ -160,7 +168,6 @@ export default function ProductForm() {
         form.append("img", file);
       }
 
-      console.log(form);
       addProduct(
         { url: "/products/createProduct", data: form },
         {
@@ -172,6 +179,9 @@ export default function ProductForm() {
                 discount: 0,
                 stock: 0,
                 visible: false,
+                categoryId: 0,
+                manufacturerId: 0,
+                file: null as File | string | null,
                 attributes: [],
               });
 
@@ -223,7 +233,9 @@ export default function ProductForm() {
                   discount: 0,
                   stock: 0,
                   visible: false,
-                  // image: null as File | string | null,
+                  categoryId: 0,
+                  manufacturerId: 0,
+                  file: null as File | string | null,
                   attributes: [{ attributeId: 0, values: [] }],
                 });
               } catch (error) {
@@ -238,11 +250,14 @@ export default function ProductForm() {
       );
     } catch (error) {
       console.error("Error creating product server:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen">
+      {isLoading && <Loading />}
       <h1 className="text-3xl font-bold mb-4">Thêm sản phẩm</h1>
 
       <form

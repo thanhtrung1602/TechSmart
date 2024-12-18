@@ -44,23 +44,23 @@ function RecentOrders() {
               const users = userList?.filter(
                 (user) => user.id === order.userId
               );
-              const username = users?.map((user) => user.fullname).join(", ");
+              const username = users?.map((user) => user?.fullname).join(", ");
               return (
-                <tr className="text-center" key={order.id}>
+                <tr className="text-center" key={order?.id}>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200 ">
-                    <Link to={`/order/${order.id}`}>#{order.id}</Link>
+                    <Link to={`/order/${order?.id}`}>#{order?.id}</Link>
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200 items-center">
-                    <Link to={`/customer/${order.userId}`}>{username}</Link>
+                    <Link to={`/customer/${order?.userId}`}>{username}</Link>
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200">
-                    {new Date(order.createdAt).toLocaleDateString()}
+                    {new Date(order?.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200">
-                    {order.total.toLocaleString()} VNĐ
+                    {order?.total?.toLocaleString()} VNĐ
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200">
-                    {order.paymentMethods.type}
+                    {order?.paymentMethodData.type}
                   </td>
                   <td className="px-4 py-3 border-b-[1px] border-gray-200">
                     {getOrderStatus(order.statusData.status)}

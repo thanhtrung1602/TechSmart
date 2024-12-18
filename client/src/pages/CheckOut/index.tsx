@@ -116,8 +116,7 @@ function CheckOut() {
     check();
   }, [productsToDisplay, dispatch, selectIdStore]);
 
-  //Tạo đơn hàng
-  const createdOrder = (
+  const createdOrder = async (
     userId: number,
     addressId: number | null,
     paymentMethodId: number,
@@ -129,8 +128,7 @@ function CheckOut() {
     deliveryDate: Date | null
   ) => {
     try {
-      // Gửi yêu cầu tạo đơn hàng
-      mutate(
+      await mutate(
         {
           url: "/orders/createOrder",
           data: {
@@ -148,68 +146,81 @@ function CheckOut() {
         },
         {
           onSuccess: (response) => {
-            if (response.status === 200 && response.data.newOrder) {
+            if (response.status === 200) {
               console.log("Order created successfully: ", response);
+              queryClient.invalidateQueries({
+                queryKey: [`/orders/getOrderByIdUser/${userProfile?.id}`],
+              });
               const orderId = response.data.newOrder.id;
 
-              // Nếu đơn hàng được tạo thành công, tiếp tục tạo chi tiết đơn hàng
               if (orderId && cart?.length > 0) {
-                cart.forEach((cartItem) => {
-                  if (!cartItem.id) return;
-
+                cart.map((cart) => {
+                  if (!cart.id) return null;
                   const detailOrder = {
                     orderId,
-                    productId: cartItem.productData.id,
-                    quantity: Number(cartItem.quantity),
-                    total: cartItem.total,
-                    color: cartItem.color,
-                    size: cartItem.rom,
+                    productId: cart.productData.id,
+                    quantity: Number(cart.quantity),
+                    total: cart.total,
+                    color: cart.color,
+                    size: cart.rom,
                   };
 
-                  // Gửi yêu cầu tạo chi tiết đơn hàng
-                  mutate(
+                  return mutate(
                     {
                       url: "/orderdetails/createOrderDetail",
                       data: detailOrder,
                     },
                     {
-                      onSuccess: (detailResponse) => {
-                        if (detailResponse.status === 200) {
-                          console.log("Order detail created successfully: ", detailResponse);
+                      onSuccess: async (response) => {
+                        if (response.status === 200) {
+                          console.log(
+                            "Order detail created successfully: ",
+                            response
+                          );
                           queryClient.invalidateQueries({
-                            queryKey: [`/orderdetails/getAllOrderDetailByOrderId/${orderId}`],
+                            queryKey: [
+                              `/orderdetails/getAllOrderDetailByOrderId/${orderId}`,
+                            ],
                           });
+                          console.log(
+                            "Order detail created successfully: ",
+                            response
+                          );
 
-                          // Xử lý thanh toán sau khi tạo thành công chi tiết đơn hàng
                           try {
-                            toast.success("Đặt hàng thành công");
+                            toast.success("Thanh toán thành công");
                             if (selectedPaymentMethod === 1) {
-                              handleBank.bank(totalDiscountedPrice, orderId).then((result) => {
-                                window.location.href = result?.url;
-                              });
-                            } else if (selectedPaymentMethod === 2) {
+                              const result = await handleBank.bank(
+                                totalDiscountedPrice,
+                                orderId
+                              );
+                              window.location.href = result?.url;
+                              return;
+                            }
+                            if (selectedPaymentMethod === 2) {
                               navigate("/ordercomplete", {
                                 state: {
                                   selectedPaymentMethod: 2,
-                                  orderId,
+                                  orderId: orderId,
                                 },
                               });
+                              return;
                             }
                           } catch (error) {
-                            console.error("Error processing payment:", error);
+                            console.error(
+                              "Error creating order details:",
+                              error
+                            );
                           }
                         }
                       },
                       onError: (error) => {
-                        console.error("Error creating order detail:", error);
+                        console.error("Error creating order detail: ", error);
                       },
                     }
                   );
                 });
               }
-            } else {
-              // Nếu tạo đơn hàng thất bại, không tạo chi tiết đơn hàng
-              console.error("Failed to create order:", response);
             }
           },
           onError: (error) => {
@@ -372,9 +383,10 @@ function CheckOut() {
                     return (
                       <div
                         key={index}
-                        className={`flex items-center space-x-4 pb-4 ${productsToDisplay.length - 1 !== index &&
+                        className={`flex items-center space-x-4 pb-4 ${
+                          productsToDisplay.length - 1 !== index &&
                           `border-b-[1px]`
-                          }`}
+                        }`}
                       >
                         <Image
                           src={
@@ -406,14 +418,14 @@ function CheckOut() {
                             </div>
                             <div>
                               <p className="text-red-600 text-base font-semibold">
-                                {currentPrice.toLocaleString("vi-VN")}đ
+                                {currentPrice?.toLocaleString("vi-VN")}đ
                               </p>
                               <p className="text-sm line-through text-gray-500">
                                 {Math.round(
                                   currentPrice /
-                                  (1 -
-                                    productDetail.productData.discount / 100)
-                                ).toLocaleString("vi-VN")}
+                                    (1 -
+                                      productDetail.productData.discount / 100)
+                                )?.toLocaleString("vi-VN")}
                                 đ
                               </p>
                             </div>
@@ -472,7 +484,7 @@ function CheckOut() {
             <div className="flex justify-between">
               <span className="text-gray-700">Tổng tiền</span>
               <span className="font-semibold">
-                {totalOriginalPrice.toLocaleString("vi-VN")}đ
+                {totalOriginalPrice?.toLocaleString("vi-VN")}đ
               </span>
             </div>
             <hr className="my-2" />
@@ -480,7 +492,7 @@ function CheckOut() {
             <div className="flex justify-between">
               <span className="text-gray-700">Tổng khuyến mãi</span>
               <span className="font-semibold">
-                {totalDiscount.toLocaleString("vi-VN")}đ
+                {totalDiscount?.toLocaleString("vi-VN")}đ
               </span>
             </div>
 
@@ -494,7 +506,7 @@ function CheckOut() {
             <div className="flex justify-between">
               <span className="text-gray-700">Cần thanh toán</span>
               <span className="font-semibold text-red-600 text-lg">
-                {totalDiscountedPrice.toLocaleString("vi-VN")}đ
+                {totalDiscountedPrice?.toLocaleString("vi-VN")}đ
               </span>
             </div>
 

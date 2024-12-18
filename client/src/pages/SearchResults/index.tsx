@@ -43,9 +43,18 @@ function SearchResults() {
   }
 
   //Tính số lượng sản phẩm theo category
-  const categoryProductCounts = searchResult?.data.categories.map(
-    (category) => {
-      const productCount = searchResult.data.products.filter(
+
+  // Loại bỏ danh mục trùng lặp
+  const uniqueCategories = [
+    ...new Map(
+      searchResult?.data.categories.map((category) => [category.id, category])
+    ).values(),
+  ];
+
+  // Tính số lượng sản phẩm theo danh mục và loại bỏ danh mục không có sản phẩm
+  const categoryProductCounts = uniqueCategories
+    .map((category) => {
+      const productCount = searchResult?.data.products.filter(
         (product) => product.categoryId === category.id
       ).length;
 
@@ -55,13 +64,13 @@ function SearchResults() {
         img: category.img,
         count: productCount,
       };
-    }
-  );
+    })
+    .filter((category) => category.count !== undefined && category.count > 0); // Chỉ giữ danh mục có sản phẩm
+  // Chỉ hiển thị danh mục có sản phẩm
+
+
   // Tính tổng số lượng sản phẩm đã search theo từ khoá
-  const totalProducts = categoryProductCounts?.reduce(
-    (total, category) => total + category.count,
-    0
-  );
+  const totalProducts = searchResult?.data.products.length;
 
   // Xử lý phân trang
   const handlePageClick = (
@@ -134,7 +143,7 @@ function SearchResults() {
         <div className="col-span-3 ">
           {searchResult ? (
             <>
-              <div className="px-6 py-4 bg-gray-100 bg-white rounded-md">
+              <div className="px-6 py-4 bg-white rounded-md">
                 {/* Danh mục */}
                 <div className="flex items-center space-x-2 mb-4">
                   {/* Nút "Tất cả" */}
@@ -146,7 +155,8 @@ function SearchResults() {
                   </button>
 
                   {/* Các danh mục khác */}
-                  {categoryProductCounts?.map((category) => (
+                  {/* Các danh mục khác */}
+                  {categoryProductCounts.map((category) => (
                     <button
                       key={category.id}
                       className="flex flex-col items-center px-4 py-1 border border-gray-300 rounded-lg hover:border-red-500 transition duration-300"
@@ -158,14 +168,13 @@ function SearchResults() {
                           className="size-8 md:size-12"
                         />
                       </div>
-                      <span className="text-sm font-medium mt-1">
-                        {category.name}
-                      </span>
-                      <span className="text-gray-400">
-                        ({category.count || 0})
-                      </span>
+                      <span className="text-sm font-medium mt-1">{category.name}</span>
+                      <span className="text-gray-400">({category.count || 0})</span>
                     </button>
                   ))}
+
+
+
                 </div>
 
                 {/* Lọc nhanh */}
@@ -245,7 +254,7 @@ function SearchResults() {
                           </span>
                         )}
                         <span className="font-semibold text-base md:text-lg text-red-600">
-                          {product.price.toLocaleString()}đ
+                          {product.price?.toLocaleString()}đ
                         </span>
                         {product.discount > 0 && (
                           <span className="text-[0.7rem] md:text-xs text-green-600">
@@ -253,12 +262,12 @@ function SearchResults() {
                             {(
                               Math.round(
                                 product.price /
-                                  (1 - product.discount / 100) /
-                                  1000
+                                (1 - product.discount / 100) /
+                                1000
                               ) *
-                                1000 -
+                              1000 -
                               product.price
-                            ).toLocaleString()}
+                            )?.toLocaleString()}
                             đ
                           </span>
                         )}

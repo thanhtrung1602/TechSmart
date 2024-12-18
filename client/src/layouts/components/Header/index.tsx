@@ -24,7 +24,7 @@ import {
   resetActiveMenu,
 } from "~/redux/menuSlice";
 import { removeUserProfile } from "~/redux/userProfileSlice";
-import Search from "~/components/Search";
+import Search from "~/components/search";
 import usePost from "~/hooks/usePost";
 import toast from "react-hot-toast";
 import Button from "~/components/Button";

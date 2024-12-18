@@ -30,8 +30,6 @@ class ValueAttributeController {
       return res.status(400).json("Invalid input: attributeId, productId, value are required");
     }
 
-    console.log("Controller created:", productId, attributeId, value);
-
     const numberAttributeId = parseInt(attributeId);
 
     const createValueAttribute =
@@ -64,8 +62,6 @@ class ValueAttributeController {
   updateProductValueAttribute = asyncWrapper(async (req, res) => {
     const productId = parseInt(req.params.productId);
     const { attributeId, value, id } = req.body;
-
-    console.log("Controller updated:", productId, attributeId, value, id);
 
     if (!productId) {
       return res.status(500).json({ error: "invalid productId" });

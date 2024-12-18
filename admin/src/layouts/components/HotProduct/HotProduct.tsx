@@ -51,7 +51,7 @@ function HotProduct() {
                 {calculateDiscountedPrice(
                   product.price,
                   product.discount
-                ).toLocaleString("vi")}{" "}
+                )?.toLocaleString("vi")}{" "}
                 VNĐ
               </div>
               <div className="text-xs text-red-500 pl-1.5">
