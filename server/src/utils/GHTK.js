@@ -7,11 +7,13 @@ module.exports = {
     const post_url = process.env.GHTK_URL;
     const accessToken = process.env.API_TOKEN_GHTK;
 
-    const allProductData = orderDetails.map((detail) => detail.productData);
+    const allProductData = orderDetails.map(
+      (detail) => detail?.variantData?.productData
+    );
 
     const username = await userService.getOneUserById(userId);
     const address = await AddressService.getAddressById(addressId);
-
+    console.log("abccccccc: ", address);
     const products = allProductData.map((item, ind) => {
       const detail = orderDetails[ind];
       return {
@@ -33,7 +35,7 @@ module.exports = {
         pick_district: "Quận 12",
         pick_ward: "phường Tân Chánh Hiệp",
         pick_tel: "0822930906",
-        tel: `${address.phone}`,
+        tel: `${address?.phone}`,
         name: `${username.fullname}`,
         address: `${address.street},`,
         province: `${address.province.name}`,

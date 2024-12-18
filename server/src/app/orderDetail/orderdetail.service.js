@@ -35,10 +35,22 @@ class OrderDetailService {
           {
             model: db.Order,
             as: "orderData",
+            include: [
+              {
+                model: db.User,
+                as: "userData",
+              },
+            ],
           },
           {
             model: db.Variant,
             as: "variantData",
+            include: [
+              {
+                model: db.Product,
+                as: "productData",
+              },
+            ],
           },
         ],
       });

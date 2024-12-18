@@ -66,7 +66,7 @@ class OrderController {
 
     // Làm tròn total để đảm bảo nó là số nguyên
     const roundedTotal = Math.round(total);
-
+    console.log("rest: ", rest);
     const newOrder = await orderService.createOrder({
       ...rest,
       total: roundedTotal,

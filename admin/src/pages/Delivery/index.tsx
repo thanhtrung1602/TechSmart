@@ -11,7 +11,6 @@ import { FiRefreshCw } from "react-icons/fi";
 import PaginationList from "~/components/PaginationList";
 import Modal from "~/components/Modal/Modal";
 
-
 export default function Delivery() {
   const queryClient = useQueryClient();
   const { mutate: updateStatusOrder } = usePatch();
@@ -147,7 +146,9 @@ export default function Delivery() {
       {
         onSuccess: (response) => {
           console.log("Order status updated successfully", response.data);
-          queryClient.invalidateQueries({ queryKey: [urlPagination(currentPage, itemsPerPage)] });
+          queryClient.invalidateQueries({
+            queryKey: [urlPagination(currentPage, itemsPerPage)],
+          });
           toast.success("Cập nhật trạng thái đơn hàng thành công");
 
           // Đóng modal sau khi cập nhật
@@ -261,9 +262,6 @@ export default function Delivery() {
                   const detailsForOrder = allOrderDetails?.filter(
                     (detail) => detail.orderId === order.id
                   );
-                  const userForOrder = users?.find(
-                    (user) => user.id === order.userId
-                  );
                   return (
                     <tr key={order.id} className="border-b">
                       <td className="py-3 px-4 text-center">
@@ -272,11 +270,11 @@ export default function Delivery() {
                       <td className="py-3 px-4 text-center">
                         <div className="flex flex-col">
                           <p className="font-medium text-sm text-[#202224]">
-                            {userForOrder?.fullname || "Không xác định"}
+                            {order?.userData?.fullname || "Không xác định"}
                           </p>
-                          {userForOrder?.phone && (
+                          {order?.userData?.phone && (
                             <p className="text-xs text-gray-500">
-                              {userForOrder.phone}
+                              {order?.userData?.phone}
                             </p>
                           )}
                         </div>
@@ -290,19 +288,27 @@ export default function Delivery() {
                                 style={{ minWidth: "64px" }}
                               >
                                 <Image
-                                  alt={detail.productData.name}
-                                  src={detail.productData.img}
+                                  alt={detail?.variantData?.productData?.name}
+                                  src={detail?.variantData?.productData?.img}
                                   className="w-full h-full object-cover rounded"
                                 />
                               </div>
                               <div>
                                 <p className="line-clamp-2 text-sm font-medium">
-                                  {detail.productData.name}
+                                  {detail?.variantData?.productData?.name}
                                 </p>
                                 <div className="flex flex-wrap text-xs text-gray-500 gap-2">
                                   <span>Số lượng: {detail.quantity}</span>
                                   {detail.color && (
-                                    <span>Màu sắc: {detail.color}</span>
+                                    <span>
+                                      Màu sắc:{" "}
+                                      <span
+                                        className="h-[10px] w-[10px] rounded-full inline-block"
+                                        style={{
+                                          backgroundColor: detail.color,
+                                        }}
+                                      ></span>
+                                    </span>
                                   )}
                                   {detail.size && (
                                     <span>Dung lượng: {detail.size}</span>
@@ -324,7 +330,11 @@ export default function Delivery() {
                           onClick={() =>
                             openModalForConfirmation(
                               order.id,
-                              order.statusId === 1 ? 2 : order.statusId === 2 ? 3 : 3
+                              order.statusId === 1
+                                ? 2
+                                : order.statusId === 2
+                                ? 3
+                                : 3
                             )
                           }
                           className="bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg px-4 py-2"
@@ -332,18 +342,25 @@ export default function Delivery() {
                           {order.statusId === 1
                             ? "Đang xử lý"
                             : order.statusId === 2
-                              ? "Đang giao"
-                              : "Hoàn tất"}
+                            ? "Đang giao"
+                            : "Hoàn tất"}
                         </button>
 
                         {/* Modal Đang giao */}
-                        <Modal open={delivery} onClose={() => setDelivery(false)}>
+                        <Modal
+                          open={delivery}
+                          onClose={() => setDelivery(false)}
+                        >
                           <div className="w-auto text-center">
-                            <h2 className="text-xl font-bold mb-4">Xác nhận giao hàng</h2>
-                            <p className="text-gray-500 my-2">Cập nhật đơn hàng sang "Đang giao" ?</p>
+                            <h2 className="text-xl font-bold mb-4">
+                              Xác nhận giao hàng
+                            </h2>
+                            <p className="text-gray-500 my-2">
+                              Cập nhật đơn hàng sang "Đang giao" ?
+                            </p>
                             <div className="mt-4 flex justify-end gap-2">
                               <button
-                                onClick={confirmStatusChange} 
+                                onClick={confirmStatusChange}
                                 className="w-full px-4 py-2 bg-green-500 text-white rounded-lg"
                               >
                                 Xác nhận
@@ -361,8 +378,12 @@ export default function Delivery() {
                         {/* Modal Hoàn tất */}
                         <Modal open={done} onClose={() => setDone(false)}>
                           <div className="w-auto text-center">
-                            <h2 className="text-xl font-bold mb-4">Xác nhận hoàn tất</h2>
-                            <p className="text-gray-500 my-2">Cập nhật đơn hàng sang "Hoàn tất" ?</p>
+                            <h2 className="text-xl font-bold mb-4">
+                              Xác nhận hoàn tất
+                            </h2>
+                            <p className="text-gray-500 my-2">
+                              Cập nhật đơn hàng sang "Hoàn tất" ?
+                            </p>
                             <div className="mt-4 flex justify-end gap-2">
                               <button
                                 onClick={confirmStatusChange}
@@ -371,7 +392,7 @@ export default function Delivery() {
                                 Xác nhận
                               </button>
                               <button
-                                onClick={() => setDone(false)} 
+                                onClick={() => setDone(false)}
                                 className="w-full px-4 py-2 bg-red-500 hover:bg-red-400 text-white rounded-lg"
                               >
                                 Hủy

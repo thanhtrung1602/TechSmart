@@ -69,7 +69,8 @@ class OrderService {
           {
             model: db.User,
             as: "userData",
-          }, {
+          },
+          {
             model: db.StatusPayment,
             as: "statusPayData",
           },
@@ -84,7 +85,6 @@ class OrderService {
       throw new Error(error.message);
     }
   }
-
 
   async getProcessingOrder({ limit, offset, filterConditions, searchTerm }) {
     try {
@@ -123,7 +123,7 @@ class OrderService {
           {
             model: db.StatusPayment,
             as: "statusPayData",
-          }
+          },
         ],
         order: [["createdAt", "DESC"]], // Sắp xếp theo ngày tạo
         limit: limit,
@@ -158,13 +158,12 @@ class OrderService {
         order.id
       );
       const products = orderDetail.map((detail) => ({
-        product: detail.productData.name,
+        product: detail.variantData.productData.name,
         quantity: detail.quantity,
-        price: detail.productData.price,
-        image: detail.productData.img,
+        price: detail.variantData.price,
+        image: detail.variantData.productData.img,
       }));
-      console.log("email xác nhận ", user.dataValues);
-      // Render the email HTML with order details
+
       const emailHTML = await ejs.renderFile(
         path.resolve(__dirname, "../../view/orderConfirmationTemplate.ejs"),
         {
@@ -490,7 +489,7 @@ class OrderService {
           {
             model: db.StatusPayment,
             as: "statusPayData",
-          }
+          },
         ],
       });
       if (!order) {
@@ -503,7 +502,7 @@ class OrderService {
           where: {
             id,
           },
-        },
+        }
       );
 
       if (updateOrderStatus) {

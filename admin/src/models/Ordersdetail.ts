@@ -1,10 +1,10 @@
 import Address from "./Address";
 import Orders from "./Orders";
-import Products from "./Products";
+import Variants from "./Variants";
 
 interface IOrdersDetail {
   id: number;
-  productId: number;
+  variantId: number;
   orderId: number;
   quantity: number;
   total: number;
@@ -12,14 +12,14 @@ interface IOrdersDetail {
   size: string;
   createdAt: Date;
   updatedAt: Date;
-  productData: Products;
+  variantData: Variants;
   orderData: Orders;
   addressData: Address;
 }
 
 export default class OrdersDetail implements IOrdersDetail {
   id: number;
-  productId: number;
+  variantId: number;
   orderId: number;
   quantity: number;
   total: number;
@@ -27,13 +27,13 @@ export default class OrdersDetail implements IOrdersDetail {
   size: string;
   createdAt: Date;
   updatedAt: Date;
-  productData: Products;
+  variantData: Variants;
   orderData: Orders;
   addressData: Address;
 
   constructor(
     id: number,
-    productId: number,
+    variantId: number,
     orderId: number,
     total: number,
     quantity: number,
@@ -41,12 +41,12 @@ export default class OrdersDetail implements IOrdersDetail {
     size: string,
     createdAt: Date,
     updatedAt: Date,
-    productData: Products,
+    variantData: Variants,
     orderData: Orders,
     addressData: Address
   ) {
     this.id = id;
-    this.productId = productId;
+    this.variantId = variantId;
     this.orderId = orderId;
     this.total = total;
     this.quantity = quantity;
@@ -54,7 +54,7 @@ export default class OrdersDetail implements IOrdersDetail {
     this.size = size;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
-    this.productData = productData;
+    this.variantData = variantData;
     this.orderData = orderData;
     this.addressData = addressData;
   }
