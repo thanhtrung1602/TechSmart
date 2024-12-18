@@ -21,8 +21,6 @@ import { getSmallestRom, parseCapacityValue } from "~/components/ConvertRom";
 import Carts from "~/models/Carts";
 import { AxiosError } from "axios";
 import Description from "~/components/Description";
-import Blog from "~/models/blog";
-import useBlog from "~/hooks/useBlog";
 import Loading from "~/layouts/components/Loading";
 import { setPrice } from "~/redux/productSlice";
 import Variants from "~/models/Variants";
@@ -60,17 +58,22 @@ function Product() {
     `/products/getOneProduct/${slugProduct}`
   );
 
+  const { data: variantDetail } = useGet<Products>(
+    `/variants/getOneVariantByProductId/${productDetail?.id}`
+  );
+
   const { data: attributeValue, isLoading: isLoadPrice } = useGet<
     ValueAttribute[]
   >(`/valueAttribute/getOneValueAttributeById/${productDetail?.id}`);
 
-  const sorted = [
-    ...(attributeValue?.filter((item) => item.attributeId === 6) || []),
-  ].sort((a, b) => {
-    const capacityA = parseCapacityValue(a.value);
-    const capacityB = parseCapacityValue(b.value);
-    return capacityA - capacityB;
-  });
+  const sorted =
+    [...(attributeValue?.filter((item) => item.attributeId === 6) || [])].sort(
+      (a, b) => {
+        const capacityA = parseCapacityValue(a.value);
+        const capacityB = parseCapacityValue(b.value);
+        return capacityA - capacityB;
+      }
+    ) || attributeValue;
 
   useEffect(() => {
     if (sorted.length > 0 && sorted[0]?.variantData?.price) {
@@ -82,10 +85,7 @@ function Product() {
     `/cart/getAllCartByUserId/${userProfile?.id}`
   );
 
-  console.log("Carts: ", carts);
-
-  const { data: blogs } = useBlog<Blog[]>("/posts");
-  console.log("Blogs: ", blogs);
+  console.log("Carts: ", variantDetail);
 
   // Lấy ROM nhỏ nhất khi trang load nếu là điện thoại hoặc tablet
   useEffect(() => {
@@ -459,8 +459,9 @@ function Product() {
               <div className="flex flex-col gap-y-2 p-4 sm:p-5 border border-gray-400 mb-4 rounded-lg">
                 <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#FF0000]">
                   {changePrice === 0 && sorted?.length
-                    ? sorted?.[0]?.variantData?.price.toLocaleString()
-                    : changePrice?.toLocaleString()}{" "}
+                    ? sorted?.[0]?.variantData?.price.toLocaleString() ||
+                      changePrice?.toLocaleString()
+                    : variantDetail?.price?.toLocaleString()}
                   đ
                 </span>
 
@@ -469,7 +470,8 @@ function Product() {
                     {currencyFormat({
                       paramFirst:
                         Number(changePrice) ||
-                        Number(sorted?.[0]?.variantData?.price),
+                        Number(sorted?.[0]?.variantData?.price) ||
+                        Number(variantDetail?.price),
                       paramSecond: productDetail.discount,
                     })}
                     đ
