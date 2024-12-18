@@ -13,7 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         targetKey: "id",
         as: "productData",
       })
-
+      Comment.belongsTo(models.Comment, {
+        foreignKey: "commentId",
+        targetKey: "id",
+        as: "replies",
+      })
     }
   }
   Comment.init(

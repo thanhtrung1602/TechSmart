@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import useGet from "~/hooks/useGet";
 import Users from "~/models/Users";
 import { FiRefreshCw } from "react-icons/fi";
@@ -144,11 +143,10 @@ function User() {
                           setIsBanning(user.id); // Chuyển thành setIsUpdating(category.id) nếu cần
                         }}
                         disabled={isBanning === user.id} // Điều kiện này vẫn giữ nguyên
-                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   ${
-                          user.ban === false
+                        className={`w-[100%] flex items-center justify-center py-2 px-4 rounded-tr-md   ${user.ban === false
                             ? "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-300"
                             : "bg-green-100 text-green-500 hover:text-green-600 hover:bg-green-300"
-                        }`}
+                          }`}
                       >
                         {user.ban === false ? <p>Chặn</p> : <p>Bỏ chặn</p>}
                       </button>

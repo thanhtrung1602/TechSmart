@@ -177,7 +177,7 @@ class ProductService {
   async getSlugProduct(slug) {
     try {
       const product = await db.Product.findOne({
-        where: { id: id },
+        where: { slug: slug },
         include: [
           {
             model: db.Categories,

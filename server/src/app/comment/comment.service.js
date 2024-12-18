@@ -128,7 +128,6 @@ class CommentsService {
           {
             model: db.Comment, // Include replies
             as: "replies",
-            required: false, // Không bắt buộc phải có replies
             where: { isAdmin: true }, // Lọc replies chỉ của admin
             attributes: ["id", "userId", "commentId"],
             include: [
@@ -145,12 +144,12 @@ class CommentsService {
         offset,
       });
 
+      console.log("comments", comments);
+
       // Trả về kết quả
       return {
         total: comments.count,
         comments: comments.rows,
-        totalPages: Math.ceil(comments.count / limit),
-        currentPage: Math.floor(offset / limit) + 1,
       };
     } catch (error) {
       throw new Error(error.message);

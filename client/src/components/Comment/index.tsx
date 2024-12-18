@@ -56,7 +56,7 @@ export default function CommentComponent({ id }: { id: number | undefined }) {
       setComments([]);
       setTotalComments(0);
     }
-  }, [commentsPagination]);
+  }, [commentsPagination, commentsPagination.comments, commentsPagination.total]);
 
   useEffect(() => {
     // Nhận socket event 'newComment'
@@ -207,25 +207,25 @@ export default function CommentComponent({ id }: { id: number | undefined }) {
     idCommentUser: number,
     newComment: string
   ) => [
-    {
-      icon: <MdDeleteForever />,
-      name: "Xóa bình luận",
-      onClick: () => handleDeleteComment(idComment, idCommentUser),
-    },
-    {
-      icon: <RxUpdate />,
-      name: "Chỉnh sửa",
-      onClick: () => {
-        if (idCommentUser !== userProfile?.id) {
-          toast.error("Bạn không thể sửa bình luận");
-          return;
-        }
-
-        setEditCommentId(idComment);
-        setEditComment(newComment);
+      {
+        icon: <MdDeleteForever />,
+        name: "Xóa bình luận",
+        onClick: () => handleDeleteComment(idComment, idCommentUser),
       },
-    },
-  ];
+      {
+        icon: <RxUpdate />,
+        name: "Chỉnh sửa",
+        onClick: () => {
+          if (idCommentUser !== userProfile?.id) {
+            toast.error("Bạn không thể sửa bình luận");
+            return;
+          }
+
+          setEditCommentId(idComment);
+          setEditComment(newComment);
+        },
+      },
+    ];
 
   return (
     <div className="col-span-2 bg-white p-5 rounded">
