@@ -132,6 +132,7 @@ export default function DetailProduct({ id }: { id: number }) {
               </div>
             </div>
           </div>
+<<<<<<< HEAD
         ) : (
           <div className="space-y-4 h-full overflow-scroll">
             {/* Product Specifications */}
@@ -148,6 +149,40 @@ export default function DetailProduct({ id }: { id: number }) {
                     <div className="flex justify-between px-4 py-2 hover:bg-gray-50">
                       <div className="text-sm font-medium text-gray-500">
                         {attr.attributeData.name}
+=======
+          <div className="w-full overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              {attributeValue &&
+                attributeValue
+                  ?.filter((valueAttribute) => {
+                    if (
+                      productDetail.categoryId === 2 ||
+                      productDetail.categoryId === 3
+                    ) {
+                      return (
+                        valueAttribute.attributeData.id !== 4 &&
+                        valueAttribute.attributeData.id !== 29 &&
+                        valueAttribute.attributeData.id !== 6
+                      );
+                    }
+                    return (
+                      valueAttribute.attributeData.id !== 4 &&
+                      valueAttribute.attributeData.id !== 29
+                    );
+                  })
+                  ?.map((attr) => (
+                    <div className="divide-y divide-gray-200 border p-1">
+                      <div
+                        key={attr.id}
+                        className="flex justify-between px-4 py-2 hover:bg-gray-50"
+                      >
+                        <div className="text-sm font-medium text-gray-500">
+                          {attr.attributeData.name}
+                        </div>
+                        <div className="text-sm text-gray-900">
+                          {attr.value}
+                        </div>
+>>>>>>> thinh
                       </div>
                       <div className="text-sm text-gray-900">{attr.value}</div>
                     </div>

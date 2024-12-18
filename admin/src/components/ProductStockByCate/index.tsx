@@ -23,7 +23,7 @@ export default function ProductStockByCate() {
 
   const categoryProductCounts = categories?.map((category) => {
     const productCount =
-      products.filter((product) => product.categoryId === category.id)
+      products?.filter((product) => product.categoryId === category.id)
         ?.length || 0;
     return {
       name: category.name,

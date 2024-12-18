@@ -152,7 +152,7 @@ function Cart() {
       return;
     }
 
-    const selectedProducts = carts?.rows.filter(
+    const selectedProducts = carts?.rows?.filter(
       (productDetail) => selectedItems[productDetail.id]
     );
 
@@ -221,7 +221,7 @@ function Cart() {
                 Rất tiếc phải xin lỗi quý khách, các sản phẩm sau đây đã hết
                 hàng:
                 <ul className="list-disc ml-6 text-red-600 font-semibold">
-                  {outOfStockArray.map((name, index) => (
+                  {outOfStockArray?.map((name, index) => (
                     <li key={index}>{name}</li>
                   ))}
                 </ul>

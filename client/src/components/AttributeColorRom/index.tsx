@@ -111,8 +111,13 @@ function CapacityProduct({
   handleCapacityChange: (id: number) => void;
   capacity: number;
 }) {
+<<<<<<< HEAD
   const capacities = attributeValue.filter((item) => item.attributeId === 6);
   const dispatch = useDispatch();
+=======
+  const capacities = attributeValue?.filter((item) => item.attributeId === 6);
+
+>>>>>>> thinh
   const sortedRom = capacities.sort((a, b) => {
     const capacityA = parseCapacityValue(a.value);
     const capacityB = parseCapacityValue(b.value);

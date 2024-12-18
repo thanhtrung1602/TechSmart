@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useGet from "~/hooks/useGet";
 import usePost, { usePatch, useDelete } from "~/hooks/usePost";
@@ -11,7 +11,8 @@ import Variants from "~/models/Variants";
 import Image from "~/components/Image";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
-import { FiMinusCircle, FiPlusCircle } from "react-icons/fi";
+import { FiMinusCircle } from "react-icons/fi";
+import Loading from "~/layouts/components/Loading";
 // import toast from "react-hot-toast";
 
 interface AttributeValueData {
@@ -37,17 +38,18 @@ interface FormData {
   attributeValues: AttributeValueData[]; // For non-variant attributes
 }
 
-type ProductImage = {
-  id: number;
-  productId: number;
-  img: string;
-};
+// type ProductImage = {
+//   id: number;
+//   productId: number;
+//   img: string;
+// };
 
 export default function EditProduct() {
   const { id } = useParams();
   const productId = Number(id);
   const queryClient = useQueryClient();
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  // const inputRef = useRef<HTMLInputElement | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<{
     id: number;
     slug: string;
@@ -107,9 +109,6 @@ export default function EditProduct() {
   const { data: attributeValues } = useGet<ValueAttribute[]>(
     `/valueAttribute/getOneValueAttributeById/${product?.id}`
   );
-  const { data: images } = useGet<ProductImage[]>(
-    `/productimgs/getAllProductImgByProduct/${id}`
-  );
 
   useEffect(() => {
     if (initialFormData) {
@@ -133,6 +132,8 @@ export default function EditProduct() {
             )?.value || "",
         })) || [];
 
+      console.log("attributeValues:", attributeValues); // Kiểm tra toàn bộ dữ liệu attributeValues
+
       const initialVariants =
         variants?.map((variant) => ({
           id: variant.id,
@@ -154,6 +155,10 @@ export default function EditProduct() {
                 value: va.value,
               })) || [],
         })) || [];
+
+      console.log("initialVariants", initialVariants);
+
+      console.log("initialAttributes", initialAttributes);
 
       //Lưu giá trị ban đầu
       setInitialFormData({
@@ -267,16 +272,14 @@ export default function EditProduct() {
       try {
         await del(`/variants/deleteVariant/${variantId}`, {
           onSuccess: (response) => {
-            if (response.status === 200) {
-              queryClient.invalidateQueries(); // Invalidate queries to refresh data if necessary
-            }
+            queryClient.invalidateQueries(); // Invalidate queries to refresh data if necessary
+            console.log("Variant deleted successfully:", response.data);
           },
         });
         await del(`/valueAttribute/delValueAttributeByVariant/${variantId}`, {
           onSuccess: (response) => {
-            if (response.status === 200) {
-              queryClient.invalidateQueries(); // Invalidate queries to refresh data if necessary
-            }
+            queryClient.invalidateQueries(); // Invalidate queries to refresh data if necessary
+            console.log("Value attribute deleted successfully:", response.data);
           },
         });
       } catch (error) {
@@ -303,6 +306,7 @@ export default function EditProduct() {
   };
 
   const onSubmit = async () => {
+    setIsLoading(true);
     try {
       const form = new FormData();
 
@@ -322,6 +326,8 @@ export default function EditProduct() {
       });
 
       if (productResponse.status === 200) {
+        console.log("Product updated successfully:", productResponse.data);
+
         // Separate non-variant attributes
         const nonVariantAttributes = formData.attributeValues.filter(
           (attr) =>
@@ -335,6 +341,9 @@ export default function EditProduct() {
               [4, 29, 6].includes(attr.attributeId) && attr.value.trim() !== ""
           )
         );
+
+        console.log("Non-variant attributes:", nonVariantAttributes);
+        console.log("Variant attributes:", variantAttributes);
 
         // Step 3: Process non-variant attributes
         await Promise.all(
@@ -395,6 +404,8 @@ export default function EditProduct() {
 
           let variantId = null; // Biến lưu variantId chính xác
 
+          console.log("Existing variant:", existingVariant);
+
           if (existingVariant) {
             //Nếu variant có tồn tại nhưng không cập nhật hay thêm thì giữ nguyên giá trị
             variantId = existingVariant.id;
@@ -406,8 +417,13 @@ export default function EditProduct() {
             });
 
             if (variantResponse.status === 200) {
+              console.log(
+                "Variant updated successfully:",
+                variantResponse.data
+              );
               variantId = existingVariant.id; // Lấy id của variant đã tồn tại
             }
+            console.log("Variant ID:", variantId);
           } else {
             // Nếu variant chưa tồn tại, tạo mới
             const variantResponse = await create({
@@ -416,12 +432,17 @@ export default function EditProduct() {
             });
 
             if (variantResponse.status === 200) {
+              console.log(
+                "Variant created successfully:",
+                variantResponse.data
+              );
               variantId = variantResponse.data.id; // Lấy id từ variant mới tạo
             }
           }
 
           // Xử lý attribute values sau khi có variantId
           if (variantId) {
+            console.log("Variant ID:", variantId);
             await Promise.all(
               variant.attributeValues.map(async (attrValue) => {
                 // Bước 1: Tìm variant cũ trong initialFormData
@@ -433,6 +454,13 @@ export default function EditProduct() {
                 const existingAttrValue = initialVariant?.attributeValues.find(
                   (initialAttr) =>
                     initialAttr.attributeId === attrValue.attributeId
+                );
+
+                console.log("Existing attribute value:", existingAttrValue);
+                console.log("Attribute value:", attrValue);
+                console.log(
+                  "Form data:",
+                  formData.variants.map((v) => v.attributeValues)
                 );
 
                 // Nếu attributeValue chưa tồn tại => tạo mới
@@ -472,17 +500,20 @@ export default function EditProduct() {
       }
     } catch (error) {
       console.error("Error during form submission:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleImage = () => {
-    if (inputRef.current) {
-      inputRef.current.click();
-    }
-  };
+  // const handleImage = () => {
+  //   if (inputRef.current) {
+  //     inputRef.current.click();
+  //   }
+  // };
 
   return (
     <div className="min-h-screen">
+      {isLoading && <Loading />}
       <h1 className="text-3xl font-bold mb-4">Cập nhật sản phẩm</h1>
 
       <form
@@ -592,6 +623,7 @@ export default function EditProduct() {
                 const findCategory = categories?.find(
                   (category) => category.id === selectedId
                 );
+                console.log("Selected category:", findCategory);
                 setSelectedCategory({
                   id: findCategory?.id || 0,
                   slug: findCategory?.slug || "",

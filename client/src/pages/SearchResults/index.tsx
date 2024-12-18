@@ -43,6 +43,7 @@ function SearchResults() {
   }
 
   //Tính số lượng sản phẩm theo category
+<<<<<<< HEAD
   
 // Loại bỏ danh mục trùng lặp
 const uniqueCategories = [
@@ -68,6 +69,13 @@ const categoryProductCounts = uniqueCategories
 .filter((category) => category.count !== undefined && category.count > 0); // Chỉ giữ danh mục có sản phẩm
  // Chỉ hiển thị danh mục có sản phẩm
   
+=======
+  const categoryProductCounts = searchResult?.data.categories?.map(
+    (category) => {
+      const productCount = searchResult.data.products?.filter(
+        (product) => product.categoryId === category.id
+      ).length;
+>>>>>>> thinh
 
   // Tính tổng số lượng sản phẩm đã search theo từ khoá
   const totalProducts = searchResult?.data.products.length;
@@ -88,7 +96,7 @@ const categoryProductCounts = uniqueCategories
 
   // Lọc sản phẩm theo giá
   const filteredProducts =
-    searchResult?.data.products.filter(
+    searchResult?.data.products?.filter(
       (product: Products) =>
         product.price >= selectedPrice.minPrice &&
         product.price <= selectedPrice.maxPrice
@@ -185,12 +193,12 @@ const categoryProductCounts = uniqueCategories
                     {/* Lọc các hãng trùng lặp */}
                     {[
                       ...new Map(
-                        searchResult?.data.manufacturers.map((manufacturer) => [
+                        searchResult?.data.manufacturers?.map((manufacturer) => [
                           manufacturer.name,
                           manufacturer,
                         ])
                       ).values(),
-                    ].map((uniqueManufacturer) => (
+                    ]?.map((uniqueManufacturer) => (
                       <option key={uniqueManufacturer.id}>
                         {uniqueManufacturer.name}
                       </option>
@@ -204,7 +212,7 @@ const categoryProductCounts = uniqueCategories
               </h2>
               <div className="grid grid-cols-4 gap-2">
                 {paginatedProducts.length > 0 ? (
-                  paginatedProducts.map((product: Products) => (
+                  paginatedProducts?.map((product: Products) => (
                     <div
                       key={product.id}
                       className="flex flex-col justify-between relative p-4 rounded-lg bg-white shadow hover:shadow-md duration-300 overflow-hidden select-none "

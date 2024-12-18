@@ -79,7 +79,7 @@ export default function ProductInfor() {
         </thead>
         <tbody>
           {orderDetails &&
-            orderDetails.map((detail) => (
+            orderDetails?.map((detail) => (
               <tr key={detail.id} className="border-b">
                 <td className="py-2 md:px-4 md:py-4">
                   <div className="flex items-center">

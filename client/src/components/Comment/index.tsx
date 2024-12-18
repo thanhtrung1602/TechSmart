@@ -69,7 +69,7 @@ export default function CommentComponent({ id }: { id: number | undefined }) {
           }
 
           // Nếu là bình luận con
-          return prevComments.map((comment) => {
+          return prevComments?.map((comment) => {
             if (comment.id === newComment.commentId) {
               return {
                 ...comment,

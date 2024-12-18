@@ -25,7 +25,7 @@ const StatisticalRevenue = () => {
 
   useEffect(() => {
     if (fetchedOrders) {
-      setOrders(fetchedOrders.filter((order) => order.statusId === 3));
+      setOrders(fetchedOrders?.filter((order) => order.statusId === 3));
     }
   }, [fetchedOrders]);
 

@@ -69,7 +69,7 @@ function Staff() {
     );
   };
 
-  const filteredOrders = staffsPagination?.rows.filter((staff) =>
+  const filteredOrders = staffsPagination?.rows?.filter((staff) =>
     matchesSearchTerm(staff)
   );
 

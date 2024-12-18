@@ -80,7 +80,7 @@ export default function Delivery() {
     return orderDate >= startDate;
   };
 
-  const filteredOrders = allOrders?.rows.filter((order) =>
+  const filteredOrders = allOrders?.rows?.filter((order) =>
     matchesDateFilter(order)
   );
 
@@ -123,7 +123,7 @@ export default function Delivery() {
   const confirmStatusChange = () => {
     if (selectedOrderId === null || nextStatusId === null) return;
 
-    const order = allOrders?.rows.find((order) => order.id === selectedOrderId);
+    const order = allOrders?.rows?.find((order) => order.id === selectedOrderId);
     if (!order) return;
 
     const detailsForOrder = allOrderDetails?.filter(

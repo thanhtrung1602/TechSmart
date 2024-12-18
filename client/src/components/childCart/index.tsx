@@ -109,11 +109,16 @@ function ChildCart({
   const getProductStock = (id: number, rom: string, color: string) => {
     // Nếu người dùng đã đăng nhập, lấy stock từ DB
     if (userProfile && carts) {
+<<<<<<< HEAD
       const cartItem = carts.rows.find((item) => item.id === id);
       return cartItem ? cartItem.variantData.stock : 0;
+=======
+      const cartItem = carts.rows?.find((item) => item.id === id);
+      return cartItem ? cartItem.productData.stock : 0;
+>>>>>>> thinh
     }
     // Nếu người dùng chưa đăng nhập, lấy stock từ Redux
-    const cartItem = cart.find(
+    const cartItem = cart?.find(
       (item) => item.id === id && item.rom === rom && item.color === color
     );
     return cartItem ? cartItem.variantData.stock : 0;

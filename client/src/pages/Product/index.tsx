@@ -102,14 +102,14 @@ function Product() {
   // Xử lý lấy dữ liệu color và rom từ attributeValue
   const getColorAndRomFromAttributeValue = useCallback(() => {
     if (attributeValue && attributeValue?.length > 0) {
-      const firstColor = attributeValue.find(
+      const firstColor = attributeValue?.find(
         (item) => item.attributeData.id === 4 || item.attributeData.id === 29
       );
       if (firstColor) setColors(firstColor.id);
 
       // Chỉ đặt dung lượng nếu là điện thoại hoặc tablet
       if (slugCategory === "dien-thoai" || slugCategory === "tablet") {
-        const firstCapacity = attributeValue.find(
+        const firstCapacity = attributeValue?.find(
           (item) => item.attributeData.id === 6
         );
         if (firstCapacity) setCapacity(firstCapacity.id);
@@ -171,13 +171,13 @@ function Product() {
 
     const stockProd = stockChecked || stockChecked - 2;
     const quantityProd = carts
-      ? carts?.rows.find(
+      ? carts?.rows?.find(
           (item) =>
             item.variantData.productId === product.id &&
             item.rom === romValue &&
             item.color === selectedColor?.value
         )
-      : cartProducts.find(
+      : cartProducts?.find(
           (item) =>
             item.id === product.id &&
             item.rom === romValue &&
@@ -249,7 +249,7 @@ function Product() {
           total: product.price,
         };
 
-        const existingProductIndex = cartProducts.findIndex(
+        const existingProductIndex = cartProducts?.findIndex(
           (item) =>
             item.id === productToAdd.id &&
             item.rom === productToAdd.rom &&
@@ -300,13 +300,13 @@ function Product() {
 
     const stockProd = stockChecked || stockChecked - 2;
     const quantityProd = carts
-      ? carts?.rows.find((item) => {
-          console.log(item),
-            item.variantData.productId === product.id &&
-              item.rom === romValue &&
-              item.color === selectedColor?.value;
-        })
-      : cartProducts.find(
+      ? carts?.rows?.find(
+          (item) =>
+            item.productData.id === product.id &&
+            item.rom === romValue &&
+            item.color === selectedColor?.value
+        )
+      : cartProducts?.find(
           (item) =>
             item.id === product.id &&
             item.rom === romValue &&
@@ -374,7 +374,7 @@ function Product() {
           total: product.price,
         };
 
-        const existingProductIndex = cartProducts.findIndex(
+        const existingProductIndex = cartProducts?.findIndex(
           (item) =>
             item.id === productToAdd.id &&
             item.rom === productToAdd.rom &&
@@ -548,7 +548,7 @@ function Product() {
                 <tbody className="text-center">
                   {attributeValue &&
                     attributeValue
-                      .filter((valueAttribute) => {
+                      ?.filter((valueAttribute) => {
                         if (
                           slugCategory === "dien-thoai" ||
                           slugCategory === "tablet"

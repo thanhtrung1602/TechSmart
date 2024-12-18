@@ -28,7 +28,7 @@ export const cartSlice = createSlice({
         quantity: 1,
         userId: null,
       };
-      const index = state.cartProducts.findIndex(
+      const index = state.cartProducts?.findIndex(
         (s) =>
           s.id === product.id &&
           s.userId === product.userId &&
@@ -46,7 +46,7 @@ export const cartSlice = createSlice({
     },
     updateQuantity: (state, action) => {
       const { id, rom, color, quantity } = action.payload;
-      const index = state.cartProducts.findIndex(
+      const index = state.cartProducts?.findIndex(
         (s) => s.id === id && s.rom === rom && s.color === color
       );
       if (index !== -1) {
@@ -58,7 +58,7 @@ export const cartSlice = createSlice({
     },
     removeProduct: (state, action) => {
       const product = { ...action.payload };
-      const index = state.cartProducts.findIndex(
+      const index = state.cartProducts?.findIndex(
         (s) =>
           s.id === product.id &&
           s.rom === product.rom &&
